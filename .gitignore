@@ -1,0 +1,37 @@
+# see also https://gitignore.io
+
+dist/
+tmp/
+vendor/
+
+# Gradle
+.gradle/
+build/
+
+# Node
+coverage/
+node_modules/
+junit.xml
+
+# Python
+__pycache__/
+
+# Eclipse
+.settings/
+bin/
+.project
+.classpath
+*.launch
+
+# IntelliJ IDEA
+.idea/
+out/
+
+# VS Code
+.vscode/
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
