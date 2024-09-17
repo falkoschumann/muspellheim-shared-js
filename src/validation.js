@@ -1,5 +1,3 @@
-import { Enum } from './enum.js';
-
 export class ValidationError extends Error {
   constructor(message) {
     super(message);
@@ -124,7 +122,7 @@ function checkType(value, expectedType, { name = 'value' } = {}) {
   }
 
   // Check enum types
-  if (Object.getPrototypeOf(expectedType) === Enum) {
+  if (Object.getPrototypeOf(expectedType).name === 'Enum') {
     try {
       return { value: expectedType.valueOf(String(value).toUpperCase()) };
     } catch {
