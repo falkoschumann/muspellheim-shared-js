@@ -245,7 +245,13 @@ describe('Duration', () => {
       expect(duration.toISOString()).toEqual('P1DT1H1M1.001S');
     });
 
-    test('Returns ISO 8601 string with only dayss', () => {
+    test('Returns ISO 8601 string for 0', () => {
+      const duration = Duration.zero();
+
+      expect(duration.toISOString()).toEqual('PT0S');
+    });
+
+    test('Returns ISO 8601 string with only days', () => {
       const duration = new Duration(172800000);
 
       expect(duration.toISOString()).toEqual('P2D');

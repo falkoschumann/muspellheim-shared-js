@@ -22,7 +22,11 @@ export class WebSocketClient extends EventTarget {
     return this.#webSocket?.readyState === this.#webSocketConstructor.OPEN;
   }
 
-  connect(/** @type {string | URL} */ url) {
+  async connect(/** @type {string | URL} */ url) {
+    if (this.isConnected) {
+      throw new Error('Already connected.');
+    }
+
     return new Promise((resolve, reject) => {
       try {
         this.#webSocket = new this.#webSocketConstructor(url);
@@ -45,7 +49,7 @@ export class WebSocketClient extends EventTarget {
     });
   }
 
-  disconnect() {
+  async close() {
     return new Promise((resolve, reject) => {
       function closeHandler() {
         this.removeEventListener('close', closeHandler);

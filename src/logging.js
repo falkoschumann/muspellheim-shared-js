@@ -126,10 +126,7 @@ export class Logger extends EventTarget {
   }
 
   removeHandler(/** @type {Handler} */ handler) {
-    const index = this.#handlers.indexOf(handler);
-    if (index !== -1) {
-      this.#handlers.splice(index, 1);
-    }
+    this.#handlers = this.#handlers.filter((h) => h !== handler);
   }
 
   trackMessagesLogged() {

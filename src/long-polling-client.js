@@ -101,6 +101,7 @@ export class LongPollingClient {
 }
 
 async function fetchStub(url, options) {
+  // TODO use stub
   await new Promise((resolve, reject) => {
     options?.signal?.addEventListener('abort', () => reject());
   });

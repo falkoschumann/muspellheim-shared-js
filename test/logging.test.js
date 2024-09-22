@@ -22,6 +22,12 @@ describe('Logging', () => {
       expect(result).toBe(800);
     });
 
+    test('Converts to JSON ', () => {
+      const result = Level.INFO.toJSON();
+
+      expect(result).toBe('INFO');
+    });
+
     test('Parses level by name', () => {
       const level = Level.parse('WARNING');
 
@@ -32,6 +38,10 @@ describe('Logging', () => {
       const level = Level.parse('1000');
 
       expect(level).toBe(Level.ERROR);
+    });
+
+    test('Parses level by name', () => {
+      expect(() => Level.parse('NON_EXISTING')).toThrow();
     });
   });
 

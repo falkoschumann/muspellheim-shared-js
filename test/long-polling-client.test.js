@@ -3,7 +3,7 @@ import { describe, expect, test } from '@jest/globals';
 import { LongPollingClient } from '../src/long-polling-client.js';
 
 describe('Long polling client', () => {
-  test('Connects to the server', async () => {
+  test('Connects to the server', () => {
     const client = LongPollingClient.createNull();
 
     client.simulateConnected(() => {});
@@ -17,7 +17,7 @@ describe('Long polling client', () => {
 
     const connectTwice = () => client.simulateConnected(() => {});
 
-    expect(connectTwice).toThrow();
+    expect(connectTwice).toThrow(/^Already connected.$/);
   });
 
   test('Closes the connection', () => {

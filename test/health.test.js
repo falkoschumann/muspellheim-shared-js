@@ -1,9 +1,9 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { Health, HealthRegistry, Status } from '../src/health.js';
+import { Health, HealthRegistry } from '../src/health.js';
 
 describe('Health', () => {
-  describe('Health endpoint', () => {
+  describe('Health registry', () => {
     test('Returns default health', () => {
       const endpoint = HealthRegistry.create();
 
@@ -13,14 +13,14 @@ describe('Health', () => {
     });
 
     test('Registers health indicators', () => {
-      const endpoint = HealthRegistry.create();
-      endpoint.register('test', {
+      const registry = HealthRegistry.create();
+      registry.register('test', {
         health() {
           return new Health();
         },
       });
 
-      const health = endpoint.health();
+      const health = registry.health();
 
       expect(health).toEqual({
         status: 'UP',
@@ -29,19 +29,19 @@ describe('Health', () => {
     });
 
     test('Determines the worst status', () => {
-      const endpoint = HealthRegistry.create();
-      endpoint.register('test1', {
+      const registry = HealthRegistry.create();
+      registry.register('test1', {
         health() {
-          return new Health(Status.OUT_OF_SERVICE);
+          return Health.outOfService();
         },
       });
-      endpoint.register('test2', {
+      registry.register('test2', {
         health() {
-          return new Health(Status.DOWN);
+          return Health.down();
         },
       });
 
-      const health = endpoint.health();
+      const health = registry.health();
 
       expect(health).toEqual({
         status: 'DOWN',

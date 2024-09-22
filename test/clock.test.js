@@ -12,27 +12,29 @@ describe('Clock', () => {
     expect(date).toBeInstanceOf(Date);
   });
 
-  test('Gets a fixed date', () => {
-    const clock = Clock.createNull({ fixed: '2024-02-21T19:22:58Z' });
+  describe('Nullable', () => {
+    test('Gets a fixed date', () => {
+      const clock = Clock.createNull();
 
-    const date = clock.date();
+      const date = clock.date();
 
-    expect(date).toEqual(new Date('2024-02-21T19:22:58Z'));
-  });
+      expect(date).toEqual(new Date('2024-02-21T19:16:00Z'));
+    });
 
-  test('Adds milliseconds to a fixed date', () => {
-    const clock = Clock.createNull({ fixed: '2024-02-21T19:22:58Z' });
+    test('Adds milliseconds to a fixed date', () => {
+      const clock = Clock.createNull({ fixed: '2024-02-21T19:22:58Z' });
 
-    clock.add(5000);
+      clock.add(5000);
 
-    expect(clock.date()).toEqual(new Date('2024-02-21T19:23:03Z'));
-  });
+      expect(clock.date()).toEqual(new Date('2024-02-21T19:23:03Z'));
+    });
 
-  test('Adds duration to a fixed date', () => {
-    const clock = Clock.createNull({ fixed: '2024-02-21T19:22:58Z' });
+    test('Adds duration to a fixed date', () => {
+      const clock = Clock.createNull({ fixed: '2024-02-21T19:22:58Z' });
 
-    clock.add(new Duration('PT3M10S'));
+      clock.add(new Duration('PT3M10S'));
 
-    expect(clock.date()).toEqual(new Date('2024-02-21T19:26:08Z'));
+      expect(clock.date()).toEqual(new Date('2024-02-21T19:26:08Z'));
+    });
   });
 });
