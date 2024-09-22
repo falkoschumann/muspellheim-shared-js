@@ -2,23 +2,38 @@ import { describe, expect, test } from '@jest/globals';
 
 import {
   randomDate,
+  randomFloat,
   randomInt,
   randomOptionalDate,
+  randomOptionalFloat,
   randomOptionalInt,
   randomOptionalValue,
   randomValue,
 } from '../src/random.js';
 
 describe('Random', () => {
-  test('Generates a random number between 5 and 7', () => {
+  test('Generates a random integer between 5 and 7', () => {
     const r = randomInt(5, 7);
 
     expect(r).toBeGreaterThanOrEqual(5);
     expect(r).toBeLessThanOrEqual(7);
   });
 
-  test('Generates an optional random number ', () => {
-    const r = randomOptionalInt(5, 7);
+  test('Generates an optional random integer', () => {
+    const r = randomOptionalInt();
+
+    expect(r === undefined || typeof r === 'number').toBeTruthy();
+  });
+
+  test('Generates a random float between 0.5 and 0.7', () => {
+    const r = randomFloat(0.5, 0.7);
+
+    expect(r).toBeGreaterThanOrEqual(0.5);
+    expect(r).toBeLessThanOrEqual(0.7);
+  });
+
+  test('Generates an optional random float ', () => {
+    const r = randomOptionalFloat();
 
     expect(r === undefined || typeof r === 'number').toBeTruthy();
   });
