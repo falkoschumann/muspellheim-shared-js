@@ -31,4 +31,31 @@ describe('Web socket client', () => {
 
     expect(client.isConnected).toBe(false);
   });
+
+  test('Receives a message', async () => {
+    const client = WebSocketClient.createNull();
+    const events = [];
+    client.addEventListener('message', (event) => events.push(event));
+    await client.connect('http://example.com');
+
+    await client.simulateMessageReceived({ data: 'Hello' });
+
+    expect(events).toEqual([expect.objectContaining({ data: 'Hello' })]);
+  });
+
+  test('Simulates error', async () => {
+    const client = WebSocketClient.createNull();
+    const events = [];
+    client.addEventListener('close', (event) => events.push(event));
+    client.addEventListener('error', (event) => events.push(event));
+    await client.connect('http://example.com');
+
+    await client.simulateErrorOccurred();
+
+    expect(client.isConnected).toBe(false);
+    expect(events).toEqual([
+      expect.objectContaining({ type: 'close' }),
+      expect.objectContaining({ type: 'error' }),
+    ]);
+  });
 });

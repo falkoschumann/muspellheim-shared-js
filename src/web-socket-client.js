@@ -69,7 +69,7 @@ export class WebSocketClient extends EventTarget {
     this.#webSocket.send(JSON.stringify(message));
   }
 
-  simulateMessageReceived({ data }) {
+  async simulateMessageReceived({ data }) {
     return new Promise((resolve) => {
       function messageHandler() {
         this.removeEventListener('message', messageHandler);
@@ -81,7 +81,7 @@ export class WebSocketClient extends EventTarget {
     });
   }
 
-  simulateErrorOccurred() {
+  async simulateErrorOccurred() {
     return new Promise((resolve) => {
       function errorHandler() {
         this.removeEventListener('error', errorHandler);
