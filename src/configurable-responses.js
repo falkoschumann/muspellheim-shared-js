@@ -2,7 +2,7 @@
  * Handles returning a pre-configured responses.
  *
  * This is one of the nullability patterns from James Shore for
- * [testing without mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking).
+ * [testing without mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#configurable-responses).
  *
  * ```javascript
  * function createFetchStub(responses) {
