@@ -4,6 +4,8 @@
  * This is one of the nullability patterns from James Shore for
  * [testing without mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#configurable-responses).
  *
+ * Example usage:
+ *
  * ```javascript
  * function createFetchStub(responses) {
  *   const configurableResponses = ConfigurableResponses.create(responses);

@@ -13,7 +13,8 @@ export class WebSocketClient extends EventTarget {
   /** @type {WebSocket} */ #webSocket;
   #heartbeatId;
 
-  constructor(/** @type {typeof WebSocket} */ webSocketConstructor) {
+  /** @hideconstructor */
+  constructor(/** @type {function(new:EventSource)} */ webSocketConstructor) {
     super();
     this.#webSocketConstructor = webSocketConstructor;
   }

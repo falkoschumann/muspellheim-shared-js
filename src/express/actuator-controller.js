@@ -1,4 +1,8 @@
 /**
+ * @module
+ */
+
+/**
  * @import { HealthRegistry } from '../health.js'
  * @import * as express from 'express'
  */

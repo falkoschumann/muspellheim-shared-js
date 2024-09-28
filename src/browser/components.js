@@ -1,12 +1,16 @@
 /**
- * @typedef {Object} Store
- * @property {()=>any} getState
- * @property {(action:any)=>void} dispatch
- * @property {(listener:()=>void)=>()=>void} subscribe
+ * @module
+ */
+
+/**
+ * @import { Store } from '../store.js'
  */
 
 import { html, render } from 'lit-html';
 
+/**
+ * Base class for components.
+ */
 export class Component extends HTMLElement {
   connectedCallback() {
     this.updateView();
@@ -32,6 +36,9 @@ export class Component extends HTMLElement {
   }
 }
 
+/**
+ * Base class for components that use a store.
+ */
 export class Container extends Component {
   /** @type {Store} */ static #store;
 
@@ -39,7 +46,7 @@ export class Container extends Component {
     Container.#store = store;
   }
 
-  /** @type {Function} */ #unsubscribeStore;
+  /** @type {function(): void} */ #unsubscribeStore;
 
   constructor() {
     super();

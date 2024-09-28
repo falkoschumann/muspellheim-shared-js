@@ -1,4 +1,8 @@
 /**
+ * @module
+ */
+
+/**
  * @import * as express from 'express'
  */
 
@@ -9,7 +13,7 @@ export class LongPolling {
   #waiting = [];
   #getData;
 
-  constructor(/** @type {Function} */ getData) {
+  constructor(/** @type {function(): Promise<any>} */ getData) {
     this.#getData = getData;
   }
 

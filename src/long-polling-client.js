@@ -1,10 +1,13 @@
+/**
+ * A client handling long polling a HTTP request.
+ */
 export class LongPollingClient {
   static create({ timeout = 1000 } = {}) {
     return new LongPollingClient(timeout, globalThis.fetch.bind(globalThis));
   }
 
   static createNull() {
-    return new LongPollingClient(0, fetchStub);
+    return new LongPollingClient(0, { fetch: fetchStub });
   }
 
   #timeout;
@@ -14,12 +17,10 @@ export class LongPollingClient {
   #tag;
   #eventListener;
 
-  constructor(
-    /** @type {number} */ timeout,
-    /** @type {typeof globalThis.fetch} */ fetch,
-  ) {
+  /** @hideconstructor */
+  constructor(/** @type {number} */ timeout, /** @type {fetch} */ fetchFunc) {
     this.#timeout = timeout;
-    this.#fetch = fetch;
+    this.#fetch = fetchFunc;
   }
 
   get isConnected() {
@@ -33,7 +34,9 @@ export class LongPollingClient {
         while (this.isConnected) {
           try {
             const headers = this.#createHeaders();
-            const response = await this.#fetch('/api/talks', { headers });
+            const response = await this.#fetch('/api/talks', {
+              headers,
+            });
             await this.#handleResponse(response);
           } catch (error) {
             await this.#handleError(error);

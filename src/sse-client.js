@@ -10,7 +10,8 @@ export class SseClient {
   #eventSourceConstructor;
   /** @type {EventSource} */ #eventSource;
 
-  constructor(/** @type {typeof EventSource} */ eventSourceConstructor) {
+  /** @hideconstructor */
+  constructor(/** @type {function(new:EventSource)} */ eventSourceConstructor) {
     this.#eventSourceConstructor = eventSourceConstructor;
   }
 

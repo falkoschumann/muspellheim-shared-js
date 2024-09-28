@@ -12,15 +12,16 @@ export class Timer extends EventTarget {
     return new Timer(new IntervalStub());
   }
 
-  #interval;
+  #global;
   #intervalIds = new Map();
 
-  constructor(/** @type {typeof globalThis} */ interval) {
+  /** @hideconstructor */
+  constructor(/** @type {globalThis} */ global) {
     super();
-    this.#interval = interval;
+    this.#global = global;
   }
 
-  schedule(/** @type {Function} */ task, /** @type {number} */ period) {
+  schedule(/** @type {function(): void} */ task, /** @type {number} */ period) {
     const intervalId = this.#doSchedule(task, period);
     this.dispatchEvent(
       new CustomEvent(TIMER_TASK_SCHEDULED_EVENT, { detail: { task, period } }),
@@ -29,7 +30,7 @@ export class Timer extends EventTarget {
   }
 
   #doSchedule(task, period) {
-    const intervalId = this.#interval.setInterval(task, period);
+    const intervalId = this.#global.setInterval(task, period);
     this.#intervalIds.set(intervalId, task);
     return intervalId;
   }
@@ -43,7 +44,7 @@ export class Timer extends EventTarget {
   }
 
   #doCancel(intervalId, task) {
-    this.#interval.clearInterval(intervalId);
+    this.#global.clearInterval(intervalId);
     this.dispatchEvent(
       new CustomEvent(TIMER_TASK_CANCELED_EVENT, { detail: { task } }),
     );

@@ -2,7 +2,7 @@
  * @import * as express from 'express'
  */
 
-export function runSafe(/** @type {Function} */ handler) {
+export function runSafe(/** @type {express.RequestHandler} */ handler) {
   // TODO runSafe is obsolete with with Express 5
   return async (request, response, next) => {
     try {

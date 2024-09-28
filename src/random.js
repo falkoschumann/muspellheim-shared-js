@@ -1,10 +1,10 @@
 import { Duration } from './duration.js';
 
 /**
- * Returns a random value or `undefined`.
+ * Returns a random value or `undefined` with a given probability.
  */
 export function randomOptional(
-  /** @type {()=>any} */ randomFactory,
+  /** @type {function(): *} */ randomFactory,
   probabilityOfUndefined = 0.2,
 ) {
   const r = Math.random();
@@ -12,7 +12,10 @@ export function randomOptional(
 }
 
 /**
- * Returns a random integer between `min` and `max`, both inclusive.
+ * Returns a random integer.
+ *
+ * @param {number} [min=0] - The minimum value inclusive.
+ * @param {number} [max=1] - The maximum value inclusive.
  */
 export function randomInt(min = 0, max = 1) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -20,6 +23,9 @@ export function randomInt(min = 0, max = 1) {
 
 /**
  * Returns a random integer or `undefined`.
+ *
+ * @see randomInt
+ * @see randomOptional
  */
 export function randomOptionalInt(min, max, probabilityOfUndefined = 0.2) {
   return randomOptional(() => randomInt(min, max), probabilityOfUndefined);
@@ -28,12 +34,18 @@ export function randomOptionalInt(min, max, probabilityOfUndefined = 0.2) {
 /**
  * Returns a random float between `min` and `max`, both inclusive.
  */
-export function randomFloat(min = 0.0, max = 1.0) {
+export function randomFloat(
+  /** @type {number} */ min = 0.0,
+  /** @type {number} */ max = 1.0,
+) {
   return Math.random() * (max - min) + min;
 }
 
 /**
  * Returns a random float or `undefined`.
+ *
+ * @see randomFloat
+ * @see randomOptional
  */
 export function randomOptionalFloat(min, max, probabilityOfUndefined = 0.2) {
   return randomOptional(() => randomFloat(min, max), probabilityOfUndefined);
@@ -52,6 +64,9 @@ export function randomDate(maxDuration = Duration.zero()) {
 
 /**
  * Returns a random date or `undefined`.
+ *
+ * @see randomDate
+ * @see randomOptional
  */
 export function randomOptionalDate(maxDuration, probabilityOfUndefined = 0.2) {
   return randomOptional(() => randomDate(maxDuration), probabilityOfUndefined);
@@ -66,7 +81,10 @@ export function randomValue(values = []) {
 }
 
 /**
- * Returns a random value from an array or `undefined` with a given probability.
+ * Returns a random value from an array or `undefined`.
+ *
+ * @see randomValue
+ * @see randomOptional
  */
 export function randomOptionalValue(values, probabilityOfUndefined = 0.2) {
   return randomOptional(() => randomValue(values), probabilityOfUndefined);

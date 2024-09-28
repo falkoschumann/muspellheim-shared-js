@@ -3,15 +3,19 @@
 export NODE_OPTIONS=--experimental-global-customevent --experimental-vm-modules
 export NPM_CONFIG_YES=true
 
-all: dist check
+all: dist check docs
 
 clean:
 	rm -rf coverage
+	rm -rf docs
 
 distclean: clean
 	rm -rf node_modules
 
 dist: build
+
+docs:
+	npx jsdoc src --recurse --configure jsdoc.conf.json --destination docs --package package.json --readme README.md
 
 check: test
 	npx prettier . --check
@@ -53,6 +57,6 @@ version:
 	@echo "Use Node.js $(shell node --version)"
 	@echo "Use NPM $(shell npm --version)"
 
-.PHONY: all clean distclean dist check format \
+.PHONY: all clean distclean dist docs check format \
 	test unit-tests integration-tests e2e-tests watch coverage \
 	build prepare version

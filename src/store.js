@@ -1,4 +1,10 @@
-export function createStore(/** @type {Function} */ reducer, preloadedState) {
+// TODO Declare reducer, state and action types
+// TODO Declare listener and unsubscriber types
+
+export function createStore(
+  /** @type {function(any, any): any} */ reducer,
+  preloadedState,
+) {
   const initialState = preloadedState || reducer(undefined, { type: '@@INIT' });
   return new Store(reducer, initialState);
 }
@@ -8,7 +14,7 @@ export class Store {
   #state;
   #listeners = [];
 
-  constructor(/** @type {Function} */ reducer, initialState) {
+  constructor(/** @type {function(any, any): any} */ reducer, initialState) {
     this.#reducer = reducer;
     this.#state = initialState;
   }
@@ -25,7 +31,7 @@ export class Store {
     }
   }
 
-  subscribe(/** @type {Function} */ listener) {
+  subscribe(/** @type {function(): void} */ listener) {
     this.#listeners.push(listener);
     return () => this.#unsubscribe(listener);
   }

@@ -1,3 +1,5 @@
+// TODO merge modules like net, time or util etc. see JavaDoc
+
 export * from './clock.js';
 export * from './color.js';
 export * from './configurable-responses.js';
