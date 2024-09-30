@@ -1,9 +1,7 @@
 // TODO merge modules like net, time or util etc. see JavaDoc
 
-export * from './clock.js';
 export * from './color.js';
 export * from './configurable-responses.js';
-export * from './duration.js';
 export * from './enum.js';
 export * from './feature-toggle.js';
 export * from './health.js';
@@ -15,5 +13,6 @@ export * from './sse-client.js';
 export * from './stop-watch.js';
 export * from './store.js';
 export * from './timer.js';
+export * from './time.js';
 export * from './validation.js';
 export * from './web-socket-client.js';
