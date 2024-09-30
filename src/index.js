@@ -12,7 +12,7 @@ export * from './service-locator.js';
 export * from './sse-client.js';
 export * from './stop-watch.js';
 export * from './store.js';
-export * from './timer.js';
 export * from './time.js';
+export * from './util.js';
 export * from './validation.js';
 export * from './web-socket-client.js';
