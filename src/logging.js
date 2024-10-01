@@ -1,19 +1,91 @@
+/**
+ * Provides classes for logging.
+ *
+ * This module adopts some classes from the Java `java.util.logging` package.
+ * The interfaces are almost identical and are only changed to be more idiomatic
+ * in JavaScript.
+ *
+ * @module @muspellheim/utils/logging
+ */
+
 import { OutputTracker } from './output-tracker.js';
 
 export const MESSAGE_LOGGED_EVENT = 'message-logged';
 
+/**
+ * Defines a set of standard logging levels that can be used to control logging
+ * output.
+ */
 export class Level {
   static #levels = [];
 
+  /**
+   * `OFF` is a special level that can be used to turn off logging.
+   *
+   * @type {Level}
+   * @static
+   */
   static OFF = new Level('OFF', Number.MAX_SAFE_INTEGER);
+
+  /**
+   * `ERROR` is a message level indicating a serious failure.
+   *
+   * @type {Level}
+   * @static
+   */
   static ERROR = new Level('ERROR', 1000);
+
+  /**
+   * `WARNING` is a message level indicating a potential problem.
+   *
+   * @type {Level}
+   * @static
+   */
   static WARNING = new Level('WARNING', 900);
+
+  /**
+   * `INFO` is a message level for informational messages.
+   *
+   * @type {Level}
+   * @static
+   */
   static INFO = new Level('INFO', 800);
+
+  /**
+   * `DEBUG` is a message level providing tracing information.
+   *
+   * @type {Level}
+   * @static
+   */
   static DEBUG = new Level('DEBUG', 700);
+
+  /**
+   * `TRACE` is a message level providing fine-grained tracing information.
+   *
+   * @type {Level}
+   * @static
+   */
   static TRACE = new Level('TRACE', 600);
+
+  /**
+   * `ALL` indicates that all messages should be logged.
+   *
+   * @type {Level}
+   * @static
+   */
   static ALL = new Level('ALL', Number.MIN_SAFE_INTEGER);
 
-  static parse(/** @type {string|number} */ name) {
+  /**
+   * Parses a level string or number into a Level.
+   *
+   * For example:
+   * - "ERROR"
+   * - "1000"
+   *
+   * @param {string|number} name - the name or value of the level
+   * @returns the parsed value
+   */
+  static parse(name) {
     const level = Level.#levels.find(
       (level) => level.name === String(name) || level.value === Number(name),
     );
@@ -24,42 +96,72 @@ export class Level {
     return level;
   }
 
-  constructor(/** @type {string} */ name, /** @type {number} */ value) {
+  /**
+   * Creates a new level and registers it.
+   *
+   * @param {string} name - the name of the level
+   * @param {number} value - the value of the level
+   */
+  constructor(name, value) {
     this.name = name;
     this.value = value;
     Level.#levels.push(this);
   }
 
+  /**
+   * Returns a string representation of the level.
+   *
+   * @returns {string} - the name of the level
+   */
   toString() {
     return this.name;
   }
 
+  /**
+   * Returns the value of the level.
+   *
+   * @returns {number} - the value of the level
+   */
   valueOf() {
     return this.value;
   }
 
+  /**
+   * Returns the name of the level.
+   *
+   * @returns {string} - the name of the level
+   */
   toJSON() {
     return this.name;
   }
 }
 
+/**
+ * A Logger object is used to log messages for a specific system or application
+ * component.
+ */
 export class Logger extends EventTarget {
-  static getLogger(/** @type {string} */ name) {
+  /**
+   * Finds or creates a logger with the given name.
+   *
+   * @param {string} name - the name of the logger
+   * @returns {Logger} - the logger
+   */
+  static getLogger(name) {
     const manager = LogManager.getLogManager();
     return manager.demandLogger(name);
   }
 
-  static getAnonymousLogger() {
-    const manager = LogManager.getLogManager();
-    const logger = new Logger();
-    logger.parent = manager.getLogger('');
-    return logger;
-  }
-
+  /**
+   * Creates a new logger without any handlers.
+   *
+   * @param {Object} options - the options for the logger
+   * @param {Level} options.level - the level of the logger
+   * @returns {Logger} - the logger
+   */
   static createNull({ level = Level.INFO } = {}) {
     const logger = new Logger('null-logger');
     logger.level = level;
-    logger.handler = new Handler();
     return logger;
   }
 
@@ -69,6 +171,7 @@ export class Logger extends EventTarget {
 
   #name;
 
+  /** @hideconstructor */
   constructor(/** @type {string} */ name) {
     super();
     this.#name = name;
@@ -78,27 +181,58 @@ export class Logger extends EventTarget {
     return this.#name;
   }
 
+  /**
+   * Logs a message with the `ERROR` level.
+   *
+   * @param  {...*} message - the message to log
+   */
   error(...message) {
     this.log(Level.ERROR, ...message);
   }
 
+  /**
+   * Logs a message with the `WARNING` level.
+   *
+   * @param  {...*} message - the message to log
+   */
   warning(...message) {
     this.log(Level.WARNING, ...message);
   }
 
+  /**
+   * Logs a message with the `INFO` level.
+   *
+   * @param  {...*} message - the message to log
+   */
   info(...message) {
     this.log(Level.INFO, ...message);
   }
 
+  /**
+   * Logs a message with the `DEBUG` level.
+   *
+   * @param  {...*} message - the message to log
+   */
   debug(...message) {
     this.log(Level.DEBUG, ...message);
   }
 
+  /**
+   * Logs a message with the `TRACE` level.
+   *
+   * @param  {...*} message - the message to log
+   */
+
   trace(...message) {
     this.log(Level.TRACE, ...message);
   }
-
-  log(/** @type {Level} */ level, ...message) {
+  /**
+   * Logs a message.
+   *
+   * @param {Level} level - the level of the message
+   * @param  {...*} message - the message to log
+   */
+  log(level, ...message) {
     if (!this.isLoggable(level)) {
       return;
     }
@@ -115,43 +249,107 @@ export class Logger extends EventTarget {
     );
   }
 
+  /**
+   * Check if a message of the given level would actually be logged by this
+   * logger.
+   *
+   * @param {Level} level - the level to check
+   * @returns {boolean} - `true` if the message would be logged
+   */
   isLoggable(/** @type {Level} */ level) {
     return this.level != null
       ? level >= this.level
       : this.parent?.isLoggable(level);
   }
 
-  addHandler(/** @type {Handler} */ handler) {
+  /**
+   * Add a log handler to receive logging messages.
+   *
+   * @param {Handler} handler
+   */
+  addHandler(handler) {
     this.#handlers.push(handler);
   }
 
-  removeHandler(/** @type {Handler} */ handler) {
+  /**
+   * Remove a log handler.
+   *
+   * @param {Handler} handler
+   */
+  removeHandler(handler) {
     this.#handlers = this.#handlers.filter((h) => h !== handler);
   }
 
+  /**
+   * Returns an output tracker for messages logged by this logger.
+   *
+   * @returns {OutputTracker} - the output tracker
+   */
   trackMessagesLogged() {
     return new OutputTracker(this, MESSAGE_LOGGED_EVENT);
   }
 }
 
+/**
+ * A `LogRecord` object is used to pass logging requests between the logging
+ * framework and individual log Handlers.
+ */
 export class LogRecord {
-  /** @type {?string} */ loggerName;
+  /**
+   * The log level.
+   * @type {Level}
+   */
+  level;
 
-  constructor(/** @type {Level} */ level, /** @type {any[]} */ ...message) {
+  /**
+   * The log message.
+   * @type {Array}
+   */
+  message;
+
+  /**
+   * The timestamp when the log record was created.
+   * @type {Date}
+   */
+  timestamp;
+
+  /**
+   * The name of the logger.
+   * @type {string|undefined}
+   */
+  loggerName;
+
+  constructor(level, ...message) {
     this.level = level;
     this.message = message;
     this.timestamp = new Date();
   }
 }
 
+/**
+ * A `Formatter` provides support for formatting log records.
+ *
+ * @interface
+ */
 export class Formatter {
-  format(/** @type {LogRecord} */ record) {
-    return String(record.message);
+  /**
+   * Format the given log record and return the formatted string.
+   *
+   * @param {LogRecord} record - the log record to format
+   * @returns {string} - the formatted log record
+   */
+  format() {
+    throw new Error('Not implemented');
   }
 }
 
+/**
+ * Prints a brief summary of the LogRecord in a human readable format.
+ *
+ * @implements {module:@muspellheim/utils/logging.Formatter}
+ */
 export class SimpleFormatter extends Formatter {
-  format(/** @type {LogRecord} */ record) {
+  format(record) {
     let s = record.timestamp.toISOString();
     if (record.loggerName) {
       s += ' ' + record.loggerName;
@@ -166,18 +364,45 @@ export class SimpleFormatter extends Formatter {
   }
 }
 
+/**
+ * A `Handler` object takes log messages from a Logger and exports them.
+ */
 export class Handler {
+  /**
+   * The log level which messages will be logged by this `Handler`.
+   * @type {Level}
+   */
   level = Level.ALL;
-  /** @type {Formatter} */ formatter;
 
-  // eslint-disable-next-line no-unused-vars
-  async publish(/** @type {LogRecord} */ record) {}
+  /**
+   * The formatter used to format log records.
+   * @type {Formatter}
+   */
+  formatter;
 
+  /**
+   * Publish a `LogRecord`.
+   *
+   * @param {LogRecord} record - the log record to publish
+   */
+  async publish() {}
+
+  /**
+   * Check if this handler would actually log a given `LogRecord`.
+   *
+   * @param {Level} level - the level to check
+   * @returns {boolean} - `true` if the message would be logged
+   */
   isLoggable(/** @type {Level} */ level) {
     return level >= this.level;
   }
 }
 
+/**
+ * A `Handler` that writes log messages to the console.
+ *
+ * @extends module:@muspellheim/utils/logging.Handler
+ */
 export class ConsoleHandler extends Handler {
   async publish(/** @type {LogRecord} */ record) {
     if (!this.isLoggable(record.level)) {

@@ -1,4 +1,4 @@
-// TODO merge modules like net, time or util etc. see JavaDoc
+// TODO merge modules like net, time or util etc. see JavaDoc based on Java package or Java module?
 
 export * from './color.js';
 export * from './configurable-responses.js';

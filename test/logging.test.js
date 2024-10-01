@@ -61,22 +61,6 @@ describe('Logging', () => {
   });
 
   describe('Logger', () => {
-    test('Creates anonymous logger', () => {
-      const log = Logger.getAnonymousLogger();
-      const loggedMessages = log.trackMessagesLogged();
-
-      log.info('my message');
-
-      expect(log.name).toBeUndefined();
-      expect(loggedMessages.data).toEqual([
-        {
-          timestamp: expect.any(Date),
-          level: Level.INFO,
-          message: ['my message'],
-        },
-      ]);
-    });
-
     test('Creates named logger', () => {
       const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
@@ -95,13 +79,14 @@ describe('Logging', () => {
     });
 
     test('Logs with level and message', () => {
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
 
       log.log(Level.INFO, 'my message');
 
       expect(loggedMessages.data).toEqual([
         {
+          loggerName: 'test-logger',
           timestamp: expect.any(Date),
           level: Level.INFO,
           message: ['my message'],
@@ -110,13 +95,14 @@ describe('Logging', () => {
     });
 
     test('Logs at level error', () => {
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
 
       log.error('error message');
 
       expect(loggedMessages.data).toEqual([
         {
+          loggerName: 'test-logger',
           timestamp: expect.any(Date),
           level: Level.ERROR,
           message: ['error message'],
@@ -125,13 +111,14 @@ describe('Logging', () => {
     });
 
     test('Logs at level warning', () => {
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
 
       log.warning('warning message');
 
       expect(loggedMessages.data).toEqual([
         {
+          loggerName: 'test-logger',
           timestamp: expect.any(Date),
           level: Level.WARNING,
           message: ['warning message'],
@@ -140,13 +127,14 @@ describe('Logging', () => {
     });
 
     test('Logs at level info', () => {
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
 
       log.info('info message');
 
       expect(loggedMessages.data).toEqual([
         {
+          loggerName: 'test-logger',
           timestamp: expect.any(Date),
           level: Level.INFO,
           message: ['info message'],
@@ -155,7 +143,7 @@ describe('Logging', () => {
     });
 
     test('Logs at level debug', () => {
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger');
       log.level = Level.ALL;
       const loggedMessages = log.trackMessagesLogged();
 
@@ -164,6 +152,7 @@ describe('Logging', () => {
       expect(loggedMessages.data).toEqual([
         {
           timestamp: expect.any(Date),
+          loggerName: 'test-logger',
           level: Level.DEBUG,
           message: ['debug message'],
         },
@@ -171,7 +160,7 @@ describe('Logging', () => {
     });
 
     test('Logs at level trace', () => {
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger');
       log.level = Level.ALL;
       const loggedMessages = log.trackMessagesLogged();
 
@@ -179,6 +168,7 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          loggerName: 'test-logger',
           timestamp: expect.any(Date),
           level: Level.TRACE,
           message: ['trace message'],
@@ -187,7 +177,7 @@ describe('Logging', () => {
     });
 
     test('Logs at info level by default', () => {
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger-default');
       const loggedMessages = log.trackMessagesLogged();
 
       log.error('error message');
@@ -198,16 +188,19 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          loggerName: 'test-logger-default',
           timestamp: expect.any(Date),
           level: Level.ERROR,
           message: expect.anything(),
         },
         {
+          loggerName: 'test-logger-default',
           timestamp: expect.any(Date),
           level: Level.WARNING,
           message: expect.anything(),
         },
         {
+          loggerName: 'test-logger-default',
           timestamp: expect.any(Date),
           level: Level.INFO,
           message: expect.anything(),
@@ -216,7 +209,7 @@ describe('Logging', () => {
     });
 
     test('Does not log below level', () => {
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger');
       log.level = Level.WARNING;
       const loggedMessages = log.trackMessagesLogged();
 
@@ -226,7 +219,7 @@ describe('Logging', () => {
     });
 
     test('Logs with local level if set', () => {
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger');
       log.level = Level.DEBUG;
       const loggedMessages = log.trackMessagesLogged();
 
@@ -234,6 +227,7 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          loggerName: 'test-logger',
           timestamp: expect.any(Date),
           level: Level.DEBUG,
           message: ['debug message'],
@@ -243,7 +237,7 @@ describe('Logging', () => {
 
     test('Logs with parent level if local level is not set', () => {
       Logger.getLogger('').level = Level.DEBUG;
-      const log = Logger.getAnonymousLogger();
+      const log = Logger.getLogger('test-logger');
       log.level = undefined;
       const loggedMessages = log.trackMessagesLogged();
 
@@ -251,6 +245,7 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          loggerName: 'test-logger',
           timestamp: expect.any(Date),
           level: Level.DEBUG,
           message: ['debug message'],
