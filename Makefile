@@ -17,6 +17,9 @@ dist: build
 docs:
 	npx jsdoc src --recurse --configure jsdoc.conf.json --destination docs --package package.json --readme README.md
 
+publish: dist
+	npm publish
+
 check: test
 	npx prettier . --check
 	npx eslint src test

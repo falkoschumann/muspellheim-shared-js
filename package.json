@@ -1,6 +1,6 @@
 {
-  "name": "@muspellheim/utils",
-  "version": "0.1.0",
+  "name": "@falkoschumann/shared",
+  "version": "0.1.0-alpha.1",
   "author": "Falko Schumann",
   "license": "MIT",
   "engines": {
@@ -22,5 +22,9 @@
     "jest-environment-jsdom": "29.7.0",
     "jsdoc": "4.0.3",
     "prettier": "3.3.3"
+  },
+  "repository": "https://github.com/falkoschumann/muspellheim-utils-javascript.git",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }
