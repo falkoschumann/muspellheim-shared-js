@@ -1,14 +1,4 @@
 /**
- * Provides classes for managing time.
- *
- * This module adopts some classes from the Java `java.time` package. The
- * interfaces are almost identical and are only changed to be more idiomatic in
- * JavaScript.
- *
- * @module @muspellheim/utils/time
- */
-
-/**
  * A clock providing access to the current timestamp.
  *
  * In contrast to the Java `Clock` class, this class is mutable.
@@ -29,7 +19,7 @@ export class Clock {
    * @param {Object} options - the options to create the clock
    * @param {Date} [options.fixed=new Date('2024-02-21T19:16:00Z')] - the fixed date of the clock
    * @returns {Clock} a clock that returns alaways a fixed date
-   * @see {@link module:@muspellheim/utils/time.Clock#add}
+   * @see {@link Clock#add}
    */
   static fixed(fixedDate = new Date('2024-02-21T19:16:00Z')) {
     return new Clock(fixedDate);

@@ -1,13 +1,3 @@
-/**
- * Provides shared classes.
- *
- * This module adopts some classes from the Java `java.util` package. The
- * interfaces are almost identical and are only changed to be more idiomatic in
- * JavaScript.
- *
- * @module @muspellheim/utils/util
- */
-
 import { OutputTracker } from './output-tracker.js';
 
 /**

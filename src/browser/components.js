@@ -1,8 +1,4 @@
 /**
- * @module
- */
-
-/**
  * @import { Store } from '../store.js'
  */
 
