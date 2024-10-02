@@ -22,7 +22,7 @@ export class Level {
   /**
    * `OFF` is a special level that can be used to turn off logging.
    *
-   * @type {Level}
+   * @type {module:@muspellheim/utils/logging.Level}
    * @static
    */
   static OFF = new Level('OFF', Number.MAX_SAFE_INTEGER);
@@ -30,7 +30,7 @@ export class Level {
   /**
    * `ERROR` is a message level indicating a serious failure.
    *
-   * @type {Level}
+   * @type {module:@muspellheim/utils/logging.Level}
    * @static
    */
   static ERROR = new Level('ERROR', 1000);
@@ -38,7 +38,7 @@ export class Level {
   /**
    * `WARNING` is a message level indicating a potential problem.
    *
-   * @type {Level}
+   * @type {module:@muspellheim/utils/logging.Level}
    * @static
    */
   static WARNING = new Level('WARNING', 900);
@@ -46,7 +46,7 @@ export class Level {
   /**
    * `INFO` is a message level for informational messages.
    *
-   * @type {Level}
+   * @type {module:@muspellheim/utils/logging.Level}
    * @static
    */
   static INFO = new Level('INFO', 800);
@@ -54,7 +54,7 @@ export class Level {
   /**
    * `DEBUG` is a message level providing tracing information.
    *
-   * @type {Level}
+   * @type {module:@muspellheim/utils/logging.Level}
    * @static
    */
   static DEBUG = new Level('DEBUG', 700);
@@ -62,7 +62,7 @@ export class Level {
   /**
    * `TRACE` is a message level providing fine-grained tracing information.
    *
-   * @type {Level}
+   * @type {module:@muspellheim/utils/logging.Level}
    * @static
    */
   static TRACE = new Level('TRACE', 600);
@@ -70,7 +70,7 @@ export class Level {
   /**
    * `ALL` indicates that all messages should be logged.
    *
-   * @type {Level}
+   * @type {module:@muspellheim/utils/logging.Level}
    * @static
    */
   static ALL = new Level('ALL', Number.MIN_SAFE_INTEGER);
@@ -145,7 +145,7 @@ export class Logger extends EventTarget {
    * Finds or creates a logger with the given name.
    *
    * @param {string} name - the name of the logger
-   * @returns {Logger} - the logger
+   * @returns {module:@muspellheim/utils/logging.Logger} - the logger
    */
   static getLogger(name) {
     const manager = LogManager.getLogManager();
@@ -156,8 +156,8 @@ export class Logger extends EventTarget {
    * Creates a new logger without any handlers.
    *
    * @param {Object} options - the options for the logger
-   * @param {Level} options.level - the level of the logger
-   * @returns {Logger} - the logger
+   * @param {module:@muspellheim/utils/logging.Level} options.level - the level of the logger
+   * @returns {module:@muspellheim/utils/logging.Logger} - the logger
    */
   static createNull({ level = Level.INFO } = {}) {
     const logger = new Logger('null-logger');
@@ -165,9 +165,9 @@ export class Logger extends EventTarget {
     return logger;
   }
 
-  /** @type {?Logger} */ parent;
-  /** @type {?Level} */ level;
-  /** @type {Handler[]} */ #handlers = [];
+  /** @type {?module:@muspellheim/utils/logging.Logger} */ parent;
+  /** @type {?module:@muspellheim/utils/logging.Level} */ level;
+  /** @type {module:@muspellheim/utils/logging.Handler[]} */ #handlers = [];
 
   #name;
 
@@ -229,7 +229,7 @@ export class Logger extends EventTarget {
   /**
    * Logs a message.
    *
-   * @param {Level} level - the level of the message
+   * @param {module:@muspellheim/utils/logging.Level} level - the level of the message
    * @param  {...*} message - the message to log
    */
   log(level, ...message) {
@@ -253,7 +253,7 @@ export class Logger extends EventTarget {
    * Check if a message of the given level would actually be logged by this
    * logger.
    *
-   * @param {Level} level - the level to check
+   * @param {module:@muspellheim/utils/logging.Level} level - the level to check
    * @returns {boolean} - `true` if the message would be logged
    */
   isLoggable(/** @type {Level} */ level) {
@@ -265,7 +265,7 @@ export class Logger extends EventTarget {
   /**
    * Add a log handler to receive logging messages.
    *
-   * @param {Handler} handler
+   * @param {module:@muspellheim/utils/logging.Handler} handler
    */
   addHandler(handler) {
     this.#handlers.push(handler);
@@ -274,7 +274,7 @@ export class Logger extends EventTarget {
   /**
    * Remove a log handler.
    *
-   * @param {Handler} handler
+   * @param {module:@muspellheim/utils/logging.Handler} handler
    */
   removeHandler(handler) {
     this.#handlers = this.#handlers.filter((h) => h !== handler);
@@ -293,11 +293,15 @@ export class Logger extends EventTarget {
 /**
  * A `LogRecord` object is used to pass logging requests between the logging
  * framework and individual log Handlers.
+ *
+ * @property {number} sequenceNumber - the sequence number of the log record
  */
 export class LogRecord {
+  static #globalSequenceNumber = 1;
+
   /**
    * The log level.
-   * @type {Level}
+   * @type {module:@muspellheim/utils/logging.Level}
    */
   level;
 
@@ -311,7 +315,13 @@ export class LogRecord {
    * The timestamp when the log record was created.
    * @type {Date}
    */
-  timestamp;
+  date;
+
+  /**
+   * The sequence number of the log record.
+   * @type {number}
+   */
+  sequenceNumber;
 
   /**
    * The name of the logger.
@@ -320,9 +330,14 @@ export class LogRecord {
   loggerName;
 
   constructor(level, ...message) {
+    this.date = new Date();
+    this.sequenceNumber = LogRecord.#globalSequenceNumber++;
     this.level = level;
     this.message = message;
-    this.timestamp = new Date();
+  }
+
+  get millis() {
+    return this.date.getTime();
   }
 }
 
@@ -335,7 +350,7 @@ export class Formatter {
   /**
    * Format the given log record and return the formatted string.
    *
-   * @param {LogRecord} record - the log record to format
+   * @param {module:@muspellheim/utils/logging.LogRecord} record - the log record to format
    * @returns {string} - the formatted log record
    */
   format() {
@@ -349,18 +364,46 @@ export class Formatter {
  * @implements {module:@muspellheim/utils/logging.Formatter}
  */
 export class SimpleFormatter extends Formatter {
-  format(record) {
-    let s = record.timestamp.toISOString();
+  format(/** @type {LogRecord} */ record) {
+    let s = record.date.toISOString();
     if (record.loggerName) {
-      s += ' ' + record.loggerName;
+      s += ' [' + record.loggerName + ']';
     }
     s += ' ' + record.level.toString();
     s +=
-      ' ' +
+      ' - ' +
       record.message
         .map((m) => (typeof m === 'object' ? JSON.stringify(m) : m))
         .join(' ');
     return s;
+  }
+}
+
+/**
+ * Format a LogRecord into a JSON object.
+ *
+ * The JSON object has the following properties:
+ * - date: string
+ * - millis: number
+ * - sequence: number
+ * - logger: string (optional)
+ * - level: string
+ *
+ * @implements {module:@muspellheim/utils/logging.Formatter}
+ */
+export class JsonFormatter extends Formatter {
+  format(/** @type {LogRecord} */ record) {
+    const data = {
+      date: record.date.toISOString(),
+      millis: record.millis,
+      sequence: record.sequenceNumber,
+      logger: record.loggerName,
+      level: record.level.toString(),
+      message: record.message
+        .map((m) => (typeof m === 'object' ? JSON.stringify(m) : m))
+        .join(' '),
+    };
+    return JSON.stringify(data);
   }
 }
 
@@ -370,30 +413,30 @@ export class SimpleFormatter extends Formatter {
 export class Handler {
   /**
    * The log level which messages will be logged by this `Handler`.
-   * @type {Level}
+   * @type {module:@muspellheim/utils/logging.Level}
    */
   level = Level.ALL;
 
   /**
    * The formatter used to format log records.
-   * @type {Formatter}
+   * @type {module:@muspellheim/utils/logging.Formatter}
    */
   formatter;
 
   /**
    * Publish a `LogRecord`.
    *
-   * @param {LogRecord} record - the log record to publish
+   * @param {module:@muspellheim/utils/logging.LogRecord} record - the log record to publish
    */
   async publish() {}
 
   /**
    * Check if this handler would actually log a given `LogRecord`.
    *
-   * @param {Level} level - the level to check
+   * @param {module:@muspellheim/utils/logging.Level} level - the level to check
    * @returns {boolean} - `true` if the message would be logged
    */
-  isLoggable(/** @type {Level} */ level) {
+  isLoggable(level) {
     return level >= this.level;
   }
 }

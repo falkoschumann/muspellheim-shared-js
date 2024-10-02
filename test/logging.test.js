@@ -2,6 +2,7 @@ import { describe, expect, test } from '@jest/globals';
 
 import {
   Handler,
+  JsonFormatter,
   Level,
   LogRecord,
   Logger,
@@ -13,31 +14,31 @@ describe('Logging', () => {
     test('Converts to string', () => {
       const result = Level.INFO.toString();
 
-      expect(result).toBe('INFO');
+      expect(result).toEqual('INFO');
     });
 
     test('Converts to value', () => {
       const result = Level.INFO.valueOf();
 
-      expect(result).toBe(800);
+      expect(result).toEqual(800);
     });
 
     test('Converts to JSON ', () => {
       const result = Level.INFO.toJSON();
 
-      expect(result).toBe('INFO');
+      expect(result).toEqual('INFO');
     });
 
     test('Parses level by name', () => {
       const level = Level.parse('WARNING');
 
-      expect(level).toBe(Level.WARNING);
+      expect(level).toEqual(Level.WARNING);
     });
 
     test('Parses level by value', () => {
       const level = Level.parse('1000');
 
-      expect(level).toBe(Level.ERROR);
+      expect(level).toEqual(Level.ERROR);
     });
 
     test('Parses level by name', () => {
@@ -49,14 +50,14 @@ describe('Logging', () => {
     test('Handles all levels as default', () => {
       const handler = new Handler();
 
-      expect(handler.isLoggable(Level.ALL)).toBe(true);
+      expect(handler.isLoggable(Level.ALL)).toEqual(true);
     });
 
     test('Does not handle below level', () => {
       const handler = new Handler();
       handler.level = Level.WARNING;
 
-      expect(handler.isLoggable(Level.INFO)).toBe(false);
+      expect(handler.isLoggable(Level.INFO)).toEqual(false);
     });
   });
 
@@ -67,10 +68,12 @@ describe('Logging', () => {
 
       log.info('my message');
 
-      expect(log.name).toBe('test-logger');
+      expect(log.name).toEqual('test-logger');
       expect(loggedMessages.data).toEqual([
         {
-          timestamp: expect.any(Date),
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger',
           level: Level.INFO,
           message: ['my message'],
@@ -86,8 +89,10 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger',
-          timestamp: expect.any(Date),
           level: Level.INFO,
           message: ['my message'],
         },
@@ -102,8 +107,10 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger',
-          timestamp: expect.any(Date),
           level: Level.ERROR,
           message: ['error message'],
         },
@@ -118,8 +125,10 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger',
-          timestamp: expect.any(Date),
           level: Level.WARNING,
           message: ['warning message'],
         },
@@ -134,8 +143,10 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger',
-          timestamp: expect.any(Date),
           level: Level.INFO,
           message: ['info message'],
         },
@@ -151,7 +162,9 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
-          timestamp: expect.any(Date),
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger',
           level: Level.DEBUG,
           message: ['debug message'],
@@ -168,8 +181,10 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger',
-          timestamp: expect.any(Date),
           level: Level.TRACE,
           message: ['trace message'],
         },
@@ -188,20 +203,26 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger-default',
-          timestamp: expect.any(Date),
           level: Level.ERROR,
           message: expect.anything(),
         },
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger-default',
-          timestamp: expect.any(Date),
           level: Level.WARNING,
           message: expect.anything(),
         },
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger-default',
-          timestamp: expect.any(Date),
           level: Level.INFO,
           message: expect.anything(),
         },
@@ -227,8 +248,10 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger',
-          timestamp: expect.any(Date),
           level: Level.DEBUG,
           message: ['debug message'],
         },
@@ -245,8 +268,10 @@ describe('Logging', () => {
 
       expect(loggedMessages.data).toEqual([
         {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
           loggerName: 'test-logger',
-          timestamp: expect.any(Date),
           level: Level.DEBUG,
           message: ['debug message'],
         },
@@ -259,30 +284,117 @@ describe('Logging', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, 'my message');
-      record.timestamp = new Date('2024-07-02T11:38:00');
+      record.date = new Date('2024-07-02T11:38:00');
       const s = formatter.format(record);
 
-      expect(s).toBe('2024-07-02T09:38:00.000Z INFO my message');
+      expect(s).toEqual('2024-07-02T09:38:00.000Z INFO - my message');
+    });
+
+    test('Writes logger name', () => {
+      const formatter = new SimpleFormatter();
+
+      const record = new LogRecord(Level.INFO, 'my message');
+      record.loggerName = 'test-logger';
+      record.date = new Date('2024-07-02T11:38:00');
+      const s = formatter.format(record);
+
+      expect(s).toEqual(
+        '2024-07-02T09:38:00.000Z [test-logger] INFO - my message',
+      );
     });
 
     test('Concats messages with space', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, 'count:', 5);
-      record.timestamp = new Date('2024-07-02T11:38:00');
+      record.date = new Date('2024-07-02T11:38:00');
       const s = formatter.format(record);
 
-      expect(s).toBe('2024-07-02T09:38:00.000Z INFO count: 5');
+      expect(s).toEqual('2024-07-02T09:38:00.000Z INFO - count: 5');
     });
 
     test('Stringifies object and array', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, { foo: 'bar' }, [1, 2, 3]);
-      record.timestamp = new Date('2024-07-02T11:38:00');
+      record.date = new Date('2024-07-02T11:38:00');
       const s = formatter.format(record);
 
-      expect(s).toBe('2024-07-02T09:38:00.000Z INFO {"foo":"bar"} [1,2,3]');
+      expect(s).toEqual(
+        '2024-07-02T09:38:00.000Z INFO - {"foo":"bar"} [1,2,3]',
+      );
+    });
+  });
+
+  describe('JSON formatter', () => {
+    test('Returns 1 line', () => {
+      const formatter = new JsonFormatter();
+
+      const record = new LogRecord(Level.INFO, 'my message');
+      record.date = new Date('2024-07-02T11:38:00');
+      const s = formatter.format(record);
+
+      const json = JSON.parse(s);
+      expect(json).toEqual({
+        date: '2024-07-02T09:38:00.000Z',
+        millis: 1719913080000,
+        sequence: expect.any(Number),
+        level: 'INFO',
+        message: 'my message',
+      });
+    });
+
+    test('Writes logger name', () => {
+      const formatter = new JsonFormatter();
+
+      const record = new LogRecord(Level.INFO, 'my message');
+      record.loggerName = 'test-logger';
+      record.date = new Date('2024-07-02T11:38:00');
+      const s = formatter.format(record);
+
+      const json = JSON.parse(s);
+      expect(json).toEqual({
+        date: '2024-07-02T09:38:00.000Z',
+        millis: 1719913080000,
+        sequence: expect.any(Number),
+        logger: 'test-logger',
+        level: 'INFO',
+        message: 'my message',
+      });
+    });
+
+    test('Concats messages with space', () => {
+      const formatter = new JsonFormatter();
+
+      const record = new LogRecord(Level.INFO, 'count:', 5);
+      record.date = new Date('2024-07-02T11:38:00');
+      const s = formatter.format(record);
+
+      const json = JSON.parse(s);
+      expect(json).toEqual({
+        date: '2024-07-02T09:38:00.000Z',
+        millis: 1719913080000,
+        sequence: expect.any(Number),
+        level: 'INFO',
+        message: 'count: 5',
+      });
+    });
+
+    test('Stringifies object and array', () => {
+      const formatter = new JsonFormatter();
+
+      const record = new LogRecord(Level.INFO, { foo: 'bar' }, [1, 2, 3]);
+      record.date = new Date('2024-07-02T11:38:00');
+      const s = formatter.format(record);
+
+      const json = JSON.parse(s);
+      expect(json).toEqual({
+        date: '2024-07-02T09:38:00.000Z',
+        millis: 1719913080000,
+        sequence: expect.any(Number),
+        level: 'INFO',
+        message: '{"foo":"bar"} [1,2,3]',
+      });
     });
   });
 });
