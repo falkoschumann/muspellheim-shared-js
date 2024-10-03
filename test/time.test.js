@@ -4,7 +4,7 @@ import { Clock, Duration } from '../lib/time.js';
 
 describe('Time', () => {
   describe('Clock', () => {
-    it('Gets current date', () => {
+    it('gets current date', () => {
       const clock = Clock.system();
 
       const date = clock.date();
@@ -12,8 +12,17 @@ describe('Time', () => {
       expect(date).toBeInstanceOf(Date);
     });
 
-    describe('Nullable', () => {
-      it('Gets a fixed date', () => {
+    it('gets current millis', () => {
+      const current = new Date();
+      const clock = Clock.system();
+
+      const millis = clock.millis();
+
+      expect(millis).toBeGreaterThanOrEqual(current.getTime());
+    });
+
+    describe('Fixed', () => {
+      it('gets a fixed date', () => {
         const clock = Clock.fixed();
 
         const date = clock.date();
@@ -21,7 +30,7 @@ describe('Time', () => {
         expect(date).toEqual(new Date('2024-02-21T19:16:00Z'));
       });
 
-      it('Adds milliseconds to a fixed date', () => {
+      it('adds milliseconds to a fixed date', () => {
         const clock = Clock.fixed('2024-02-21T19:22:58Z');
 
         clock.add(5000);
@@ -29,7 +38,7 @@ describe('Time', () => {
         expect(clock.date()).toEqual(new Date('2024-02-21T19:23:03Z'));
       });
 
-      it('Adds duration to a fixed date', () => {
+      it('adds duration to a fixed date', () => {
         const clock = Clock.fixed('2024-02-21T19:22:58Z');
 
         clock.add(new Duration('PT3M10S'));
@@ -40,159 +49,171 @@ describe('Time', () => {
   });
 
   describe('Duration', () => {
+    describe('Zero', () => {
+      it('creates with factory', () => {
+        const duration = Duration.zero();
+
+        expect(duration.isZero()).toBe(true);
+      });
+
+      it('creates with constructor', () => {
+        const duration = new Duration();
+
+        expect(duration.isZero()).toBe(true);
+      });
+
+      it('creates from 0', () => {
+        const duration = new Duration(0);
+
+        expect(duration.isZero()).toBe(true);
+        expect(duration.millis).toBe(0);
+      });
+
+      it('creates from null', () => {
+        const duration = new Duration(null);
+
+        expect(duration.isZero()).toBe(true);
+      });
+
+      it('has 0 milliseconds', () => {
+        const duration = Duration.zero();
+
+        expect(duration.millis).toBe(0);
+      });
+    });
+
+    describe('Parse', () => {
+      it('returns zero duration', () => {
+        const duration = Duration.parse('PT0S');
+
+        expect(duration.isZero()).toBe(true);
+        expect(duration.millis).toBe(0);
+      });
+
+      it('returns positive duration', () => {
+        const duration = Duration.parse('P1DT1H1M1.1S');
+
+        expect(duration.millis).toBe(90061100);
+      });
+
+      it('returns negative duration', () => {
+        const duration = Duration.parse('-P2DT2H2M2.2S');
+
+        expect(duration.isNegative()).toEqual(true);
+        expect(duration.millis).toBe(-180122200);
+      });
+
+      it('returns invalid duration when string is not parsable', () => {
+        const duration = Duration.parse('foo');
+
+        expect(duration.toString()).toBe('Invalid Duration');
+        expect(duration.valueOf()).toBeNaN();
+      });
+    });
+
+    describe('Between', () => {
+      it('returns zero duration when start is equal to end', () => {
+        const start = new Date('2024-02-21T19:22:58Z');
+        const end = start;
+
+        const duration = Duration.between(start, end);
+
+        expect(duration).toEqual(Duration.zero());
+      });
+
+      it('calculates positive duration between two dates', () => {
+        const start = new Date('2024-02-21T19:22:58Z');
+        const end = new Date('2024-02-21T19:26:08Z');
+
+        const duration = Duration.between(start, end);
+
+        expect(duration).toEqual(new Duration('PT3M10S'));
+      });
+
+      it('calculates negative duration between two dates in reverse order', () => {
+        const start = new Date('2024-02-21T19:26:08Z');
+        const end = new Date('2024-02-21T19:22:58Z');
+
+        const duration = Duration.between(start, end);
+
+        expect(duration).toEqual(new Duration('-PT3M10S'));
+      });
+    });
+
     describe('Creation', () => {
-      describe('Zero', () => {
-        it('Uses factory', () => {
-          const duration = Duration.zero();
+      it('returns duration from number of milliseconds', () => {
+        const duration = new Duration(4711);
 
-          expect(duration.isZero).toEqual(true);
-          expect(duration.millis).toEqual(0);
-        });
-
-        it('Creates without parameter', () => {
-          const duration = new Duration();
-
-          expect(duration.isZero).toEqual(true);
-          expect(duration.millis).toEqual(0);
-        });
-
-        it('Creates with null', () => {
-          const duration = new Duration(null);
-
-          expect(duration.isZero).toEqual(true);
-          expect(duration.millis).toEqual(0);
-        });
-
-        it('Creates with undefined', () => {
-          const duration = new Duration(undefined);
-
-          expect(duration.toString()).toEqual('Invalid Duration');
-          expect(duration.valueOf()).toEqual(NaN);
-        });
+        expect(duration.millis).toBe(4711);
       });
 
-      describe('From number of milliseconds', () => {
-        it('Creates zero duration', () => {
-          const duration = new Duration(0);
-
-          expect(duration.isZero).toEqual(true);
-          expect(duration.millis).toEqual(0);
-        });
-
-        it('Creates positive duration', () => {
-          const duration = new Duration(5000);
-
-          expect(duration.isPositive).toEqual(true);
-          expect(duration.millis).toEqual(5000);
-        });
-
-        it('Creates negative duration', () => {
-          const duration = new Duration(-3000);
-
-          expect(duration.isNegative).toEqual(true);
-          expect(duration.millis).toEqual(-3000);
-        });
-
-        it('Creates invalid duration', () => {
-          const duration = new Duration(Number.POSITIVE_INFINITY);
-
-          expect(duration.toString()).toEqual('Invalid Duration');
-          expect(duration.valueOf()).toEqual(NaN);
-        });
-      });
-
-      it('From another duration', () => {
+      it('copies another duration', () => {
         const duration = new Duration(new Duration(4711));
 
-        expect(duration.millis).toEqual(4711);
+        expect(duration.millis).toBe(4711);
       });
 
-      describe('From ISO 8601 string', () => {
-        it('Creates zero duration', () => {
-          const duration = new Duration('PT0S');
+      it('copies another duration', () => {
+        const other = new Duration(4711);
 
-          expect(duration.isZero).toEqual(true);
-          expect(duration.millis).toEqual(0);
-        });
+        const duration = new Duration(other);
 
-        it('Creates positive duration', () => {
-          const duration = new Duration('P1DT1H1M1.1S');
-
-          expect(duration.millis).toEqual(90061100);
-        });
-
-        it('Creates negative duration', () => {
-          const duration = new Duration('-P2DT2H2M2.2S');
-
-          expect(duration.isNegative).toEqual(true);
-          expect(duration.millis).toEqual(-180122200);
-        });
-
-        it('Creates invalid duration', () => {
-          const duration = new Duration('foo');
-
-          expect(duration.toString()).toEqual('Invalid Duration');
-          expect(duration.valueOf()).toEqual(NaN);
-        });
+        expect(duration).toEqual(other);
+        expect(duration).not.toBe(other);
       });
 
-      it.each([true, {}, []])(
-        'Creates invalid duration if value type is not accepted: %s',
+      it.each([
+        Number.NaN,
+        Number.POSITIVE_INFINITY,
+        'foo',
+        true,
+        { foo: 42 },
+        ['foo', 42],
+      ])(
+        'returns invalid duration when value type is not accepted: %s',
         (value) => {
           const duration = new Duration(value);
 
           expect(duration.toString()).toEqual('Invalid Duration');
-          expect(duration.valueOf()).toEqual(NaN);
+          expect(duration.valueOf()).toBeNaN();
         },
       );
     });
 
     describe('Values', () => {
-      it('Returns zero values', () => {
+      it('returns zero values', () => {
         const duration = Duration.zero();
 
-        expect(duration.days).toEqual(0);
-        expect(duration.hours).toEqual(0);
-        expect(duration.minutes).toEqual(0);
-        expect(duration.seconds).toEqual(0);
-        expect(duration.millis).toEqual(0);
+        expect(duration.days).toBe(0);
+        expect(duration.hours).toBe(0);
+        expect(duration.minutes).toBe(0);
+        expect(duration.seconds).toBe(0);
+        expect(duration.millis).toBe(0);
       });
 
-      it('Returns positive values', () => {
+      it('returns positive values', () => {
         const duration = new Duration('P3DT8H33M19.8S');
 
-        expect(duration.days).toBeCloseTo(3.35648, 0.00001);
-        expect(duration.hours).toEqual(80.5555);
-        expect(duration.minutes).toEqual(4833.33);
-        expect(duration.seconds).toEqual(289999.8);
-        expect(duration.millis).toEqual(289999800);
+        expect(duration.days).toBe(3);
+        expect(duration.hours).toBe(80);
+        expect(duration.minutes).toBe(4833);
+        expect(duration.seconds).toBe(289999);
+        expect(duration.millis).toBe(289999800);
       });
 
-      it('Returns negative values', () => {
+      it('returns negative values', () => {
         const duration = new Duration('-P3DT8H33M19.8S');
 
-        expect(duration.days).toBeCloseTo(-3.35648, 0.00001);
-        expect(duration.hours).toEqual(-80.5555);
-        expect(duration.minutes).toEqual(-4833.33);
-        expect(duration.seconds).toEqual(-289999.8);
-        expect(duration.millis).toEqual(-289999800);
+        expect(duration.days).toBe(-3);
+        expect(duration.hours).toBe(-80);
+        expect(duration.minutes).toBe(-4833);
+        expect(duration.seconds).toBe(-289999);
+        expect(duration.millis).toBe(-289999800);
       });
-    });
-
-    it('Gets absolutized value', () => {
-      const duration = new Duration('-PT8H30M');
-
-      expect(duration.absolutized()).toEqual(new Duration('PT8H30M'));
-    });
-
-    it('Gets negated value', () => {
-      const duration = new Duration('PT20M');
-
-      expect(duration.negated()).toEqual(new Duration('-PT20M'));
     });
 
     describe('Parts', () => {
-      it('Returns zero values', () => {
+      it('returns zero values', () => {
         const duration = Duration.zero();
 
         expect(duration.daysPart).toEqual(0);
@@ -202,7 +223,7 @@ describe('Time', () => {
         expect(duration.millisPart).toEqual(0);
       });
 
-      it('Returns positive values', () => {
+      it('returns positive values', () => {
         const duration = new Duration('P1DT8H33M19.8S');
 
         expect(duration.daysPart).toEqual(1);
@@ -212,7 +233,7 @@ describe('Time', () => {
         expect(duration.millisPart).toEqual(800);
       });
 
-      it('Returns negative values', () => {
+      it('returns negative values', () => {
         const duration = new Duration('-P1DT8H33M19.8S');
 
         expect(duration.daysPart).toEqual(-1);
@@ -223,179 +244,199 @@ describe('Time', () => {
       });
     });
 
-    describe('Addition', () => {
-      it('Adds duration', () => {
-        const duration = new Duration('PT1H');
+    describe('Sign', () => {
+      it('is neither positive or negative if duration is zero', () => {
+        const duration = Duration.zero();
 
-        duration.plus(new Duration('PT30M'));
-
-        expect(duration).toEqual(new Duration('PT1H30M'));
+        expect(duration.isZero()).toBe(true);
+        expect(duration.isPositive()).toBe(false);
+        expect(duration.isNegative()).toBe(false);
       });
 
-      it('Adds milliseconds', () => {
-        const duration = new Duration(3600);
+      it('is positive if duration is positive', () => {
+        const duration = new Duration(5);
 
-        duration.plus(1800);
-
-        expect(duration).toEqual(new Duration(5400));
+        expect(duration.isZero()).toBe(false);
+        expect(duration.isPositive()).toBe(true);
+        expect(duration.isNegative()).toBe(false);
       });
 
-      it('Changes sign', () => {
-        const duration = new Duration('-PT30M');
+      it('is negative if duration is negative', () => {
+        const duration = new Duration(-5);
 
-        duration.plus(new Duration('PT1H'));
-
-        expect(duration).toEqual(new Duration('PT30M'));
+        expect(duration.isZero()).toBe(false);
+        expect(duration.isPositive()).toBe(false);
+        expect(duration.isNegative()).toBe(true);
       });
     });
 
-    describe('Subtraction', () => {
-      it('Subtracts duration', () => {
-        const duration = new Duration('PT1H');
+    it('gets absolutized value', () => {
+      const duration = new Duration('-PT8H30M');
 
-        duration.minus(new Duration('PT30M'));
+      const result = duration.absolutized();
 
-        expect(duration).toEqual(new Duration('PT30M'));
-      });
+      expect(result).toEqual(new Duration('PT8H30M'));
+    });
 
-      it('Subtracts seconds', () => {
-        const duration = new Duration(3600);
+    it('gets negated value', () => {
+      const duration = new Duration('PT20M');
 
-        duration.minus(1800);
+      const result = duration.negated();
 
-        expect(duration).toEqual(new Duration(1800));
-      });
+      expect(result).toEqual(new Duration('-PT20M'));
+    });
 
-      it('Changes sign', () => {
-        const duration = new Duration('PT30M');
+    it('adds duration', () => {
+      const duration = new Duration('PT1H');
 
-        duration.minus(new Duration('PT1H'));
+      const result = duration.plus(new Duration('PT30M'));
 
-        expect(duration).toEqual(new Duration('-PT30M'));
-      });
+      expect(result).toEqual(new Duration('PT1H30M'));
+    });
+
+    it('subtracts duration', () => {
+      const duration = new Duration('PT1H');
+
+      const result = duration.minus(new Duration('PT30M'));
+
+      expect(result).toEqual(new Duration('PT30M'));
+    });
+
+    it('multiplies duration', () => {
+      const duration = new Duration('PT1H');
+
+      const result = duration.multipliedBy(2);
+
+      expect(result).toEqual(new Duration('PT2H'));
+    });
+
+    it('divides duration', () => {
+      const duration = new Duration('PT1H');
+
+      const result = duration.dividedBy(2);
+
+      expect(result).toEqual(new Duration('PT30M'));
     });
 
     describe('Convert to ISO 8601 string', () => {
-      it('Returns ISO 8601 string', () => {
-        const duration = new Duration(90061001);
-
-        expect(duration.toISOString()).toEqual('P1DT1H1M1.001S');
-      });
-
-      it('Returns ISO 8601 string for 0', () => {
+      it('returns ISO 8601 string for 0', () => {
         const duration = Duration.zero();
 
-        expect(duration.toISOString()).toEqual('PT0S');
+        expect(duration.toISOString()).toBe('PT0S');
       });
 
-      it('Returns ISO 8601 string with only days', () => {
+      it('returns ISO 8601 string with only days', () => {
         const duration = new Duration(172800000);
 
-        expect(duration.toISOString()).toEqual('P2D');
+        expect(duration.toISOString()).toBe('PT48H');
       });
 
-      it('Returns ISO 8601 string with only hours', () => {
+      it('returns ISO 8601 string with only hours', () => {
         const duration = new Duration(7200000);
 
-        expect(duration.toISOString()).toEqual('PT2H');
+        expect(duration.toISOString()).toBe('PT2H');
       });
 
-      it('Returns ISO 8601 string with only minutes', () => {
+      it('returns ISO 8601 string with only minutes', () => {
         const duration = new Duration(120000);
 
-        expect(duration.toISOString()).toEqual('PT2M');
+        expect(duration.toISOString()).toBe('PT2M');
       });
 
-      it('Returns ISO 8601 string with only seconds', () => {
+      it('returns ISO 8601 string with only seconds', () => {
         const duration = new Duration(2000);
 
-        expect(duration.toISOString()).toEqual('PT2S');
+        expect(duration.toISOString()).toBe('PT2S');
       });
 
-      it('Returns ISO 8601 string with only milliseconds', () => {
+      it('returns ISO 8601 string with only milliseconds', () => {
         const duration = new Duration(2);
 
-        expect(duration.toISOString()).toEqual('PT0.002S');
+        expect(duration.toISOString()).toBe('PT0.002S');
       });
 
-      it('Returns negative value', () => {
+      it('returns ISO 8601 string', () => {
+        const duration = new Duration(90061001);
+
+        expect(duration.toISOString()).toBe('PT25H1M1.001S');
+      });
+
+      it('returns negative value', () => {
         const duration = new Duration(-5000);
 
-        expect(duration.toISOString()).toEqual('-PT5S');
+        expect(duration.toISOString()).toBe('-PT5S');
       });
     });
 
-    describe('Convert to JSON', () => {
-      it('Returns ISO string', () => {
-        const duration = new Duration(91815250);
+    it('converts to JSON', () => {
+      const duration = new Duration(91815250);
 
-        const json = JSON.stringify(duration);
+      const json = JSON.stringify(duration);
 
-        expect(json).toEqual('"P1DT1H30M15.25S"');
-      });
+      expect(json).toBe('"PT25H30M15.25S"');
     });
 
     describe('Convert to string', () => {
-      it('Returns medium string as default', () => {
-        const duration = new Duration(90061001);
+      it('returns medium string as default', () => {
+        const duration = new Duration('PT25H01M01S');
 
-        expect(duration.toString()).toEqual('25:01:01');
+        expect(duration.toString()).toBe('25:01:01');
       });
 
-      it('Returns short string', () => {
-        const duration = new Duration(90061001);
+      it('returns short string', () => {
+        const duration = new Duration('PT25H01M01S');
 
-        expect(duration.toString({ style: 'short' })).toEqual('25:01');
+        expect(duration.toString({ style: 'short' })).toBe('25:01');
       });
 
-      it('Returns long string', () => {
-        const duration = new Duration(90061001);
+      it('returns long string', () => {
+        const duration = new Duration('PT25H01M01.001S');
 
-        expect(duration.toString({ style: 'long' })).toEqual('25:01:01.001');
+        expect(duration.toString({ style: 'long' })).toBe('25:01:01.001');
       });
 
-      it('Returns negative value', () => {
+      it('returns negative value', () => {
         const duration = new Duration('-PT5S');
 
-        expect(duration.toString()).toEqual('-00:00:05');
+        expect(duration.toString()).toBe('-00:00:05');
       });
 
-      it('Is used by string interpolation', () => {
-        const duration = new Duration(90061001);
+      it('is used by string interpolation', () => {
+        const duration = new Duration('PT25H01M01S');
 
         const result = `${duration}`;
 
-        expect(result).toEqual('25:01:01');
+        expect(result).toBe('25:01:01');
+      });
+
+      it('is used by string concatenation', () => {
+        const duration = new Duration('PT25H01M01S');
+
+        const result = 'Duration: ' + duration;
+
+        expect(result).toBe('Duration: 25:01:01');
       });
     });
 
     describe('Convert to value', () => {
-      it('Returns seconds', () => {
+      it('returns milliseconds', () => {
         const duration = new Duration(3661);
 
-        expect(duration.valueOf()).toEqual(3661);
+        expect(duration.valueOf()).toBe(3661);
       });
 
-      it('Returns negative value', () => {
+      it('returns negative value', () => {
         const duration = new Duration(-500);
 
-        expect(duration.valueOf()).toEqual(-500);
+        expect(duration.valueOf()).toBe(-500);
       });
 
-      it('Is used by number addition', () => {
+      it('is used by numeric operations', () => {
         const duration = new Duration(3661);
 
-        const result = 1 + duration;
+        const result = 1 - duration;
 
-        expect(result).toEqual(3662);
-      });
-
-      it('Is used by string concatenation', () => {
-        const duration = new Duration(3661);
-
-        const result = '' + duration;
-
-        expect(result).toEqual('3661');
+        expect(result).toBe(-3660);
       });
     });
   });
