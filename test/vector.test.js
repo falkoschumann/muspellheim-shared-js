@@ -1,29 +1,27 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Line, Vector } from '../lib/vector.js';
-
-// TODO group tests by vector and line
+import { Line2D, Vector2D } from '../lib/vector.js';
 
 describe('Vector', () => {
-  describe('Vector', () => {
+  describe('Vector 2D', () => {
     it('Creates a vector with 2 points', () => {
       const a = { x: 1.5, y: 5.0 };
       const b = { x: 6.5, y: 3.0 };
 
-      const c = Vector.fromPoints(a, b);
+      const c = Vector2D.fromPoints(a, b);
 
       expect(c).toEqual({ x: 5.0, y: -2.0 });
     });
 
     it('Calculates the vectors length', () => {
-      const l = Vector.create({ x: 5.0, y: -2.0 }).length;
+      const l = Vector2D.create({ x: 5.0, y: -2.0 }).length;
 
       expect(l).toBeCloseTo(5.39);
     });
 
     it('Adds two vectors', () => {
-      const a = Vector.create({ x: 1.5, y: 5.0 });
-      const b = Vector.create({ x: 6.5, y: 3.0 });
+      const a = Vector2D.create({ x: 1.5, y: 5.0 });
+      const b = Vector2D.create({ x: 6.5, y: 3.0 });
 
       const c = a.add(b);
 
@@ -31,8 +29,8 @@ describe('Vector', () => {
     });
 
     it('Subtracts two vectors', () => {
-      const a = Vector.create({ x: 1.5, y: 5.0 });
-      const b = Vector.create({ x: 6.5, y: 3.0 });
+      const a = Vector2D.create({ x: 1.5, y: 5.0 });
+      const b = Vector2D.create({ x: 6.5, y: 3.0 });
 
       const c = a.subtract(b);
 
@@ -40,7 +38,7 @@ describe('Vector', () => {
     });
 
     it('Multiplies a vector with a scalar', () => {
-      const a = Vector.create({ x: 1.5, y: 5.0 });
+      const a = Vector2D.create({ x: 1.5, y: 5.0 });
 
       const c = a.multiply(2);
 
@@ -48,8 +46,8 @@ describe('Vector', () => {
     });
 
     it('Calculates the dot product of two vectors', () => {
-      const a = Vector.create({ x: 1.5, y: 5.0 });
-      const b = Vector.create({ x: 6.5, y: 3.0 });
+      const a = Vector2D.create({ x: 1.5, y: 5.0 });
+      const b = Vector2D.create({ x: 6.5, y: 3.0 });
 
       const c = a.multiply(b);
 
@@ -57,8 +55,8 @@ describe('Vector', () => {
     });
 
     it('Calculates the distance between two points', () => {
-      const a = Vector.create({ x: 1.5, y: 5.0 });
-      const b = Vector.create({ x: 6.5, y: 3.0 });
+      const a = Vector2D.create({ x: 1.5, y: 5.0 });
+      const b = Vector2D.create({ x: 6.5, y: 3.0 });
 
       const c = a.distance(b);
 
@@ -66,7 +64,7 @@ describe('Vector', () => {
     });
 
     it('Rotates a vector by 90 degrees', () => {
-      const a = Vector.create({ x: 1.0, y: 0.0 });
+      const a = Vector2D.create({ x: 1.0, y: 0.0 });
 
       const c = a.rotate(Math.PI / 2);
 
@@ -74,7 +72,7 @@ describe('Vector', () => {
     });
 
     it('Calculates the unit vector', () => {
-      const a = Vector.create({ x: 1.5, y: 5.0 });
+      const a = Vector2D.create({ x: 1.5, y: 5.0 });
 
       const c = a.unitVector();
 
@@ -85,12 +83,12 @@ describe('Vector', () => {
     });
   });
 
-  describe('Line', () => {
+  describe('Line 2D', () => {
     it('Create line from two points', () => {
       const a = { x: 1.5, y: 5.0 };
       const b = { x: 6.5, y: 3.0 };
 
-      const line = Line.fromPoints(a, b);
+      const line = Line2D.fromPoints(a, b);
 
       expect(line).toEqual({
         point: { x: 1.5, y: 5.0 },
@@ -100,7 +98,7 @@ describe('Vector', () => {
 
     describe('Calulates the foot of perpendicular', () => {
       it('Returns vector on line when the point is between first and second point', () => {
-        const line = Line.create({
+        const line = Line2D.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
         });
@@ -114,7 +112,7 @@ describe('Vector', () => {
       });
 
       it('Returns vector on first point when the foot is the first point', () => {
-        const line = Line.create({
+        const line = Line2D.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
         });
@@ -128,7 +126,7 @@ describe('Vector', () => {
       });
 
       it('Returns vector on second point when the foot is the second point', () => {
-        const line = Line.create({
+        const line = Line2D.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
         });
@@ -142,7 +140,7 @@ describe('Vector', () => {
       });
 
       it('Return vector before line when the foot is before the first point', () => {
-        const line = Line.create({
+        const line = Line2D.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
         });
@@ -156,7 +154,7 @@ describe('Vector', () => {
       });
 
       it('Return vector after line when the fot is after the second point', () => {
-        const line = Line.create({
+        const line = Line2D.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
         });
@@ -170,7 +168,7 @@ describe('Vector', () => {
       });
 
       it('Returns vector on line when the line is horizontal', () => {
-        const line = Line.create({
+        const line = Line2D.create({
           point: { x: 2.0, y: 1.0 },
           direction: { x: 1.0, y: 0.0 },
         });
@@ -184,7 +182,7 @@ describe('Vector', () => {
       });
 
       it('Returns vector on line when the line is vertical', () => {
-        const line = Line.create({
+        const line = Line2D.create({
           point: { x: 2.0, y: 2.0 },
           direction: { x: 0.0, y: -2.0 },
         });
@@ -198,7 +196,7 @@ describe('Vector', () => {
       });
 
       it('Returns not a number when direction is zero vector', () => {
-        const line = Line.create({
+        const line = Line2D.create({
           point: { x: 2.0, y: 2.0 },
           direction: { x: 0.0, y: 0.0 },
         });
