@@ -1,9 +1,9 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import { OutputTracker } from '../lib/output-tracker.js';
 
 describe('Output tracker', () => {
-  test('Uses custom event to track output', () => {
+  it('Uses custom event to track output', () => {
     const eventTarget = new EventTarget();
     const outputTracker = OutputTracker.create(eventTarget, 'foo');
 
@@ -13,7 +13,7 @@ describe('Output tracker', () => {
     expect(outputTracker.data).toEqual(['bar']);
   });
 
-  test('Clears stored output', () => {
+  it('Clears stored output', () => {
     const eventTarget = new EventTarget();
     const outputTracker = OutputTracker.create(eventTarget, 'foo');
     const event = new CustomEvent('foo', { detail: 'bar' });
@@ -24,7 +24,7 @@ describe('Output tracker', () => {
     expect(outputTracker.data).toEqual([]);
   });
 
-  test('Stops tracking', () => {
+  it('Stops tracking', () => {
     const eventTarget = new EventTarget();
     const outputTracker = OutputTracker.create(eventTarget, 'foo');
     const event = new CustomEvent('foo', { detail: 'bar' });

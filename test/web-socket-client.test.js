@@ -2,11 +2,12 @@
  * @jest-environment jsdom
  */
 
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
+
 import { WebSocketClient } from '../lib/web-socket-client.js';
 
 describe('Web socket client', () => {
-  test('Connects to the server', async () => {
+  it('Connects to the server', async () => {
     const client = WebSocketClient.createNull();
 
     await client.connect('http://example.com');
@@ -14,7 +15,7 @@ describe('Web socket client', () => {
     expect(client.isConnected).toBe(true);
   });
 
-  test('Rejects multiple connections', async () => {
+  it('Rejects multiple connections', async () => {
     const client = WebSocketClient.createNull();
     await client.connect('http://example.com');
 
@@ -23,7 +24,7 @@ describe('Web socket client', () => {
     );
   });
 
-  test('Closes the connection', async () => {
+  it('Closes the connection', async () => {
     const client = WebSocketClient.createNull();
     await client.connect('http://example.com');
 
@@ -32,7 +33,7 @@ describe('Web socket client', () => {
     expect(client.isConnected).toBe(false);
   });
 
-  test('Receives a message', async () => {
+  it('Receives a message', async () => {
     const client = WebSocketClient.createNull();
     const events = [];
     client.addEventListener('message', (event) => events.push(event));
@@ -43,7 +44,7 @@ describe('Web socket client', () => {
     expect(events).toEqual([expect.objectContaining({ data: 'Hello' })]);
   });
 
-  test('Simulates error', async () => {
+  it('Simulates error', async () => {
     const client = WebSocketClient.createNull();
     const events = [];
     client.addEventListener('close', (event) => events.push(event));

@@ -1,10 +1,10 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import { ConfigurableResponses } from '../lib/configurable-responses.js';
 
 describe('Configurable responses', () => {
   describe('Single value', () => {
-    test('Always returns the same value', () => {
+    it('Always returns the same value', () => {
       const responses = ConfigurableResponses.create(42);
 
       expect(responses.next()).toBe(42);
@@ -12,7 +12,7 @@ describe('Configurable responses', () => {
       expect(responses.next()).toBe(42);
     });
 
-    test('Throws error if no value is given', () => {
+    it('Throws error if no value is given', () => {
       const responses = ConfigurableResponses.create();
 
       expect(() => responses.next()).toThrow(
@@ -22,7 +22,7 @@ describe('Configurable responses', () => {
   });
 
   describe('Multiple values', () => {
-    test('Returns values in order', () => {
+    it('Returns values in order', () => {
       const responses = ConfigurableResponses.create([1, 2, 3]);
 
       expect(responses.next()).toBe(1);
@@ -30,7 +30,7 @@ describe('Configurable responses', () => {
       expect(responses.next()).toBe(3);
     });
 
-    test('Throws error if no more values', () => {
+    it('Throws error if no more values', () => {
       const responses = ConfigurableResponses.create([1, 2, 3], 'foobar');
 
       responses.next();
@@ -42,7 +42,7 @@ describe('Configurable responses', () => {
       );
     });
 
-    test('Throws error if array is empty', () => {
+    it('Throws error if array is empty', () => {
       const responses = ConfigurableResponses.create([]);
 
       expect(() => responses.next()).toThrow(

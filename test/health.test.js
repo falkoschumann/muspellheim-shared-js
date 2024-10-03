@@ -1,10 +1,10 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import { Health, HealthRegistry } from '../lib/health.js';
 
 describe('Health', () => {
   describe('Health registry', () => {
-    test('Returns default health', () => {
+    it('Returns default health', () => {
       const endpoint = HealthRegistry.create();
 
       const health = endpoint.health();
@@ -12,7 +12,7 @@ describe('Health', () => {
       expect(health).toEqual({ status: 'UP' });
     });
 
-    test('Registers health indicators', () => {
+    it('Registers health indicators', () => {
       const registry = HealthRegistry.create();
       registry.register('test', {
         health() {
@@ -28,7 +28,7 @@ describe('Health', () => {
       });
     });
 
-    test('Determines the worst status', () => {
+    it('Determines the worst status', () => {
       const registry = HealthRegistry.create();
       registry.register('test1', {
         health() {

@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import {
   Handler,
@@ -11,49 +11,49 @@ import {
 
 describe('Logging', () => {
   describe('Level', () => {
-    test('Converts to string', () => {
+    it('Converts to string', () => {
       const result = Level.INFO.toString();
 
       expect(result).toEqual('INFO');
     });
 
-    test('Converts to value', () => {
+    it('Converts to value', () => {
       const result = Level.INFO.valueOf();
 
       expect(result).toEqual(800);
     });
 
-    test('Converts to JSON ', () => {
+    it('Converts to JSON ', () => {
       const result = Level.INFO.toJSON();
 
       expect(result).toEqual('INFO');
     });
 
-    test('Parses level by name', () => {
+    it('Parses level by name', () => {
       const level = Level.parse('WARNING');
 
       expect(level).toEqual(Level.WARNING);
     });
 
-    test('Parses level by value', () => {
+    it('Parses level by value', () => {
       const level = Level.parse('1000');
 
       expect(level).toEqual(Level.ERROR);
     });
 
-    test('Parses level by name', () => {
+    it('Parses level by name', () => {
       expect(() => Level.parse('NON_EXISTING')).toThrow();
     });
   });
 
   describe('Handler', () => {
-    test('Handles all levels as default', () => {
+    it('Handles all levels as default', () => {
       const handler = new Handler();
 
       expect(handler.isLoggable(Level.ALL)).toEqual(true);
     });
 
-    test('Does not handle below level', () => {
+    it('Does not handle below level', () => {
       const handler = new Handler();
       handler.level = Level.WARNING;
 
@@ -62,7 +62,7 @@ describe('Logging', () => {
   });
 
   describe('Logger', () => {
-    test('Creates named logger', () => {
+    it('Creates named logger', () => {
       const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
 
@@ -81,7 +81,7 @@ describe('Logging', () => {
       ]);
     });
 
-    test('Logs with level and message', () => {
+    it('Logs with level and message', () => {
       const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
 
@@ -99,7 +99,7 @@ describe('Logging', () => {
       ]);
     });
 
-    test('Logs at level error', () => {
+    it('Logs at level error', () => {
       const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
 
@@ -117,7 +117,7 @@ describe('Logging', () => {
       ]);
     });
 
-    test('Logs at level warning', () => {
+    it('Logs at level warning', () => {
       const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
 
@@ -135,7 +135,7 @@ describe('Logging', () => {
       ]);
     });
 
-    test('Logs at level info', () => {
+    it('Logs at level info', () => {
       const log = Logger.getLogger('test-logger');
       const loggedMessages = log.trackMessagesLogged();
 
@@ -153,7 +153,7 @@ describe('Logging', () => {
       ]);
     });
 
-    test('Logs at level debug', () => {
+    it('Logs at level debug', () => {
       const log = Logger.getLogger('test-logger');
       log.level = Level.ALL;
       const loggedMessages = log.trackMessagesLogged();
@@ -172,7 +172,7 @@ describe('Logging', () => {
       ]);
     });
 
-    test('Logs at level trace', () => {
+    it('Logs at level trace', () => {
       const log = Logger.getLogger('test-logger');
       log.level = Level.ALL;
       const loggedMessages = log.trackMessagesLogged();
@@ -191,7 +191,7 @@ describe('Logging', () => {
       ]);
     });
 
-    test('Logs at info level by default', () => {
+    it('Logs at info level by default', () => {
       const log = Logger.getLogger('test-logger-default');
       const loggedMessages = log.trackMessagesLogged();
 
@@ -229,7 +229,7 @@ describe('Logging', () => {
       ]);
     });
 
-    test('Does not log below level', () => {
+    it('Does not log below level', () => {
       const log = Logger.getLogger('test-logger');
       log.level = Level.WARNING;
       const loggedMessages = log.trackMessagesLogged();
@@ -239,7 +239,7 @@ describe('Logging', () => {
       expect(loggedMessages.data).toEqual([]);
     });
 
-    test('Logs with local level if set', () => {
+    it('Logs with local level if set', () => {
       const log = Logger.getLogger('test-logger');
       log.level = Level.DEBUG;
       const loggedMessages = log.trackMessagesLogged();
@@ -258,7 +258,7 @@ describe('Logging', () => {
       ]);
     });
 
-    test('Logs with parent level if local level is not set', () => {
+    it('Logs with parent level if local level is not set', () => {
       Logger.getLogger('').level = Level.DEBUG;
       const log = Logger.getLogger('test-logger');
       log.level = undefined;
@@ -280,7 +280,7 @@ describe('Logging', () => {
   });
 
   describe('Simple formatter', () => {
-    test('Returns 1 line', () => {
+    it('Returns 1 line', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, 'my message');
@@ -290,7 +290,7 @@ describe('Logging', () => {
       expect(s).toEqual('2024-07-02T09:38:00.000Z INFO - my message');
     });
 
-    test('Writes logger name', () => {
+    it('Writes logger name', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, 'my message');
@@ -303,7 +303,7 @@ describe('Logging', () => {
       );
     });
 
-    test('Concats messages with space', () => {
+    it('Concats messages with space', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, 'count:', 5);
@@ -313,7 +313,7 @@ describe('Logging', () => {
       expect(s).toEqual('2024-07-02T09:38:00.000Z INFO - count: 5');
     });
 
-    test('Stringifies object and array', () => {
+    it('Stringifies object and array', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, { foo: 'bar' }, [1, 2, 3]);
@@ -327,7 +327,7 @@ describe('Logging', () => {
   });
 
   describe('JSON formatter', () => {
-    test('Returns 1 line', () => {
+    it('Returns 1 line', () => {
       const formatter = new JsonFormatter();
 
       const record = new LogRecord(Level.INFO, 'my message');
@@ -344,7 +344,7 @@ describe('Logging', () => {
       });
     });
 
-    test('Writes logger name', () => {
+    it('Writes logger name', () => {
       const formatter = new JsonFormatter();
 
       const record = new LogRecord(Level.INFO, 'my message');
@@ -363,7 +363,7 @@ describe('Logging', () => {
       });
     });
 
-    test('Concats messages with space', () => {
+    it('Concats messages with space', () => {
       const formatter = new JsonFormatter();
 
       const record = new LogRecord(Level.INFO, 'count:', 5);
@@ -380,7 +380,7 @@ describe('Logging', () => {
       });
     });
 
-    test('Stringifies object and array', () => {
+    it('Stringifies object and array', () => {
       const formatter = new JsonFormatter();
 
       const record = new LogRecord(Level.INFO, { foo: 'bar' }, [1, 2, 3]);

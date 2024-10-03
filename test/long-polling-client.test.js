@@ -1,9 +1,9 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import { LongPollingClient } from '../lib/long-polling-client.js';
 
 describe('Long polling client', () => {
-  test('Connects to the server', () => {
+  it('Connects to the server', () => {
     const client = LongPollingClient.createNull();
 
     client.simulateConnected(() => {});
@@ -11,7 +11,7 @@ describe('Long polling client', () => {
     expect(client.isConnected).toBe(true);
   });
 
-  test('Rejects multiple connections', () => {
+  it('Rejects multiple connections', () => {
     const client = LongPollingClient.createNull();
     client.simulateConnected(() => {});
 
@@ -20,7 +20,7 @@ describe('Long polling client', () => {
     expect(connectTwice).toThrow(/^Already connected.$/);
   });
 
-  test('Closes the connection', () => {
+  it('Closes the connection', () => {
     const client = LongPollingClient.createNull();
     client.simulateConnected(() => {});
 
@@ -29,7 +29,7 @@ describe('Long polling client', () => {
     expect(client.isConnected).toBe(false);
   });
 
-  test('Receives a message', async () => {
+  it('Receives a message', async () => {
     const client = LongPollingClient.createNull();
     const events = [];
     client.simulateConnected((event) => events.push(event));
@@ -43,7 +43,7 @@ describe('Long polling client', () => {
     expect(events).toEqual([expect.objectContaining({ data: { anwser: 42 } })]);
   });
 
-  test('Ignores not modified', async () => {
+  it('Ignores not modified', async () => {
     const client = LongPollingClient.createNull();
     const events = [];
     client.simulateConnected((event) => events.push(event));
@@ -66,7 +66,7 @@ describe('Long polling client', () => {
     ]);
   });
 
-  test('Recovers after error', async () => {
+  it('Recovers after error', async () => {
     const client = LongPollingClient.createNull();
     const events = [];
     client.simulateConnected((event) => events.push(event));
@@ -95,7 +95,7 @@ describe('Long polling client', () => {
     await expect(result).rejects.toThrow(/^HTTP error: 500/);
   });
 
-  test('Recovers after network error', async () => {
+  it('Recovers after network error', async () => {
     const client = LongPollingClient.createNull();
     const events = [];
     client.simulateConnected((event) => events.push(event));

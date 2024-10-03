@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import { Line, Vector } from '../lib/vector.js';
 
@@ -6,7 +6,7 @@ import { Line, Vector } from '../lib/vector.js';
 
 describe('Vector', () => {
   describe('Vector', () => {
-    test('Creates a vector with 2 points', () => {
+    it('Creates a vector with 2 points', () => {
       const a = { x: 1.5, y: 5.0 };
       const b = { x: 6.5, y: 3.0 };
 
@@ -15,13 +15,13 @@ describe('Vector', () => {
       expect(c).toEqual({ x: 5.0, y: -2.0 });
     });
 
-    test('Calculates the vectors length', () => {
+    it('Calculates the vectors length', () => {
       const l = Vector.create({ x: 5.0, y: -2.0 }).length;
 
       expect(l).toBeCloseTo(5.39);
     });
 
-    test('Adds two vectors', () => {
+    it('Adds two vectors', () => {
       const a = Vector.create({ x: 1.5, y: 5.0 });
       const b = Vector.create({ x: 6.5, y: 3.0 });
 
@@ -30,7 +30,7 @@ describe('Vector', () => {
       expect(c).toEqual({ x: 8.0, y: 8.0 });
     });
 
-    test('Subtracts two vectors', () => {
+    it('Subtracts two vectors', () => {
       const a = Vector.create({ x: 1.5, y: 5.0 });
       const b = Vector.create({ x: 6.5, y: 3.0 });
 
@@ -39,7 +39,7 @@ describe('Vector', () => {
       expect(c).toEqual({ x: -5.0, y: 2.0 });
     });
 
-    test('Multiplies a vector with a scalar', () => {
+    it('Multiplies a vector with a scalar', () => {
       const a = Vector.create({ x: 1.5, y: 5.0 });
 
       const c = a.multiply(2);
@@ -47,7 +47,7 @@ describe('Vector', () => {
       expect(c).toEqual({ x: 3.0, y: 10.0 });
     });
 
-    test('Calculates the dot product of two vectors', () => {
+    it('Calculates the dot product of two vectors', () => {
       const a = Vector.create({ x: 1.5, y: 5.0 });
       const b = Vector.create({ x: 6.5, y: 3.0 });
 
@@ -56,7 +56,7 @@ describe('Vector', () => {
       expect(c).toBeCloseTo(24.75);
     });
 
-    test('Calculates the distance between two points', () => {
+    it('Calculates the distance between two points', () => {
       const a = Vector.create({ x: 1.5, y: 5.0 });
       const b = Vector.create({ x: 6.5, y: 3.0 });
 
@@ -65,7 +65,7 @@ describe('Vector', () => {
       expect(c).toBeCloseTo(5.39);
     });
 
-    test('Rotates a vector by 90 degrees', () => {
+    it('Rotates a vector by 90 degrees', () => {
       const a = Vector.create({ x: 1.0, y: 0.0 });
 
       const c = a.rotate(Math.PI / 2);
@@ -73,7 +73,7 @@ describe('Vector', () => {
       expect(c).toEqual({ x: expect.closeTo(0.0, 10), y: 1.0 });
     });
 
-    test('Calculates the unit vector', () => {
+    it('Calculates the unit vector', () => {
       const a = Vector.create({ x: 1.5, y: 5.0 });
 
       const c = a.unitVector();
@@ -86,7 +86,7 @@ describe('Vector', () => {
   });
 
   describe('Line', () => {
-    test('Create line from two points', () => {
+    it('Create line from two points', () => {
       const a = { x: 1.5, y: 5.0 };
       const b = { x: 6.5, y: 3.0 };
 
@@ -99,7 +99,7 @@ describe('Vector', () => {
     });
 
     describe('Calulates the foot of perpendicular', () => {
-      test('Returns vector on line when the point is between first and second point', () => {
+      it('Returns vector on line when the point is between first and second point', () => {
         const line = Line.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
@@ -113,7 +113,7 @@ describe('Vector', () => {
         expect(0 < scalar && scalar < 1).toBe(true);
       });
 
-      test('Returns vector on first point when the foot is the first point', () => {
+      it('Returns vector on first point when the foot is the first point', () => {
         const line = Line.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
@@ -127,7 +127,7 @@ describe('Vector', () => {
         expect(scalar).toEqual(0.0);
       });
 
-      test('Returns vector on second point when the foot is the second point', () => {
+      it('Returns vector on second point when the foot is the second point', () => {
         const line = Line.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
@@ -141,7 +141,7 @@ describe('Vector', () => {
         expect(scalar).toEqual(1.0);
       });
 
-      test('Return vector before line when the foot is before the first point', () => {
+      it('Return vector before line when the foot is before the first point', () => {
         const line = Line.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
@@ -155,7 +155,7 @@ describe('Vector', () => {
         expect(scalar).toBeLessThan(0.0);
       });
 
-      test('Return vector after line when the fot is after the second point', () => {
+      it('Return vector after line when the fot is after the second point', () => {
         const line = Line.create({
           point: { x: 1.5, y: 5.0 },
           direction: { x: 5.0, y: -2.0 },
@@ -169,7 +169,7 @@ describe('Vector', () => {
         expect(scalar).toBeGreaterThan(1.0);
       });
 
-      test('Returns vector on line when the line is horizontal', () => {
+      it('Returns vector on line when the line is horizontal', () => {
         const line = Line.create({
           point: { x: 2.0, y: 1.0 },
           direction: { x: 1.0, y: 0.0 },
@@ -183,7 +183,7 @@ describe('Vector', () => {
         expect(0 < scalar && scalar < 1).toBe(true);
       });
 
-      test('Returns vector on line when the line is vertical', () => {
+      it('Returns vector on line when the line is vertical', () => {
         const line = Line.create({
           point: { x: 2.0, y: 2.0 },
           direction: { x: 0.0, y: -2.0 },
@@ -197,7 +197,7 @@ describe('Vector', () => {
         expect(0 < scalar && scalar < 1).toBe(true);
       });
 
-      test('Returns not a number when direction is zero vector', () => {
+      it('Returns not a number when direction is zero vector', () => {
         const line = Line.create({
           point: { x: 2.0, y: 2.0 },
           direction: { x: 0.0, y: 0.0 },

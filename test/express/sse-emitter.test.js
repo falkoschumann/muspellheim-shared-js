@@ -1,10 +1,10 @@
 import events from 'node:events';
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import { SseEmitter } from '../../lib/express/sse-emitter';
 
 describe('SSE emitter', () => {
-  test('Initializes response', () => {
+  it('Initializes response', () => {
     const response = new ResponseStub();
     SseEmitter.create({ response });
 
@@ -12,7 +12,7 @@ describe('SSE emitter', () => {
     expect(response.getHeader('Content-Type')).toBe('text/event-stream');
   });
 
-  test('Sends event', () => {
+  it('Sends event', () => {
     const response = new ResponseStub();
     const emitter = SseEmitter.create({ response });
 
@@ -21,7 +21,7 @@ describe('SSE emitter', () => {
     expect(response.body).toBe('data: event-data\n\n');
   });
 
-  test('Sends typed event', () => {
+  it('Sends typed event', () => {
     const response = new ResponseStub();
     const emitter = SseEmitter.create({ response });
 
@@ -32,7 +32,7 @@ describe('SSE emitter', () => {
     );
   });
 
-  test('Closes response after timeout', () => {
+  it('Closes response after timeout', () => {
     const response = new ResponseStub();
     const emitter = SseEmitter.create({ response, timeout: 60000 });
 

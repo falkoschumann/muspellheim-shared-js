@@ -1,16 +1,16 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import { createStore } from '../lib/store.js';
 
 describe('Store', () => {
   describe('Create store', () => {
-    test('Creates store with initial state', () => {
+    it('Creates store with initial state', () => {
       const store = new createStore(reducer, initialState);
 
       expect(store.getState()).toEqual(initialState);
     });
 
-    test('Creates store and initializes state with reducer', () => {
+    it('Creates store and initializes state with reducer', () => {
       const store = new createStore(reducer);
 
       expect(store.getState()).toEqual(initialState);
@@ -18,7 +18,7 @@ describe('Store', () => {
   });
 
   describe('Subscribe', () => {
-    test('Does not emit event, if state is not changed', () => {
+    it('Does not emit event, if state is not changed', () => {
       const { store } = configure();
       let calls = 0;
       const listener = () => calls++;
@@ -30,7 +30,7 @@ describe('Store', () => {
       expect(calls).toBe(0);
     });
 
-    test('Emits event, if state is changed', () => {
+    it('Emits event, if state is changed', () => {
       const { store } = configure();
       let calls = 0;
       const listener = () => calls++;
@@ -42,7 +42,7 @@ describe('Store', () => {
       expect(calls).toBe(1);
     });
 
-    test('Does not emit event, if listener is unsubscribed', () => {
+    it('Does not emit event, if listener is unsubscribed', () => {
       const { store } = configure();
       let calls = 0;
       const listener = () => calls++;
@@ -55,7 +55,7 @@ describe('Store', () => {
       expect(calls).toBe(0);
     });
 
-    test('Ignores unsubscribed listener', () => {
+    it('Ignores unsubscribed listener', () => {
       const { store } = configure();
       let calls = 0;
       let unsubscribe2;

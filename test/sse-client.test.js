@@ -1,9 +1,9 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import { SseClient } from '../lib/sse-client.js';
 
 describe('SSE client', () => {
-  test('Connects to the server', async () => {
+  it('Connects to the server', async () => {
     const client = SseClient.createNull();
 
     await client.connect(() => {});
@@ -11,7 +11,7 @@ describe('SSE client', () => {
     expect(client.isConnected).toBe(true);
   });
 
-  test('Rejects multiple connections', async () => {
+  it('Rejects multiple connections', async () => {
     const client = SseClient.createNull();
     await client.connect(() => {});
 
@@ -20,7 +20,7 @@ describe('SSE client', () => {
     expect(connectTwice).rejects.toThrow();
   });
 
-  test('Closes the connection', async () => {
+  it('Closes the connection', async () => {
     const client = SseClient.createNull();
     await client.connect(() => {});
 
@@ -29,7 +29,7 @@ describe('SSE client', () => {
     expect(client.isConnected).toBe(false);
   });
 
-  test('Receives a message', async () => {
+  it('Receives a message', async () => {
     const client = SseClient.createNull();
     const events = [];
     await client.connect((event) => events.push(event));
@@ -43,7 +43,7 @@ describe('SSE client', () => {
     ]);
   });
 
-  test('Receives a typed message', async () => {
+  it('Receives a typed message', async () => {
     const client = SseClient.createNull();
     const events = [];
     await client.connect('ping', (event) => events.push(event));

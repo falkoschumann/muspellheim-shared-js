@@ -1,10 +1,10 @@
-import { describe, expect, test } from '@jest/globals';
+import { describe, expect, it } from '@jest/globals';
 
 import { Counter, MeterRegistry, MeterId, MeterType } from '../lib/metrics.js';
 
 describe('Metrics', () => {
   describe('Meter registry', () => {
-    test('Creates a new counter if it does not exist', () => {
+    it('Creates a new counter if it does not exist', () => {
       const registry = MeterRegistry.create();
 
       const counter = registry.counter('counter1', ['tag1', 'tag2']);
@@ -17,7 +17,7 @@ describe('Metrics', () => {
       expect(counter.id.type).toEqual(MeterType.COUNTER);
     });
 
-    test('Returns the same counter if it already exists', () => {
+    it('Returns the same counter if it already exists', () => {
       const registry = MeterRegistry.create();
 
       const counter1 = registry.counter('counter1', ['tag1', 'tag2']);
@@ -28,7 +28,7 @@ describe('Metrics', () => {
   });
 
   describe('Counter', () => {
-    test('Increments by 1 by default', () => {
+    it('Increments by 1 by default', () => {
       const counter = new Counter(MeterId.create({ name: 'counter1' }));
 
       counter.increment();
@@ -36,7 +36,7 @@ describe('Metrics', () => {
       expect(counter.count()).toEqual(1);
     });
 
-    test('Increments by 3', () => {
+    it('Increments by 3', () => {
       const counter = new Counter(MeterId.create({ name: 'counter1' }));
 
       counter.increment(3);
@@ -47,7 +47,7 @@ describe('Metrics', () => {
 
   describe('Meter ID', () => {
     describe('Equals', () => {
-      test('Returns true if names and tags are equal', () => {
+      it('Returns true if names and tags are equal', () => {
         const id1 = MeterId.create({
           name: 'name',
           tags: ['tag1', 'tag2'],
@@ -64,7 +64,7 @@ describe('Metrics', () => {
         expect(result).toEqual(true);
       });
 
-      test('Returns false if names are not equal', () => {
+      it('Returns false if names are not equal', () => {
         const id1 = MeterId.create({
           name: 'name1',
           tags: ['tag1', 'tag2'],
@@ -81,7 +81,7 @@ describe('Metrics', () => {
         expect(result).toEqual(false);
       });
 
-      test('Returns false if tags are not equal', () => {
+      it('Returns false if tags are not equal', () => {
         const id1 = MeterId.create({
           name: 'name',
           tags: ['tag1', 'tag2'],
@@ -98,7 +98,7 @@ describe('Metrics', () => {
         expect(result).toEqual(false);
       });
 
-      test('Ignores different types', () => {
+      it('Ignores different types', () => {
         const id1 = MeterId.create({
           name: 'name',
           tags: ['tag1', 'tag2'],
