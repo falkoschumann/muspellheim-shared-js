@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { OutputTracker } from '../src/output-tracker.js';
+import { OutputTracker } from '../lib/output-tracker.js';
 
 describe('Output tracker', () => {
   test('Uses custom event to track output', () => {

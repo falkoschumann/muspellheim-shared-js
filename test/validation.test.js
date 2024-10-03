@@ -8,8 +8,8 @@ import {
   ensureThat,
   ensureType,
   ensureUnreachable,
-} from '../src/validation.js';
-import { Enum } from '../src/enum.js';
+} from '../lib/validation.js';
+import { Enum } from '../lib/enum.js';
 
 describe('Validation', () => {
   describe('Ensure unreachable', () => {

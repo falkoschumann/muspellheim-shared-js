@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { LongPollingClient } from '../src/long-polling-client.js';
+import { LongPollingClient } from '../lib/long-polling-client.js';
 
 describe('Long polling client', () => {
   test('Connects to the server', () => {

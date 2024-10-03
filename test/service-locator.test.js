@@ -1,5 +1,5 @@
 import { describe, expect, test } from '@jest/globals';
-import { ServiceLocator } from '../src/service-locator.js';
+import { ServiceLocator } from '../lib/service-locator.js';
 
 describe('Service locator', () => {
   test('Resolves the same service object as registered', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { Health, HealthRegistry } from '../src/health.js';
+import { Health, HealthRegistry } from '../lib/health.js';
 
 describe('Health', () => {
   describe('Health registry', () => {

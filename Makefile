@@ -15,18 +15,15 @@ distclean: clean
 dist: build
 
 docs:
-	npx jsdoc src --recurse --configure jsdoc.conf.json --destination docs --package package.json --readme README.md
-
-publish: dist
-	npm publish
+	npx jsdoc lib --recurse --configure jsdoc.conf.json --destination docs --package package.json --readme README.md
 
 check: test
 	npx prettier . --check
-	npx eslint src test
+	npx eslint lib test
 
 format:
 	npx prettier . --write
-	npx eslint --fix src test
+	npx eslint --fix lib test
 
 test: prepare
 	npm test

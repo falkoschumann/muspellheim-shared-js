@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { Clock, Duration } from '../src/time.js';
+import { Clock, Duration } from '../lib/time.js';
 
 describe('Time', () => {
   describe('Clock', () => {

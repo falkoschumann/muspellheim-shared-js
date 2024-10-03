@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { ConfigurableResponses } from '../src/configurable-responses.js';
+import { ConfigurableResponses } from '../lib/configurable-responses.js';
 
 describe('Configurable responses', () => {
   describe('Single value', () => {

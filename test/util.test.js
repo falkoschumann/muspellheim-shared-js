@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { Random, Timer } from '../src/util.js';
-import { Duration } from '../src/time.js';
+import { Random, Timer } from '../lib/util.js';
+import { Duration } from '../lib/time.js';
 
 describe('Util', () => {
   describe('Random', () => {

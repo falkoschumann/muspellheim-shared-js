@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals';
 
-import { Line, Vector } from '../src/vector.js';
+import { Line, Vector } from '../lib/vector.js';
 
 // TODO group tests by vector and line
 
