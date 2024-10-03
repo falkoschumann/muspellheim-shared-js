@@ -4,7 +4,25 @@ import { Line2D, Vector2D } from '../lib/vector.js';
 
 describe('Vector', () => {
   describe('Vector 2D', () => {
-    it('Creates a vector with 2 points', () => {
+    it('creates a vector with 2 coordinates', () => {
+      const a = new Vector2D(1.5, 5.0);
+
+      expect(a).toEqual({ x: 1.5, y: 5.0 });
+    });
+
+    it('creates a vector from another vector', () => {
+      const a = new Vector2D({ x: 1.5, y: 5.0 });
+
+      expect(a).toEqual({ x: 1.5, y: 5.0 });
+    });
+
+    it('creates a vector from an array', () => {
+      const a = new Vector2D([1.5, 5.0]);
+
+      expect(a).toEqual({ x: 1.5, y: 5.0 });
+    });
+
+    it('creates a vector with 2 points', () => {
       const a = { x: 1.5, y: 5.0 };
       const b = { x: 6.5, y: 3.0 };
 
@@ -14,14 +32,14 @@ describe('Vector', () => {
     });
 
     it('Calculates the vectors length', () => {
-      const l = Vector2D.create({ x: 5.0, y: -2.0 }).length;
+      const l = new Vector2D({ x: 5.0, y: -2.0 }).length;
 
       expect(l).toBeCloseTo(5.39);
     });
 
     it('Adds two vectors', () => {
-      const a = Vector2D.create({ x: 1.5, y: 5.0 });
-      const b = Vector2D.create({ x: 6.5, y: 3.0 });
+      const a = new Vector2D({ x: 1.5, y: 5.0 });
+      const b = new Vector2D({ x: 6.5, y: 3.0 });
 
       const c = a.add(b);
 
@@ -29,8 +47,8 @@ describe('Vector', () => {
     });
 
     it('Subtracts two vectors', () => {
-      const a = Vector2D.create({ x: 1.5, y: 5.0 });
-      const b = Vector2D.create({ x: 6.5, y: 3.0 });
+      const a = new Vector2D({ x: 1.5, y: 5.0 });
+      const b = new Vector2D({ x: 6.5, y: 3.0 });
 
       const c = a.subtract(b);
 
@@ -38,7 +56,7 @@ describe('Vector', () => {
     });
 
     it('Multiplies a vector with a scalar', () => {
-      const a = Vector2D.create({ x: 1.5, y: 5.0 });
+      const a = new Vector2D({ x: 1.5, y: 5.0 });
 
       const c = a.multiply(2);
 
@@ -46,8 +64,8 @@ describe('Vector', () => {
     });
 
     it('Calculates the dot product of two vectors', () => {
-      const a = Vector2D.create({ x: 1.5, y: 5.0 });
-      const b = Vector2D.create({ x: 6.5, y: 3.0 });
+      const a = new Vector2D({ x: 1.5, y: 5.0 });
+      const b = new Vector2D({ x: 6.5, y: 3.0 });
 
       const c = a.multiply(b);
 
@@ -55,8 +73,8 @@ describe('Vector', () => {
     });
 
     it('Calculates the distance between two points', () => {
-      const a = Vector2D.create({ x: 1.5, y: 5.0 });
-      const b = Vector2D.create({ x: 6.5, y: 3.0 });
+      const a = new Vector2D({ x: 1.5, y: 5.0 });
+      const b = new Vector2D({ x: 6.5, y: 3.0 });
 
       const c = a.distance(b);
 
@@ -64,7 +82,7 @@ describe('Vector', () => {
     });
 
     it('Rotates a vector by 90 degrees', () => {
-      const a = Vector2D.create({ x: 1.0, y: 0.0 });
+      const a = new Vector2D({ x: 1.0, y: 0.0 });
 
       const c = a.rotate(Math.PI / 2);
 
@@ -72,7 +90,7 @@ describe('Vector', () => {
     });
 
     it('Calculates the unit vector', () => {
-      const a = Vector2D.create({ x: 1.5, y: 5.0 });
+      const a = new Vector2D({ x: 1.5, y: 5.0 });
 
       const c = a.unitVector();
 
