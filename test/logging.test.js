@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import {
+  ConsoleHandler,
   Handler,
   JsonFormatter,
   Level,
@@ -11,267 +12,165 @@ import {
 
 describe('Logging', () => {
   describe('Level', () => {
-    it('Converts to string', () => {
-      const result = Level.INFO.toString();
+    it('converts to string', () => {
+      const string = Level.INFO.toString();
 
-      expect(result).toEqual('INFO');
+      expect(string).toBe('INFO');
     });
 
-    it('Converts to value', () => {
-      const result = Level.INFO.valueOf();
+    it('converts to value', () => {
+      const value = Level.INFO.valueOf();
 
-      expect(result).toEqual(800);
+      expect(value).toBe(800);
     });
 
-    it('Converts to JSON ', () => {
-      const result = Level.INFO.toJSON();
+    it('converts to JSON ', () => {
+      const json = Level.INFO.toJSON();
 
-      expect(result).toEqual('INFO');
+      expect(json).toBe('INFO');
     });
 
-    it('Parses level by name', () => {
+    it('parses level by name', () => {
       const level = Level.parse('WARNING');
 
-      expect(level).toEqual(Level.WARNING);
+      expect(level).toBe(Level.WARNING);
     });
 
-    it('Parses level by value', () => {
+    it('parses level by value', () => {
       const level = Level.parse('1000');
 
-      expect(level).toEqual(Level.ERROR);
+      expect(level).toBe(Level.ERROR);
     });
 
-    it('Parses level by name', () => {
+    it('throws when level can not be parsed', () => {
       expect(() => Level.parse('NON_EXISTING')).toThrow();
     });
   });
 
-  describe('Handler', () => {
-    it('Handles all levels as default', () => {
-      const handler = new Handler();
-
-      expect(handler.isLoggable(Level.ALL)).toEqual(true);
-    });
-
-    it('Does not handle below level', () => {
-      const handler = new Handler();
-      handler.level = Level.WARNING;
-
-      expect(handler.isLoggable(Level.INFO)).toEqual(false);
-    });
-  });
-
   describe('Logger', () => {
-    it('Creates named logger', () => {
-      const log = Logger.getLogger('test-logger');
-      const loggedMessages = log.trackMessagesLogged();
+    describe('Root', () => {
+      it('is initialized', () => {
+        const log = Logger.getLogger('');
 
-      log.info('my message');
-
-      expect(log.name).toEqual('test-logger');
-      expect(loggedMessages.data).toEqual([
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger',
-          level: Level.INFO,
-          message: ['my message'],
-        },
-      ]);
+        expect(log.name).toBe('');
+        expect(log.parent).toBeUndefined();
+        expect(log.level).toBe(Level.INFO);
+        expect(log.getHandlers().length).toBe(1);
+        expect(log.getHandlers()[0]).toBeInstanceOf(ConsoleHandler);
+        expect(log.getHandlers()[0].level).toBe(Level.ALL);
+        expect(log.getHandlers()[0].formatter).toBeInstanceOf(SimpleFormatter);
+      });
     });
 
-    it('Logs with level and message', () => {
-      const log = Logger.getLogger('test-logger');
-      const loggedMessages = log.trackMessagesLogged();
+    describe('Anonymous', () => {
+      it('is initialized', () => {
+        const log = Logger.getAnonymousLogger();
 
-      log.log(Level.INFO, 'my message');
+        expect(log.name).toBeNull();
+        expect(log.parent.name).toBe(''); // root logger
+        expect(log.level).toBeUndefined();
+        expect(log.getHandlers().length).toBe(0);
+      });
 
-      expect(loggedMessages.data).toEqual([
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger',
-          level: Level.INFO,
-          message: ['my message'],
-        },
-      ]);
+      it('returns a new logger when getting anonymous logger', () => {
+        const log1 = Logger.getAnonymousLogger();
+        const log2 = Logger.getAnonymousLogger();
+
+        expect(log1).not.toBe(log2);
+      });
     });
 
-    it('Logs at level error', () => {
-      const log = Logger.getLogger('test-logger');
+    describe('Named', () => {
+      it('is initialized', () => {
+        const log = Logger.getLogger('inizialized-logger');
+
+        expect(log.name).toBe('inizialized-logger');
+        expect(log.parent.name).toBe(''); // root logger
+        expect(log.level).toBeUndefined();
+        expect(log.getHandlers().length).toBe(0);
+      });
+
+      it('returns the same logger when name is equal', () => {
+        const log1 = Logger.getLogger('my-logger');
+        const log2 = Logger.getLogger('my-logger');
+
+        expect(log1).toBe(log2);
+      });
+    });
+
+    it('logs at info level by default', () => {
+      const log = Logger.getAnonymousLogger();
       const loggedMessages = log.trackMessagesLogged();
 
       log.error('error message');
+      log.warning('warning message');
+      log.info('info message');
+      log.debug('debug message');
+      log.trace('trace message');
 
       expect(loggedMessages.data).toEqual([
         {
           date: expect.any(Date),
           millis: expect.any(Number),
           sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger',
+          loggerName: null,
+          level: Level.ERROR,
+          message: expect.anything(),
+        },
+        {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
+          loggerName: null,
+          level: Level.WARNING,
+          message: expect.anything(),
+        },
+        {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
+          loggerName: null,
+          level: Level.INFO,
+          message: expect.anything(),
+        },
+      ]);
+    });
+
+    it('logs with locally set level', () => {
+      const log = Logger.getAnonymousLogger();
+      log.level = Level.ERROR;
+      const loggedMessages = log.trackMessagesLogged();
+
+      log.error('error message');
+      log.warning('warning message');
+
+      expect(loggedMessages.data).toEqual([
+        {
+          date: expect.any(Date),
+          millis: expect.any(Number),
+          sequenceNumber: expect.any(Number),
+          loggerName: null,
           level: Level.ERROR,
           message: ['error message'],
         },
       ]);
     });
 
-    it('Logs at level warning', () => {
-      const log = Logger.getLogger('test-logger');
-      const loggedMessages = log.trackMessagesLogged();
-
-      log.warning('warning message');
-
-      expect(loggedMessages.data).toEqual([
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger',
-          level: Level.WARNING,
-          message: ['warning message'],
-        },
-      ]);
-    });
-
-    it('Logs at level info', () => {
-      const log = Logger.getLogger('test-logger');
-      const loggedMessages = log.trackMessagesLogged();
-
-      log.info('info message');
-
-      expect(loggedMessages.data).toEqual([
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger',
-          level: Level.INFO,
-          message: ['info message'],
-        },
-      ]);
-    });
-
-    it('Logs at level debug', () => {
-      const log = Logger.getLogger('test-logger');
-      log.level = Level.ALL;
-      const loggedMessages = log.trackMessagesLogged();
-
-      log.debug('debug message');
-
-      expect(loggedMessages.data).toEqual([
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger',
-          level: Level.DEBUG,
-          message: ['debug message'],
-        },
-      ]);
-    });
-
-    it('Logs at level trace', () => {
-      const log = Logger.getLogger('test-logger');
-      log.level = Level.ALL;
-      const loggedMessages = log.trackMessagesLogged();
-
-      log.trace('trace message');
-
-      expect(loggedMessages.data).toEqual([
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger',
-          level: Level.TRACE,
-          message: ['trace message'],
-        },
-      ]);
-    });
-
-    it('Logs at info level by default', () => {
-      const log = Logger.getLogger('test-logger-default');
-      const loggedMessages = log.trackMessagesLogged();
-
-      log.error('error message');
-      log.warning('warning message');
-      log.info('info message');
-      log.debug('debug message');
-      log.trace('trace message');
-
-      expect(loggedMessages.data).toEqual([
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger-default',
-          level: Level.ERROR,
-          message: expect.anything(),
-        },
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger-default',
-          level: Level.WARNING,
-          message: expect.anything(),
-        },
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger-default',
-          level: Level.INFO,
-          message: expect.anything(),
-        },
-      ]);
-    });
-
-    it('Does not log below level', () => {
-      const log = Logger.getLogger('test-logger');
-      log.level = Level.WARNING;
-      const loggedMessages = log.trackMessagesLogged();
-
-      log.info('info message');
-
-      expect(loggedMessages.data).toEqual([]);
-    });
-
-    it('Logs with local level if set', () => {
-      const log = Logger.getLogger('test-logger');
-      log.level = Level.DEBUG;
-      const loggedMessages = log.trackMessagesLogged();
-
-      log.debug('debug message');
-
-      expect(loggedMessages.data).toEqual([
-        {
-          date: expect.any(Date),
-          millis: expect.any(Number),
-          sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger',
-          level: Level.DEBUG,
-          message: ['debug message'],
-        },
-      ]);
-    });
-
-    it('Logs with parent level if local level is not set', () => {
-      Logger.getLogger('').level = Level.DEBUG;
-      const log = Logger.getLogger('test-logger');
+    it('logs with level set on parent', () => {
+      const log = Logger.getAnonymousLogger();
       log.level = undefined;
+      log.parent.level = Level.DEBUG;
       const loggedMessages = log.trackMessagesLogged();
 
       log.debug('debug message');
+      log.trace('trace message');
 
       expect(loggedMessages.data).toEqual([
         {
           date: expect.any(Date),
           millis: expect.any(Number),
           sequenceNumber: expect.any(Number),
-          loggerName: 'test-logger',
+          loggerName: null,
           level: Level.DEBUG,
           message: ['debug message'],
         },
@@ -279,8 +178,25 @@ describe('Logging', () => {
     });
   });
 
+  describe('Handler', () => {
+    it('handles all levels as default', () => {
+      const handler = new Handler();
+
+      expect(handler.isLoggable(Level.ALL)).toEqual(true);
+    });
+
+    it('does not handle below level', () => {
+      const handler = new Handler();
+      handler.level = Level.WARNING;
+
+      expect(handler.isLoggable(Level.ERROR)).toEqual(true);
+      expect(handler.isLoggable(Level.WARNING)).toEqual(true);
+      expect(handler.isLoggable(Level.INFO)).toEqual(false);
+    });
+  });
+
   describe('Simple formatter', () => {
-    it('Returns 1 line', () => {
+    it('returns 1 line', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, 'my message');
@@ -290,7 +206,7 @@ describe('Logging', () => {
       expect(s).toEqual('2024-07-02T09:38:00.000Z INFO - my message');
     });
 
-    it('Writes logger name', () => {
+    it('writes logger name', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, 'my message');
@@ -303,7 +219,7 @@ describe('Logging', () => {
       );
     });
 
-    it('Concats messages with space', () => {
+    it('concats messages with space', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, 'count:', 5);
@@ -313,7 +229,7 @@ describe('Logging', () => {
       expect(s).toEqual('2024-07-02T09:38:00.000Z INFO - count: 5');
     });
 
-    it('Stringifies object and array', () => {
+    it('stringifies object and array', () => {
       const formatter = new SimpleFormatter();
 
       const record = new LogRecord(Level.INFO, { foo: 'bar' }, [1, 2, 3]);

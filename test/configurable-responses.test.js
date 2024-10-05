@@ -4,7 +4,7 @@ import { ConfigurableResponses } from '../lib/configurable-responses.js';
 
 describe('Configurable responses', () => {
   describe('Single value', () => {
-    it('Always returns the same value', () => {
+    it('always returns the same value', () => {
       const responses = ConfigurableResponses.create(42);
 
       expect(responses.next()).toBe(42);
@@ -12,7 +12,7 @@ describe('Configurable responses', () => {
       expect(responses.next()).toBe(42);
     });
 
-    it('Throws error if no value is given', () => {
+    it('throws error if no value is given', () => {
       const responses = ConfigurableResponses.create();
 
       expect(() => responses.next()).toThrow(
@@ -22,7 +22,7 @@ describe('Configurable responses', () => {
   });
 
   describe('Multiple values', () => {
-    it('Returns values in order', () => {
+    it('returns values in order', () => {
       const responses = ConfigurableResponses.create([1, 2, 3]);
 
       expect(responses.next()).toBe(1);
@@ -30,7 +30,7 @@ describe('Configurable responses', () => {
       expect(responses.next()).toBe(3);
     });
 
-    it('Throws error if no more values', () => {
+    it('throws error if no value is available', () => {
       const responses = ConfigurableResponses.create([1, 2, 3], 'foobar');
 
       responses.next();
@@ -42,7 +42,7 @@ describe('Configurable responses', () => {
       );
     });
 
-    it('Throws error if array is empty', () => {
+    it('throws error if array is empty', () => {
       const responses = ConfigurableResponses.create([]);
 
       expect(() => responses.next()).toThrow(
