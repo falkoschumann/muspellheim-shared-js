@@ -3,7 +3,7 @@ import { describe, expect, it } from '@jest/globals';
 import { Timer } from '../lib/timer.js';
 
 describe('Timer', () => {
-  it('Schedules a task', () => {
+  it('schedules a task', () => {
     const timer = Timer.createNull();
     const scheduledTasks = timer.trackScheduledTasks();
     const task = () => {};
@@ -13,20 +13,18 @@ describe('Timer', () => {
     expect(scheduledTasks.data).toEqual([{ task, period: 1000 }]);
   });
 
-  it('Simulates task execution', async () => {
+  it('cancels a task', () => {
     const timer = Timer.createNull();
-    let calls = 0;
-    const task = () => {
-      calls++;
-    };
-    timer.schedule(task, 1000);
+    const canceledTasks = timer.trackCanceledTasks();
+    const task = () => {};
 
-    await timer.simulateTaskExecution({ times: 3 });
+    const cancel = timer.schedule(task, 1000);
+    cancel();
 
-    expect(calls).toBe(3);
+    expect(canceledTasks.data).toEqual([{ task }]);
   });
 
-  it('Cancels all tasks', () => {
+  it('cancels all tasks', () => {
     const timer = Timer.createNull();
     const canceledTasks = timer.trackCanceledTasks();
     const task1 = () => {};
@@ -39,14 +37,16 @@ describe('Timer', () => {
     expect(canceledTasks.data).toEqual([{ task: task1 }, { task: task2 }]);
   });
 
-  it('Cancels a task', () => {
+  it('simulates task execution', async () => {
     const timer = Timer.createNull();
-    const canceledTasks = timer.trackCanceledTasks();
-    const task = () => {};
+    let calls = 0;
+    const task = () => {
+      calls++;
+    };
+    timer.schedule(task, 1000);
 
-    const cancel = timer.schedule(task, 1000);
-    cancel();
+    await timer.simulateTaskExecution({ times: 3 });
 
-    expect(canceledTasks.data).toEqual([{ task }]);
+    expect(calls).toBe(3);
   });
 });
