@@ -45,4 +45,27 @@ describe('Application configuration', () => {
 
     expect(config).toEqual({});
   });
+
+  it('merges default configuration with custom configuration', async () => {
+    const configuration = ApplicationConfiguration.createNull({
+      defaultConfig: {
+        port: 8080,
+        database: { host: 'localhost', port: 5432 },
+      },
+      files: {
+        'application.json': {
+          logLevel: 'warning',
+          database: { port: 2345 },
+        },
+      },
+    });
+
+    const config = await configuration.load();
+
+    expect(config).toEqual({
+      port: 8080,
+      logLevel: 'warning',
+      database: { host: 'localhost', port: 2345 },
+    });
+  });
 });
