@@ -8,6 +8,6 @@ eslint.config.js
 jest.config.js
 jest.global-setup.js
 jsconfig.json
-jsdoc.conf.js
+jsdoc.conf.json
 Makefile
 TODO.md
