@@ -38,7 +38,7 @@ describe('Application configuration', () => {
     });
   });
 
-  it('returns empty object if configuration file not found', async () => {
+  it('returns empty object when configuration file not found', async () => {
     const configuration = ApplicationConfiguration.createNull();
 
     const config = await configuration.load();
@@ -46,11 +46,28 @@ describe('Application configuration', () => {
     expect(config).toEqual({});
   });
 
+  it('returns default configuration when configuration file not found', async () => {
+    const configuration = ApplicationConfiguration.createNull({
+      defaultConfig: {
+        port: 8080,
+        database: { host: 'localhost', port: 5432 },
+      },
+    });
+
+    const config = await configuration.load();
+
+    expect(config).toEqual({
+      port: 8080,
+      database: { host: 'localhost', port: 5432 },
+    });
+  });
+
   it('merges default configuration with custom configuration', async () => {
     const configuration = ApplicationConfiguration.createNull({
       defaultConfig: {
         port: 8080,
         database: { host: 'localhost', port: 5432 },
+        prod: true,
       },
       files: {
         'application.json': {
@@ -66,6 +83,36 @@ describe('Application configuration', () => {
       port: 8080,
       logLevel: 'warning',
       database: { host: 'localhost', port: 2345 },
+      prod: true,
+    });
+  });
+
+  it('overrides configuration with environment variable', async () => {
+    // TODO split test into multiple tests, e.g. by property type
+    const configuration = ApplicationConfiguration.createNull({
+      defaultConfig: {
+        port: 8080,
+        database: { host: 'localhost', port: 5432, useSsl: false },
+        logger: { level: 'warning' },
+        prod: true,
+        optionalValue: 'default',
+      },
+    });
+    process.env.PORT = '3000';
+    process.env.DATABASE_PORT = '2345';
+    process.env.DATABASE_USESSL = 'true';
+    process.env.LOGGER_LEVEL = 'info';
+    process.env.PROD = 'false';
+    process.env.OPTIONALVALUE = '';
+
+    const config = await configuration.load();
+
+    expect(config).toEqual({
+      port: 3000,
+      database: { host: 'localhost', port: 2345, useSsl: true },
+      logger: { level: 'info' },
+      prod: false,
+      optionalValue: null,
     });
   });
 });
