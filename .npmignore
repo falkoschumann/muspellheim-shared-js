@@ -1,0 +1,13 @@
+/.github/
+/test/
+.editorconfig
+.gitattributes
+.prettierignore
+.prettierrc
+eslint.config.js
+jest.config.js
+jest.global-setup.js
+jsconfig.json
+jsdoc.conf.js
+Makefile
+TODO.md
