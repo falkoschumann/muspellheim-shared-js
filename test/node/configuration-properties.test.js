@@ -86,32 +86,103 @@ describe('Configuration properties', () => {
     });
   });
 
-  it('overrides configuration with environment variable', async () => {
-    // TODO split test into multiple tests, e.g. by property type
-    const configuration = ConfigurationProperties.createNull({
-      defaults: {
-        port: 8080,
-        database: { host: 'localhost', port: 5432, useSsl: false },
-        logger: { level: 'warning' },
-        prod: true,
-        optionalValue: 'default',
-      },
+  describe('Apply environment variables', () => {
+    it('overwrites number value', async () => {
+      const { configuration, defaults } = configure();
+      process.env.NUMBERVALUE = '42';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, numberValue: 42 });
     });
-    process.env.PORT = '3000';
-    process.env.DATABASE_PORT = '2345';
-    process.env.DATABASE_USESSL = 'true';
-    process.env.LOGGER_LEVEL = 'info';
-    process.env.PROD = 'false';
-    process.env.OPTIONALVALUE = '';
 
-    const config = await configuration.get();
+    it('unsets number value', async () => {
+      const { configuration, defaults } = configure();
+      process.env.NUMBERVALUE = '';
 
-    expect(config).toEqual({
-      port: 3000,
-      database: { host: 'localhost', port: 2345, useSsl: true },
-      logger: { level: 'info' },
-      prod: false,
-      optionalValue: null,
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, numberValue: null });
+    });
+
+    it('overwrites string value', async () => {
+      const { configuration, defaults } = configure();
+      process.env.STRINGVALUE = 'bar';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, stringValue: 'bar' });
+    });
+
+    it('unsets string value', async () => {
+      const { configuration, defaults } = configure();
+      process.env.STRINGVALUE = '';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, stringValue: null });
+    });
+
+    it('overwrites boolean value', async () => {
+      const { configuration, defaults } = configure();
+      process.env.BOOLEANVALUE = 'false';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, booleanValue: false });
+    });
+
+    it('unsets boolean value', async () => {
+      const { configuration, defaults } = configure();
+      process.env.BOOLEANVALUE = '';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, booleanValue: null });
+    });
+
+    it('overwrites objects property', async () => {
+      const { configuration, defaults } = configure();
+      process.env.OBJECTVALUE_KEY = 'other';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, objectValue: { key: 'other' } });
+    });
+
+    it('unsets objects property', async () => {
+      const { configuration, defaults } = configure();
+      process.env.OBJECTVALUE_KEY = '';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, objectValue: { key: null } });
+    });
+
+    it('unsets object value', async () => {
+      const { configuration, defaults } = configure();
+      process.env.OBJECTVALUE = '';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, objectValue: null });
     });
   });
 });
+
+function configure({
+  defaults = {
+    numberValue: 5,
+    stringValue: 'foo',
+    booleanValue: true,
+    objectValue: { key: 'value' },
+  },
+} = {}) {
+  delete process.env.NUMBERVALUE;
+  delete process.env.STRINGVALUE;
+  delete process.env.BOOLEANVALUE;
+  delete process.env.OBJECTVALUE_KEY;
+
+  const configuration = ConfigurationProperties.createNull({ defaults });
+  return { configuration, defaults };
+}
