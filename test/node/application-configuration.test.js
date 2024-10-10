@@ -48,7 +48,7 @@ describe('Application configuration', () => {
 
   it('returns default configuration when configuration file not found', async () => {
     const configuration = ApplicationConfiguration.createNull({
-      defaultConfig: {
+      defaults: {
         port: 8080,
         database: { host: 'localhost', port: 5432 },
       },
@@ -64,7 +64,7 @@ describe('Application configuration', () => {
 
   it('merges default configuration with custom configuration', async () => {
     const configuration = ApplicationConfiguration.createNull({
-      defaultConfig: {
+      defaults: {
         port: 8080,
         database: { host: 'localhost', port: 5432 },
         prod: true,
@@ -90,7 +90,7 @@ describe('Application configuration', () => {
   it('overrides configuration with environment variable', async () => {
     // TODO split test into multiple tests, e.g. by property type
     const configuration = ApplicationConfiguration.createNull({
-      defaultConfig: {
+      defaults: {
         port: 8080,
         database: { host: 'localhost', port: 5432, useSsl: false },
         logger: { level: 'warning' },
