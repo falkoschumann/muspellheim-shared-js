@@ -1,4 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
+
 import { ConfigurationProperties } from '../../lib/node/configuration-properties.js';
 
 describe('Configuration properties', () => {
@@ -12,7 +13,7 @@ describe('Configuration properties', () => {
       },
     });
 
-    const config = await configuration.load();
+    const config = await configuration.get();
 
     expect(config).toEqual({
       port: 8080,
@@ -30,7 +31,7 @@ describe('Configuration properties', () => {
       },
     });
 
-    const config = await configuration.load();
+    const config = await configuration.get();
 
     expect(config).toEqual({
       port: 8080,
@@ -41,7 +42,7 @@ describe('Configuration properties', () => {
   it('returns empty object when configuration file not found', async () => {
     const configuration = ConfigurationProperties.createNull();
 
-    const config = await configuration.load();
+    const config = await configuration.get();
 
     expect(config).toEqual({});
   });
@@ -54,7 +55,7 @@ describe('Configuration properties', () => {
       },
     });
 
-    const config = await configuration.load();
+    const config = await configuration.get();
 
     expect(config).toEqual({
       port: 8080,
@@ -67,7 +68,6 @@ describe('Configuration properties', () => {
       defaults: {
         port: 8080,
         database: { host: 'localhost', port: 5432 },
-        prod: true,
       },
       files: {
         'application.json': {
@@ -77,13 +77,12 @@ describe('Configuration properties', () => {
       },
     });
 
-    const config = await configuration.load();
+    const config = await configuration.get();
 
     expect(config).toEqual({
       port: 8080,
       logLevel: 'warning',
       database: { host: 'localhost', port: 2345 },
-      prod: true,
     });
   });
 
@@ -105,7 +104,7 @@ describe('Configuration properties', () => {
     process.env.PROD = 'false';
     process.env.OPTIONALVALUE = '';
 
-    const config = await configuration.load();
+    const config = await configuration.get();
 
     expect(config).toEqual({
       port: 3000,
