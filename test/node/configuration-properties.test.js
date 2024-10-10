@@ -1,9 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
-import { ApplicationConfiguration } from '../../lib/node/application-configuration.js';
+import { ConfigurationProperties } from '../../lib/node/configuration-properties.js';
 
-describe('Application configuration', () => {
+describe('Configuration properties', () => {
   it('loads configuration from default path', async () => {
-    const configuration = ApplicationConfiguration.createNull({
+    const configuration = ConfigurationProperties.createNull({
       files: {
         'application.json': {
           port: 8080,
@@ -21,7 +21,7 @@ describe('Application configuration', () => {
   });
 
   it('loads configuration from subdir', async () => {
-    const configuration = ApplicationConfiguration.createNull({
+    const configuration = ConfigurationProperties.createNull({
       files: {
         'config/application.json': {
           port: 8080,
@@ -39,7 +39,7 @@ describe('Application configuration', () => {
   });
 
   it('returns empty object when configuration file not found', async () => {
-    const configuration = ApplicationConfiguration.createNull();
+    const configuration = ConfigurationProperties.createNull();
 
     const config = await configuration.load();
 
@@ -47,7 +47,7 @@ describe('Application configuration', () => {
   });
 
   it('returns default configuration when configuration file not found', async () => {
-    const configuration = ApplicationConfiguration.createNull({
+    const configuration = ConfigurationProperties.createNull({
       defaults: {
         port: 8080,
         database: { host: 'localhost', port: 5432 },
@@ -63,7 +63,7 @@ describe('Application configuration', () => {
   });
 
   it('merges default configuration with custom configuration', async () => {
-    const configuration = ApplicationConfiguration.createNull({
+    const configuration = ConfigurationProperties.createNull({
       defaults: {
         port: 8080,
         database: { host: 'localhost', port: 5432 },
@@ -89,7 +89,7 @@ describe('Application configuration', () => {
 
   it('overrides configuration with environment variable', async () => {
     // TODO split test into multiple tests, e.g. by property type
-    const configuration = ApplicationConfiguration.createNull({
+    const configuration = ConfigurationProperties.createNull({
       defaults: {
         port: 8080,
         database: { host: 'localhost', port: 5432, useSsl: false },
