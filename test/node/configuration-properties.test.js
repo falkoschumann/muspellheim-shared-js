@@ -159,13 +159,58 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaults, objectValue: { key: null } });
     });
 
-    it('unsets object value', async () => {
+    it('unsets object', async () => {
       const { configuration, defaults } = configure();
       process.env.OBJECTVALUE = '';
 
       const config = await configuration.get();
 
       expect(config).toEqual({ ...defaults, objectValue: null });
+    });
+
+    it('overwrites an array element', async () => {
+      const { configuration, defaults } = configure();
+      process.env.ARRAYVALUE_1 = 'b';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, arrayValue: [1, 'b', true] });
+    });
+
+    it('overwrites array', async () => {
+      const { configuration, defaults } = configure();
+      process.env.ARRAYVALUE = '2,b,false';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, arrayValue: ['2', 'b', 'false'] });
+    });
+
+    it('unsets array', async () => {
+      const { configuration, defaults } = configure();
+      process.env.ARRAYVALUE = '';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, arrayValue: null });
+    });
+
+    it('overwrites null value', async () => {
+      const { configuration, defaults } = configure();
+      process.env.NULLVALUE = '5';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, nullValue: '5' });
+    });
+
+    it('unsets null value', async () => {
+      const { configuration, defaults } = configure();
+      process.env.NULLVALUE = '';
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, nullValue: null });
     });
   });
 });
@@ -176,12 +221,18 @@ function configure({
     stringValue: 'foo',
     booleanValue: true,
     objectValue: { key: 'value' },
+    arrayValue: [1, 'a', true],
+    nullValue: null,
   },
 } = {}) {
   delete process.env.NUMBERVALUE;
   delete process.env.STRINGVALUE;
   delete process.env.BOOLEANVALUE;
+  delete process.env.OBJECTVALUE;
   delete process.env.OBJECTVALUE_KEY;
+  delete process.env.ARRAYVALUE;
+  delete process.env.ARRAYVALUE_1;
+  delete process.env.NULLVALUE;
 
   const configuration = ConfigurationProperties.createNull({ defaults });
   return { configuration, defaults };
