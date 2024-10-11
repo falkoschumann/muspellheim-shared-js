@@ -86,6 +86,37 @@ describe('Configuration properties', () => {
     });
   });
 
+  it('loads configuration subset', async () => {
+    const configuration = ConfigurationProperties.createNull({
+      files: {
+        'application.json': {
+          port: 8080,
+          database: { host: 'localhost', port: 5432 },
+        },
+      },
+      prefix: 'database',
+    });
+
+    const config = await configuration.get();
+
+    expect(config).toEqual({ host: 'localhost', port: 5432 });
+  });
+
+  it('loads configuration sub-subset', async () => {
+    const configuration = ConfigurationProperties.createNull({
+      files: {
+        'application.json': {
+          a: { b: { c: 42 } },
+        },
+      },
+      prefix: 'a.b',
+    });
+
+    const config = await configuration.get();
+
+    expect(config).toEqual({ c: 42 });
+  });
+
   describe('Apply environment variables', () => {
     it('overwrites number value', async () => {
       const { configuration, defaults } = configure();
