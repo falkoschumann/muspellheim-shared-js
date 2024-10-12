@@ -32,4 +32,5 @@
 
 ## Node
 
+-   [x] application-properties
 -   [x] logging
