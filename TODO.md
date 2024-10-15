@@ -14,7 +14,7 @@
 -   [ ] stop-watch
 -   [x] store
 -   [x] time
--   [ ] timer
+-   [x] timer
 -   [ ] validation
 -   [x] vector
 -   [ ] web-socket-client
