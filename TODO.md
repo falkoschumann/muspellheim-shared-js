@@ -8,8 +8,8 @@
 -   [x] logging
 -   [ ] long-polling-client
 -   [x] output-tracker
--   [ ] random
--   [ ] service-locator
+-   [x] random
+-   [x] service-locator
 -   [ ] sse-client
 -   [ ] stop-watch
 -   [x] store
@@ -32,5 +32,5 @@
 
 ## Node
 
--   [x] application-properties
+-   [x] configuration-properties
 -   [x] logging
