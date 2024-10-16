@@ -1,6 +1,6 @@
 # Shared
 
--   [ ] color
+-   [x] color
 -   [x] configurable-responses
 -   [x] enum
 -   [ ] feature-toggle

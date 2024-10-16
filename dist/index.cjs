@@ -6,9 +6,19 @@ var _ = require('lodash');
 
 const FACTOR = 0.7;
 
+/**
+ * The Color class represents a color in the RGB color space.
+ */
 class Color {
   #value;
 
+  /**
+   * Creates a color instance from RGB values.
+   *
+   * @param {number} red - the red component or the RGB value
+   * @param {number} [green] - the green component
+   * @param {number} [blue] - the blue component
+   */
   constructor(red, green, blue) {
     if (green === undefined && blue === undefined) {
       if (typeof red === 'string') {
@@ -24,22 +34,40 @@ class Color {
       ((red & 0xff) << 16) | ((green & 0xff) << 8) | ((blue & 0xff) << 0);
   }
 
+  /**
+   * The RGB value of the color.
+   */
   get rgb() {
     return this.#value;
   }
 
+  /**
+   * The red component of the color.
+   */
   get red() {
     return (this.rgb >> 16) & 0xff;
   }
 
+  /**
+   * The green component of the color.
+   */
   get green() {
     return (this.rgb >> 8) & 0xff;
   }
 
+  /**
+   * The blue component of the color.
+   */
   get blue() {
     return (this.rgb >> 0) & 0xff;
   }
 
+  /**
+   * Creates a new color that is brighter than this color.
+   *
+   * @param {number} [factor] - the optional factor to brighten the color
+   * @returns {Color} the brighter color
+   */
   brighter(factor = FACTOR) {
     if (Number.isNaN(this.rgb)) {
       return new Color();
@@ -65,6 +93,12 @@ class Color {
     );
   }
 
+  /**
+   * Creates a new color that is darker than this color.
+   *
+   * @param {number} [factor] - the optional factor to darken the color
+   * @returns {Color} the darker color
+   */
   darker(factor = FACTOR) {
     if (Number.isNaN(this.rgb)) {
       return new Color();
@@ -77,10 +111,20 @@ class Color {
     );
   }
 
+  /**
+   * Returns the RGB value of the color.
+   *
+   * @returns {number} the RGB value of the color
+   */
   valueOf() {
     return this.rgb;
   }
 
+  /**
+   * Returns the hexadecimal representation of the color.
+   *
+   * @returns {string} the hexadecimal representation of the color
+   */
   toString() {
     if (Number.isNaN(this.rgb)) {
       return 'Invalid Color';
