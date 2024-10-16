@@ -11,7 +11,7 @@
 -   [x] random
 -   [x] service-locator
 -   [ ] sse-client
--   [ ] stop-watch
+-   [x] stop-watch
 -   [x] store
 -   [x] time
 -   [x] timer

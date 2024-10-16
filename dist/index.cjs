@@ -1612,143 +1612,6 @@ class EventSourceStub extends EventTarget {
   }
 }
 
-class StopWatch {
-  #startTime;
-  #stopTime;
-
-  start() {
-    this.#startTime = Date.now();
-  }
-
-  stop() {
-    this.#stopTime = Date.now();
-  }
-
-  getTotalTimeMillis() {
-    return this.#stopTime - this.#startTime;
-  }
-
-  getTotalTimeSeconds() {
-    return this.getTotalTimeMillis / 1000;
-  }
-}
-
-/**
- * A reducer is a function that changes the state of the application based on an
- * action.
- *
- * @callback ReducerType
- * @param {StateType} state the current state of the application
- * @param {ActionType} action the action to handle
- * @returns {StateType} the next state of the application or the initial state
- *   if the state parameter is `undefined`
- */
-
-/**
- * The application state can be any object.
- *
- * @typedef {object} StateType
- */
-
-/**
- * An action describe an command or an event that changes the state of the
- * application.
- *
- * An action can have any properties, but it should have a `type` property.
- *
- * @typedef {object} ActionType
- * @property {string} type a string that identifies the action
- */
-
-/**
- * A listener is a function that is called when the state of the store changes.
- *
- * @callback ListenerType
- */
-
-/**
- * An unsubscriber is a function that removes a listener from the store.
- *
- * @callback UnsubscriberType
- */
-
-/**
- * Creates a new store with the given reducer and optional preloaded state.
- *
- * @param {ReducerType} reducer the reducer function
- * @param {StateType} [preloadedState] the optional initial state of the store
- * @returns {Store} the new store
- */
-function createStore(reducer, preloadedState) {
-  const initialState = preloadedState || reducer(undefined, { type: '@@INIT' });
-  return new Store(reducer, initialState);
-}
-
-/**
- * A simple store compatible with [Redux](https://redux.js.org/api/store).
- */
-class Store {
-  #reducer;
-  #state;
-  #listeners = [];
-
-  /** @hideconstructor */
-  constructor(
-    /** @type {ReducerType} */ reducer,
-    /** @type {StateType} */ initialState,
-  ) {
-    this.#reducer = reducer;
-    this.#state = initialState;
-  }
-
-  /**
-   * Returns the current state of the store.
-   *
-   * @returns {StateType} the current state of the store
-   */
-  getState() {
-    return this.#state;
-  }
-
-  /**
-   * Updates the state of the store by dispatching an action to the reducer.
-   *
-   * @param {ActionType} action the action to dispatch
-   */
-  dispatch(action) {
-    const oldState = this.#state;
-    this.#state = this.#reducer(this.#state, action);
-    if (oldState !== this.#state) {
-      this.#emitChange();
-    }
-  }
-
-  /**
-   * Subscribes a listener to store changes.
-   *
-   * @param {ListenerType} listener the listener to subscribe
-   * @returns {UnsubscriberType} a function that unsubscribes the listener
-   */
-  subscribe(listener) {
-    this.#listeners.push(listener);
-    return () => this.#unsubscribe(listener);
-  }
-
-  #emitChange() {
-    this.#listeners.forEach((listener) => {
-      // Unsubscribe replace listeners array with a new array, so we must double
-      // check if listener is still subscribed.
-      if (this.#listeners.includes(listener)) {
-        listener();
-      }
-    });
-  }
-
-  #unsubscribe(listener) {
-    this.#listeners = this.#listeners.filter((l) => l !== listener);
-  }
-}
-
 /**
  * A clock provides access to the current timestamp.
  */
@@ -2176,6 +2039,172 @@ class Duration {
     } else {
       return this.toString();
     }
+  }
+}
+
+/**
+ * A simple stop watch.
+ */
+class StopWatch {
+  #clock;
+  #startTime;
+  #stopTime;
+
+  /**
+   * Creates a new stop watch.
+   *
+   * @param {Clock} [clock=Clock.system()] - the clock to use for time measurement
+   */
+  constructor(clock = Clock.system()) {
+    this.#clock = clock;
+  }
+
+  /**
+   * Starts an unnamed task.
+   */
+  start() {
+    this.#startTime = this.#clock.millis();
+  }
+
+  /**
+   * Stops the current task.
+   */
+  stop() {
+    this.#stopTime = this.#clock.millis();
+  }
+
+  /**
+   * Gets the total time in milliseconds.
+   *
+   * @returns {number} the total time in milliseconds
+   */
+  getTotalTimeMillis() {
+    return this.#stopTime - this.#startTime;
+  }
+
+  /**
+   * Gets the total time in seconds.
+   *
+   * @returns {number} the total time in seconds
+   */
+  getTotalTimeSeconds() {
+    return this.getTotalTimeMillis() / 1000;
+  }
+}
+
+/**
+ * A reducer is a function that changes the state of the application based on an
+ * action.
+ *
+ * @callback ReducerType
+ * @param {StateType} state the current state of the application
+ * @param {ActionType} action the action to handle
+ * @returns {StateType} the next state of the application or the initial state
+ *   if the state parameter is `undefined`
+ */
+
+/**
+ * The application state can be any object.
+ *
+ * @typedef {object} StateType
+ */
+
+/**
+ * An action describe an command or an event that changes the state of the
+ * application.
+ *
+ * An action can have any properties, but it should have a `type` property.
+ *
+ * @typedef {object} ActionType
+ * @property {string} type a string that identifies the action
+ */
+
+/**
+ * A listener is a function that is called when the state of the store changes.
+ *
+ * @callback ListenerType
+ */
+
+/**
+ * An unsubscriber is a function that removes a listener from the store.
+ *
+ * @callback UnsubscriberType
+ */
+
+/**
+ * Creates a new store with the given reducer and optional preloaded state.
+ *
+ * @param {ReducerType} reducer the reducer function
+ * @param {StateType} [preloadedState] the optional initial state of the store
+ * @returns {Store} the new store
+ */
+function createStore(reducer, preloadedState) {
+  const initialState = preloadedState || reducer(undefined, { type: '@@INIT' });
+  return new Store(reducer, initialState);
+}
+
+/**
+ * A simple store compatible with [Redux](https://redux.js.org/api/store).
+ */
+class Store {
+  #reducer;
+  #state;
+  #listeners = [];
+
+  /** @hideconstructor */
+  constructor(
+    /** @type {ReducerType} */ reducer,
+    /** @type {StateType} */ initialState,
+  ) {
+    this.#reducer = reducer;
+    this.#state = initialState;
+  }
+
+  /**
+   * Returns the current state of the store.
+   *
+   * @returns {StateType} the current state of the store
+   */
+  getState() {
+    return this.#state;
+  }
+
+  /**
+   * Updates the state of the store by dispatching an action to the reducer.
+   *
+   * @param {ActionType} action the action to dispatch
+   */
+  dispatch(action) {
+    const oldState = this.#state;
+    this.#state = this.#reducer(this.#state, action);
+    if (oldState !== this.#state) {
+      this.#emitChange();
+    }
+  }
+
+  /**
+   * Subscribes a listener to store changes.
+   *
+   * @param {ListenerType} listener the listener to subscribe
+   * @returns {UnsubscriberType} a function that unsubscribes the listener
+   */
+  subscribe(listener) {
+    this.#listeners.push(listener);
+    return () => this.#unsubscribe(listener);
+  }
+
+  #emitChange() {
+    this.#listeners.forEach((listener) => {
+      // Unsubscribe replace listeners array with a new array, so we must double
+      // check if listener is still subscribed.
+      if (this.#listeners.includes(listener)) {
+        listener();
+      }
+    });
+  }
+
+  #unsubscribe(listener) {
+    this.#listeners = this.#listeners.filter((l) => l !== listener);
   }
 }
 
