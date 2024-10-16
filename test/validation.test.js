@@ -577,6 +577,6 @@ describe('Validation', () => {
 });
 
 class YesNo extends Enum {
-  static YES = new YesNo(0, 'YES');
-  static NO = new YesNo(1, 'NO');
+  static YES = new YesNo('YES', 0);
+  static NO = new YesNo('NO', 1);
 }

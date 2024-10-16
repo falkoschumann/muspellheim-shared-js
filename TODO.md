@@ -2,7 +2,7 @@
 
 -   [ ] color
 -   [x] configurable-responses
--   [ ] enum
+-   [x] enum
 -   [ ] feature-toggle
 -   [ ] health
 -   [x] logging
