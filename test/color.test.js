@@ -3,7 +3,7 @@ import { describe, expect, it } from '@jest/globals';
 import { Color } from '../lib/color.js';
 
 describe('Color', () => {
-  it('Creates a color instance from RGB values', () => {
+  it('creates a color instance from RGB values', () => {
     const color = new Color(14, 83, 255);
 
     expect(color.rgb).toEqual(0x0e53ff);
@@ -14,26 +14,26 @@ describe('Color', () => {
     expect(color.toString()).toEqual('0e53ff');
   });
 
-  it('Creates a color instance from RGB value', () => {
+  it('creates a color instance from RGB value', () => {
     const color = new Color(0x0e53ff);
 
     expect(color.valueOf()).toEqual(0x0e53ff);
   });
 
-  it('Creates a color instance from RGB string', () => {
+  it('creates a color instance from RGB string', () => {
     const color = new Color('0e53ff');
 
     expect(color.valueOf()).toEqual(0x0e53ff);
   });
 
-  it('Creates invalid color', () => {
+  it('creates invalid color', () => {
     const color = new Color();
 
     expect(color.valueOf()).toEqual(Number.NaN);
     expect(color.toString()).toEqual('Invalid Color');
   });
 
-  it('Returns darker color', () => {
+  it('returns darker color', () => {
     const color = new Color('0e53ff');
 
     const newColor = color.darker();
@@ -41,7 +41,7 @@ describe('Color', () => {
     expect(newColor.toString()).toEqual('093ab2');
   });
 
-  it('Returns brighter color', () => {
+  it('returns brighter color', () => {
     const color = new Color('093ab2');
 
     const newColor = color.brighter();
@@ -49,7 +49,7 @@ describe('Color', () => {
     expect(newColor.toString()).toEqual('0c52fe');
   });
 
-  it('Returns grey when color is black', () => {
+  it('returns grey when color is black', () => {
     const color = new Color('000000');
 
     const newColor = color.brighter();

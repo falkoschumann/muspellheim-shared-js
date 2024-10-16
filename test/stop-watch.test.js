@@ -4,7 +4,7 @@ import { Clock } from '../lib/time.js';
 import { StopWatch } from '../lib/stop-watch';
 
 describe('Stop watch', () => {
-  it('Measures time', () => {
+  it('measures time', () => {
     const clock = Clock.fixed();
     const watch = new StopWatch(clock);
 
