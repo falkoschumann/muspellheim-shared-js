@@ -231,6 +231,8 @@ describe('Timer', () => {
       expect(task._state).toBe('scheduled');
     });
   });
+
+  // TODO Test difference between schedule and scheduleAtFixedRate
 });
 
 class StubbedTask extends TimerTask {

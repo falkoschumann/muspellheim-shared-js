@@ -10,6 +10,7 @@ clean:
 	rm -rf docs
 
 distclean: clean
+	rm -rf dist
 	rm -rf node_modules
 
 dist: build
@@ -44,6 +45,7 @@ coverage: prepare
 	npx jest --coverage
 
 build: prepare
+	npm run build
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \
