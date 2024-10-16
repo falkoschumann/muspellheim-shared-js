@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Timer, TimerTask } from '../lib/timer.js';
 import { Clock } from '../lib/time.js';
+import { Timer, TimerTask } from '../lib/timer.js';
 
 describe('Timer', () => {
   it('schedules a task with delay', () => {
@@ -38,13 +38,22 @@ describe('Timer', () => {
     const clock = Clock.fixed(2000);
     const timer = Timer.createNull({ clock });
 
-    const task = new TimerTask();
+    const task = new StubbedTask();
     timer.schedule(task, 100, 60);
 
-    //expect(task.scheduledExecutionTime()).toBe(2040);
+    expect(task.scheduledExecutionTime()).toBe(2040);
     expect(task).toMatchObject({
       _state: 'scheduled',
       _nextExecutionTime: 2100,
+      _period: -60,
+    });
+
+    timer.simulateTaskExecution({ ticks: 120 });
+
+    expect(task.scheduledExecutionTime()).toBe(2120);
+    expect(task).toMatchObject({
+      _state: 'scheduled',
+      _nextExecutionTime: 2180,
       _period: -60,
     });
   });
@@ -53,13 +62,22 @@ describe('Timer', () => {
     const clock = Clock.fixed(2000);
     const timer = Timer.createNull({ clock });
 
-    const task = new TimerTask();
+    const task = new StubbedTask();
     timer.schedule(task, new Date(clock.millis() + 100), 60);
 
-    //expect(task.scheduledExecutionTime()).toBe(2040);
+    expect(task.scheduledExecutionTime()).toBe(2040);
     expect(task).toMatchObject({
       _state: 'scheduled',
       _nextExecutionTime: 2100,
+      _period: -60,
+    });
+
+    timer.simulateTaskExecution({ ticks: 120 });
+
+    expect(task.scheduledExecutionTime()).toBe(2120);
+    expect(task).toMatchObject({
+      _state: 'scheduled',
+      _nextExecutionTime: 2180,
       _period: -60,
     });
   });
@@ -68,7 +86,7 @@ describe('Timer', () => {
     const clock = Clock.fixed(2000);
     const timer = Timer.createNull({ clock });
 
-    const task = new TimerTask();
+    const task = new StubbedTask();
     timer.scheduleAtFixedRate(task, 100, 60);
 
     expect(task.scheduledExecutionTime()).toBe(2040);
@@ -77,13 +95,22 @@ describe('Timer', () => {
       _nextExecutionTime: 2100,
       _period: 60,
     });
+
+    timer.simulateTaskExecution({ ticks: 120 });
+
+    expect(task.scheduledExecutionTime()).toBe(2100);
+    expect(task).toMatchObject({
+      _state: 'scheduled',
+      _nextExecutionTime: 2160,
+      _period: 60,
+    });
   });
 
   it('schedules at fixed rate a periodic task with start time', () => {
     const clock = Clock.fixed(2000);
     const timer = Timer.createNull({ clock });
 
-    const task = new TimerTask();
+    const task = new StubbedTask();
     timer.scheduleAtFixedRate(task, new Date(clock.millis() + 100), 60);
 
     expect(task.scheduledExecutionTime()).toBe(2040);
@@ -92,12 +119,21 @@ describe('Timer', () => {
       _nextExecutionTime: 2100,
       _period: 60,
     });
+
+    timer.simulateTaskExecution({ ticks: 120 });
+
+    expect(task.scheduledExecutionTime()).toBe(2100);
+    expect(task).toMatchObject({
+      _state: 'scheduled',
+      _nextExecutionTime: 2160,
+      _period: 60,
+    });
   });
 
   it('cancels a task', () => {
     const clock = Clock.fixed(1000);
     const timer = Timer.createNull({ clock });
-    const task = new TimerTask(() => {});
+    const task = new TimerTask();
     timer.schedule(task, 140);
 
     const result = task.cancel();
@@ -231,8 +267,6 @@ describe('Timer', () => {
       expect(task._state).toBe('scheduled');
     });
   });
-
-  // TODO Test difference between schedule and scheduleAtFixedRate
 });
 
 class StubbedTask extends TimerTask {
