@@ -4,37 +4,103 @@ import { describe, expect, it } from '@jest/globals';
 import { SseEmitter } from '../../lib/node/sse-emitter';
 
 describe('SSE emitter', () => {
-  it('Initializes response', () => {
+  it('extends response', () => {
     const response = new ResponseStub();
-    SseEmitter.create({ response });
+    const emitter = new SseEmitter();
+    emitter.extendResponse(response);
 
     expect(response.statusCode).toBe(200);
     expect(response.getHeader('Content-Type')).toBe('text/event-stream');
   });
 
-  it('Sends event', () => {
+  it('sends event', () => {
     const response = new ResponseStub();
-    const emitter = SseEmitter.create({ response });
+    const emitter = new SseEmitter();
+    emitter.extendResponse(response);
 
-    emitter.send('event-data');
-
-    expect(response.body).toBe('data: event-data\n\n');
-  });
-
-  it('Sends typed event', () => {
-    const response = new ResponseStub();
-    const emitter = SseEmitter.create({ response });
-
-    emitter.send({ data: 'event-data' }, 'event-type');
+    emitter.send({ data: 'a text message' });
 
     expect(response.body).toBe(
-      'event: event-type\ndata: {"data":"event-data"}\n\n',
+      `data: a text message
+
+`,
     );
   });
 
-  it('Closes response after timeout', () => {
+  it('sends typed event', () => {
     const response = new ResponseStub();
-    const emitter = SseEmitter.create({ response, timeout: 60000 });
+    const emitter = new SseEmitter();
+    emitter.extendResponse(response);
+
+    emitter.send({
+      name: 'event-type',
+      data: { prop1: 42, prop2: 'foobar' },
+    });
+
+    expect(response.body).toBe(
+      `event: event-type
+data: {"prop1":42,"prop2":"foobar"}
+
+`,
+    );
+  });
+
+  it('sends full event', () => {
+    const response = new ResponseStub();
+    const emitter = new SseEmitter();
+    emitter.extendResponse(response);
+
+    emitter.send({
+      id: '42',
+      name: 'event-type',
+      reconnectTime: 30000,
+      comment: 'a comment',
+      data: { prop1: 42, prop2: 'foobar' },
+    });
+
+    expect(response.body).toBe(
+      `: a comment
+event: event-type
+data: {"prop1":42,"prop2":"foobar"}
+id: 42
+retry: 30000
+
+`,
+    );
+  });
+
+  it('sends multiple events', () => {
+    const response = new ResponseStub();
+    const emitter = new SseEmitter();
+    emitter.extendResponse(response);
+
+    emitter.send({ comment: 'this is a test stream' });
+    emitter.send({ data: 'some text' });
+    emitter.send({ data: 'another message\nwith two lines' });
+    emitter.send({
+      name: 'userconnect',
+      data: { username: 'bobby', time: '02:33:48' },
+    });
+
+    expect(response.body).toBe(
+      `: this is a test stream
+
+data: some text
+
+data: another message
+data: with two lines
+
+event: userconnect
+data: {"username":"bobby","time":"02:33:48"}
+
+`,
+    );
+  });
+
+  it('closes response after timeout', () => {
+    const response = new ResponseStub();
+    const emitter = new SseEmitter(60000);
+    emitter.extendResponse(response);
 
     emitter.simulateTimeout();
 
@@ -43,13 +109,9 @@ describe('SSE emitter', () => {
 });
 
 class ResponseStub extends events.EventEmitter {
+  statusCode = 200;
   body = '';
   #headers = {};
-
-  status(code) {
-    this.statusCode = code;
-    return this;
-  }
 
   setHeader(key, value) {
     this.#headers[key] = value;

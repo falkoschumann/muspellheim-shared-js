@@ -28,7 +28,7 @@
 -   [ ] actuator-controller
 -   [ ] handler
 -   [ ] long-polling
--   [ ] sse-emitter
+-   [x] sse-emitter
 
 ## Node
 

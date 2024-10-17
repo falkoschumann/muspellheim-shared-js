@@ -36,6 +36,8 @@ class Color {
 
   /**
    * The RGB value of the color.
+   *
+   * @type {number}
    */
   get rgb() {
     return this.#value;
@@ -43,6 +45,8 @@ class Color {
 
   /**
    * The red component of the color.
+   *
+   * @type {number}
    */
   get red() {
     return (this.rgb >> 16) & 0xff;
@@ -50,6 +54,8 @@ class Color {
 
   /**
    * The green component of the color.
+   *
+   * @type {number}
    */
   get green() {
     return (this.rgb >> 8) & 0xff;
@@ -57,6 +63,8 @@ class Color {
 
   /**
    * The blue component of the color.
+   *
+   * @type {number}
    */
   get blue() {
     return (this.rgb >> 0) & 0xff;
@@ -2252,10 +2260,25 @@ class Store {
   }
 }
 
+/**
+ * import { Duration } from './time.js'
+ */
+
+
 const TASK_CREATED = 'created';
 const TASK_SCHEDULED = 'scheduled';
 const TASK_EXECUTED = 'executed';
 const TASK_CANCELLED = 'cancelled';
+
+/**
+ * Temporarily cease execution for the specified duration.
+ *
+ * @param {number} millis - the duration to sleep in milliseconds
+ * @returns {Promise<void>} a promise that resolves after the specified duration
+ */
+async function sleep(millis) {
+  return new Promise((resolve) => setTimeout(resolve, millis));
+}
 
 /**
  * A task that can be scheduled by a {@link Timer}.
@@ -3286,46 +3309,98 @@ class LongPolling {
 }
 
 /**
- * @import * as express from 'express'
+ * @import http from 'node:http'
  */
 
+/**
+ * An object for sending
+ * [Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events).
+ */
 class SseEmitter {
-  static create({ response, timeout } = {}) {
-    return new SseEmitter(response, timeout);
+  /** @type {?number} */ #timeout;
+  /** @type {http.ServerResponse|undefined} */ #response;
+
+  /**
+   * Creates a new SSE emitter with an optional timeout.
+   *
+   * @param {number} [timeout] - the timeout in milliseconds after which the connection will be closed
+   */
+  constructor(timeout) {
+    this.#timeout = timeout;
   }
 
-  #response;
-  #timeoutId;
+  /**
+   * The timeout in milliseconds after which the connection will be closed or
+   * undefined if no timeout is set.
+   *
+   * @type {number|undefined}
+   */
+  get timeout() {
+    return this.#timeout;
+  }
 
-  constructor(
-    /** @type {express.Response} */ response,
-    /** @type {?number} */ timeout,
-  ) {
-    this.#response = response
-      .status(200)
+  /**
+   * Sets and extends the response object for sending Server-Sent Events.
+   *
+   * @param {http.ServerResponse} outputMessage - the response object to use
+   */
+  extendResponse(outputMessage) {
+    outputMessage.statusCode = 200;
+    this.#response = outputMessage
       .setHeader('Content-Type', 'text/event-stream')
       .setHeader('Keep-Alive', `timeout=60`)
       .setHeader('Connection', 'keep-alive');
 
-    this.#response.addListener('close', () => clearTimeout(this.#timeoutId));
-    if (timeout != null) {
-      this.#timeoutId = setTimeout(() => this.#close(), timeout);
+    if (this.timeout != null) {
+      const timeoutId = setTimeout(() => this.#close(), this.timeout);
+      this.#response.addListener('close', () => clearTimeout(timeoutId));
     }
   }
 
+  /**
+   * Sends a SSE event.
+   *
+   * @param {object} event - the event to send
+   * @param {string} [event.id] - add a SSE "id" line
+   * @param {string} [event.name] - add a SSE "event" line
+   * @param {number} [event.reconnectTime] - add a SSE "retry" line
+   * @param {string} [event.comment] - add a SSE "comment" line
+   * @param {string|object} event.data] - add a SSE "data" line
+   */
+  send({ id, name, reconnectTime, comment, data } = {}) {
+    if (comment != null) {
+      this.#response.write(`: ${comment}\n`);
+    }
+
+    if (name != null) {
+      this.#response.write(`event: ${name}\n`);
+    }
+
+    if (data != null) {
+      if (typeof data === 'object') {
+        data = JSON.stringify(data);
+      } else {
+        data = String(data).replaceAll('\n', '\ndata: ');
+      }
+      this.#response.write(`data: ${data}\n`);
+    }
+
+    if (id != null) {
+      this.#response.write(`id: ${id}\n`);
+    }
+
+    if (reconnectTime != null) {
+      this.#response.write(`retry: ${reconnectTime}\n`);
+    }
+
+    this.#response.write('\n');
+  }
+
+  /**
+   * Simulates a timeout.
+   */
   simulateTimeout() {
     this.#close();
-  }
-
-  send(/** @type {object|string} */ data, /** @type {string} */ event) {
-    if (event != null) {
-      this.#response.write(`event: ${event}\n`);
-    }
-    if (typeof data === 'object') {
-      data = JSON.stringify(data);
-    }
-    this.#response.write(`data: ${data}\n`);
-    this.#response.write('\n');
   }
 
   #close() {
@@ -3379,3 +3454,4 @@ exports.ensureType = ensureType;
 exports.ensureUnreachable = ensureUnreachable;
 exports.reply = reply;
 exports.runSafe = runSafe;
+exports.sleep = sleep;
