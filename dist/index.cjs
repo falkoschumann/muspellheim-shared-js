@@ -303,7 +303,7 @@ function ensureArguments(args, expectedTypes = [], names = []) {
   });
 }
 
-/** @returns {{value: ?any, error: ?string}}} */
+/** @returns {{value: ?*, error: ?string}}} */
 function checkType(value, expectedType, { name = 'value' } = {}) {
   const valueType = getType(value);
 
@@ -573,79 +573,511 @@ class FeatureToggle {
   */
 }
 
-const Status = Object.freeze({
-  UP: 'UP',
-  DOWN: 'DOWN',
-  OUT_OF_SERVICE: 'OUT_OF_SERVICE',
-  UNKNOWN: 'UNKNOWN',
-});
+class AssertationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'AssertationError';
+  }
+}
 
+/**
+ * Assert that an object is not `null`.
+ *
+ * @param {*} object - the object to check
+ * @param {string|Function} message - the message to throw or a function that returns the message
+ */
+function assertNotNull(object, message) {
+  if (object == null) {
+    message = typeof message === 'function' ? message() : message;
+    throw new AssertationError(message);
+  }
+}
+
+/**
+ * Express state of a component.
+ */
+class Status {
+  /**
+   * Indicates the component is in an unknown state.
+   *
+   * @type {Status}
+   */
+  static UNKNOWN = new Status('UNKNOWN');
+
+  /**
+   * Indicates the component is functioning as expected
+   *
+   * @type {Status}
+   */
+  static UP = new Status('UP');
+
+  /**
+   *  Indicates the component has suffered an unexpected failure.
+   *
+   * @type {Status}
+   */
+  static DOWN = new Status('DOWN');
+
+  /**
+   *  Indicates the component has been taken out of service and should not be used.
+   *
+   * @type {Status}
+   */
+  static OUT_OF_SERVICE = new Status('OUT_OF_SERVICE');
+
+  /**
+   * Creates a new status.
+   *
+   * @param {string} code - the status code
+   */
+  constructor(code) {
+    assertNotNull(code, 'Code must not be null.');
+    this.code = code;
+  }
+
+  /**
+   * Returns a string representation of the status.
+   *
+   * @returns {string} the status code
+   */
+  toString() {
+    return this.code;
+  }
+
+  /**
+   * Returns the value of the status.
+   *
+   * @returns {string} the status code
+   */
+  valueOf() {
+    return this.code;
+  }
+
+  /**
+   * Returns the status code.
+   *
+   * @returns {string} the status code
+   */
+  toJSON() {
+    return this.code;
+  }
+}
+
+/**
+ * Carry information about the health of a component.
+ */
 class Health {
-  static up(/** @type {?Record<string, any>} */ details) {
-    return new Health(Status.UP, details);
+  /**
+   * Creates a new health object with status {@link Status.UNKNOWN}.
+   *
+   * @param {object} options - the health options
+   * @param {Record<string, *>} [options.details] - the details of the health
+   */
+  static unknown({ details } = {}) {
+    return Health.status({ status: Status.UNKNOWN, details });
   }
 
-  static down(/** @type {?Record<string, any>} */ details) {
-    return new Health(Status.DOWN, details);
+  /**
+   * Creates a new health object with status {@link Status.UP}.
+   *
+   * @param {object} options - the health options
+   * @param {Record<string, *>} [options.details] - the details of the health
+   */
+  static up({ details } = {}) {
+    return Health.status({ status: Status.UP, details });
   }
 
-  static outOfService(/** @type {?Record<string, any>} */ details) {
-    return new Health(Status.OUT_OF_SERVICE, details);
+  /**
+   * Creates a new health object with status {@link Status.DOWN}.
+   *
+   * @param {object} options - the health options
+   * @param {Record<string, *>} [options.details] - the details of the health
+   * @param {Error} [options.error] - the error of the health
+   */
+  static down({ details, error } = {}) {
+    return Health.status({ status: Status.DOWN, details, error });
   }
 
-  static unknown(/** @type {?Record<string, any>} */ details) {
-    return new Health(Status.UNKNOWN, details);
+  /**
+   * Creates a new health object with status {@link Status.OUT_OF_SERVICE}.
+   *
+   * @param {object} options - the health options
+   * @param {Record<string, *>} [options.details] - the details of the health
+   */
+  static outOfService({ details } = {}) {
+    return Health.status({ status: Status.OUT_OF_SERVICE, details });
   }
 
+  /**
+   * Creates a new health object.
+   *
+   * @param {object} options - the health options
+   * @param {Status} options.status - the status of the health
+   * @param {Record<string, *>} [options.details] - the details of the health
+   * @param {Error} [options.error] - the error of the health
+   */
+  static status({ status = Status.UNKNOWN, details, error } = {}) {
+    if (error) {
+      details = { ...details, error: `${error.name}: ${error.message}` };
+    }
+    return new Health(status, details);
+  }
+
+  /**
+   * The status of the health.
+   *
+   * @type {Status}
+   */
+  status;
+
+  /**
+   * The details of the health.
+   *
+   * @type {?Record<string, *>}
+   */
+  details;
+
+  /** @hideconstructor */
   constructor(
-    /** @type {Status} */ status = Status.UP,
-    /** @type {?Record<string, any>} */ details,
+    /** @type {Status} */ status,
+    /** @type {?Record<string, *>} */ details,
   ) {
+    assertNotNull(status, 'Status must not be null.');
+    //assertNotNull(details, 'Details must not be null.');
+
     this.status = status;
-    this.details = details; /** e.g. error: "..." */
+    this.details = details;
   }
 }
 
-class HealthIndicator {
-  health() {
-    return Health.up();
+/**
+ * A {@link Health} that is composed of other {@link Health} instances.
+ */
+class CompositeHealth {
+  /**
+   * The status of the component.
+   *
+   * @type {Status}
+   */
+  status;
+
+  /**
+   * The components of the health.
+   *
+   * @type {?Record<string, Health|CompositeHealth>}
+   */
+  components;
+
+  /** @hideconstructor */
+  constructor(
+    /** @type {Status} */ status,
+    /** @type {?Record<string, Health|CompositeHealth>} */ components,
+  ) {
+    assertNotNull(status, 'Status must not be null.');
+
+    this.status = status;
+    this.components = components;
   }
 }
 
-class HealthRegistry {
-  static create() {
-    return new HealthRegistry();
+/**
+ * Strategy interface used to contribute {@link Health} to the results returned
+ * from the {@link HealthEndpoint}.
+ *
+ * @typedef {object} HealthIndicator
+ * @property {function(): Health} health - Returns the health of the component.
+ */
+
+/**
+ * A named {@link HealthIndicator}.
+ *
+ * @typedef {object} NamedContributor
+ * @property {string} name - the name of the contributor
+ * @property {HealthIndicator} contributor - the contributor
+ */
+
+/**
+ * A registry of {@link HealthIndicator} instances.
+ */
+class HealthContributorRegistry {
+  static #instance = new HealthContributorRegistry();
+
+  /**
+   * Returns the default registry.
+   *
+   * @returns {HealthContributorRegistry} the default registry
+   */
+  static getDefault() {
+    return HealthContributorRegistry.#instance;
   }
 
-  /** @type {Map<string, HealthIndicator>} */ #registry = new Map();
+  #contributors;
 
-  health() {
-    if (this.#registry.size === 0) {
-      return Health.up();
+  /**
+   * Creates a new registry.
+   *
+   * @param {Map<string, HealthIndicator>} [contributors] - the initial contributors
+   */
+  constructor(contributors) {
+    this.#contributors = contributors ?? new Map();
+  }
+
+  /**
+   * Registers a contributor.
+   *
+   * @param {string} name - the name of the contributor
+   * @param {HealthIndicator} contributor - the contributor
+   */
+  registerContributor(name, contributor) {
+    this.#contributors.set(name, contributor);
+  }
+
+  /**
+   * Unregisters a contributor.
+   *
+   * @param {string} name - the name of the contributor
+   */
+  unregisterContributor(name) {
+    this.#contributors.delete(name);
+  }
+
+  /**
+   * Returns a contributor by name.
+   *
+   * @param {string} name - the name of the contributor
+   * @returns {HealthIndicator} the contributorm or `undefined` if not found
+   */
+  getContributor(name) {
+    return this.#contributors.get(name);
+  }
+
+  /**
+   * Returns an iterator over the named contributors.
+   *
+   * @returns {IterableIterator<NamedContributor>} the iterator
+   */
+  *[Symbol.iterator]() {
+    for (const [name, contributor] of this.#contributors) {
+      yield { name, contributor };
+    }
+  }
+}
+
+/**
+ * Strategy interface used to aggregate multiple {@link Status} instances into a
+ * single one.
+ */
+class StatusAggregator {
+  /**
+   * Returns the default status aggregator.
+   *
+   * @returns {StatusAggregator} the default status aggregator
+   */
+  static getDefault() {
+    return SimpleStatusAggregator.INSTANCE;
+  }
+
+  /**
+   * Returns the aggregate status of the given statuses.
+   *
+   * @param {Status[]} statuses - the statuses to aggregate
+   * @returns {Status} the aggregate status
+   * @abstract
+   */
+  // eslint-disable-next-line no-unused-vars
+  getAggregateStatus(statuses) {
+    throw new Error('Method not implemented.');
+  }
+}
+
+/**
+ * A simple {@link StatusAggregator} that uses a predefined order to determine
+ * the aggregate status.
+ *
+ * @extends StatusAggregator
+ */
+class SimpleStatusAggregator extends StatusAggregator {
+  static #DEFAULT_ORDER = [
+    Status.DOWN,
+    Status.OUT_OF_SERVICE,
+    Status.UP,
+    Status.UNKNOWN,
+  ];
+
+  static INSTANCE = new SimpleStatusAggregator();
+
+  #order;
+
+  /**
+   * Creates a new aggregator.
+   *
+   * @param {Status[]} order - the order of the statuses
+   */
+  constructor(order = SimpleStatusAggregator.#DEFAULT_ORDER) {
+    super();
+    this.#order = order;
+  }
+
+  getAggregateStatus(statuses) {
+    if (statuses.length === 0) {
+      return Status.UNKNOWN;
     }
 
-    const order = ['DOWN', 'OUT_OF_SERVICE', 'UP', 'UNKNOWN'];
+    statuses.sort((a, b) => this.#order.indexOf(a) - this.#order.indexOf(b));
+    return statuses[0];
+  }
+}
+
+/**
+ * Strategy interface used to map {@link Status} instances to HTTP status codes.
+ */
+class HttpCodeStatusMapper {
+  /**
+   * Returns the default HTTP code status mapper.
+   *
+   * @returns {HttpCodeStatusMapper} the default HTTP code status mapper
+   */
+  static getDefault() {
+    return SimpleHttpCodeStatusMapper.INSTANCE;
+  }
+
+  /**
+   * Returns the HTTP status code for the given status.
+   *
+   * @param {Status} status - the status
+   * @returns {number} the HTTP status code
+   * @abstract
+   */
+  // eslint-disable-next-line no-unused-vars
+  getStatusCode(status) {
+    throw new Error('Method not implemented.');
+  }
+}
+
+/**
+ * A simple {@link HttpCodeStatusMapper} that uses a predefined mapping to
+ * determine the HTTP status code.
+ *
+ * @extends HttpCodeStatusMapper
+ */
+class SimpleHttpCodeStatusMapper extends HttpCodeStatusMapper {
+  static #DEFAULT_MAPPING = new Map([
+    [Status.DOWN, 503],
+    [Status.OUT_OF_SERVICE, 503],
+  ]);
+
+  static INSTANCE = new SimpleHttpCodeStatusMapper();
+
+  #mappings;
+
+  constructor(mappings = SimpleHttpCodeStatusMapper.#DEFAULT_MAPPING) {
+    super();
+    this.#mappings = mappings;
+  }
+
+  getStatusCode(/** @type {Status} */ status) {
+    return this.#mappings.get(status) ?? 200;
+  }
+}
+
+/**
+ * A logical grouping of health contributors that can be exposed by the
+ * {@link HealthEndpoint}.
+ *
+ * @typedef {object} HealthEndpointGroup
+ * @property {StatusAggregator} statusAggregator - the status aggregator
+ * @property {HttpCodeStatusMapper} httpCodeStatusMapper - the HTTP code status mapper
+ */
+
+/**
+ * A collection of groups for use with a health endpoint.
+ *
+ * @typedef {object} HealthEndpointGroups
+ * @property {HealthEndpointGroup} primary - the primary group
+ */
+
+/**
+ * Returned by an operation to provide addtional, web-specific information such
+ * as the HTTP status code.
+ *
+ * @typedef {object} EndpointResponse
+ * @property {number} status - the HTTP status code
+ * @property {Health | CompositeHealth} body - the response body
+ */
+
+/**
+ * A health endpoint that provides information about the health of the
+ * application.
+ */
+class HealthEndpoint {
+  static ID = 'health';
+
+  static #INSTANCE = new HealthEndpoint(
+    HealthContributorRegistry.getDefault(),
+    {
+      primary: {
+        statusAggregator: StatusAggregator.getDefault(),
+        httpCodeStatusMapper: HttpCodeStatusMapper.getDefault(),
+      },
+    },
+  );
+
+  /**
+   * Returns the default health endpoint.
+   *
+   * @returns {HealthEndpoint} the default health endpoint
+   */
+  static getDefault() {
+    return HealthEndpoint.#INSTANCE;
+  }
+
+  #registry;
+  #groups;
+
+  /**
+   * Creates a new health endpoint.
+   *
+   * @param {HealthContributorRegistry} registry - the health contributor registry
+   * @param {HealthEndpointGroups} groups - the health groups
+   */
+  constructor(/** @type {HealthContributorRegistry} */ registry, groups) {
+    assertNotNull(registry, 'Registry must not be null.');
+    assertNotNull(groups, 'Groups must not be null.');
+    this.#registry = registry;
+    this.#groups = groups;
+  }
+
+  /**
+   * Returns the health of the application.
+   *
+   * @returns {EndpointResponse} the health response
+   */
+  health() {
+    const result = this.#getHealth();
+    const health = result.health;
+    const status = result.group.httpCodeStatusMapper.getStatusCode(
+      health.status,
+    );
+    return { status, body: health };
+  }
+
+  #getHealth() {
     const statuses = [];
     const components = {};
-    for (const [name, healthIndicator] of this.#registry.entries()) {
-      components[name] = healthIndicator.health();
+    for (const { name, contributor } of this.#registry) {
+      components[name] = contributor.health();
       statuses.push(components[name].status);
     }
 
-    statuses.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-    const status = statuses[0];
-    return { status, components };
-  }
-
-  register(
-    /** @type {string} */ name,
-    /** @type {HealthIndicator} */ healthIndicator,
-  ) {
-    this.#registry.set(name, healthIndicator);
-  }
-
-  unregister(/** @type {string} */ name) {
-    this.#registry.delete(name);
+    let health;
+    if (statuses.length > 0) {
+      const status =
+        this.#groups.primary.statusAggregator.getAggregateStatus(statuses);
+      health = new CompositeHealth(status, components);
+    } else {
+      health = Health.up();
+    }
+    return { health, group: this.#groups.primary };
   }
 }
 
@@ -745,7 +1177,6 @@ class Level {
    * `OFF` is a special level that can be used to turn off logging.
    *
    * @type {Level}
-   * @static
    */
   static OFF = new Level('OFF', Number.MAX_SAFE_INTEGER);
 
@@ -753,7 +1184,6 @@ class Level {
    * `ERROR` is a message level indicating a serious failure.
    *
    * @type {Level}
-   * @static
    */
   static ERROR = new Level('ERROR', 1000);
 
@@ -761,7 +1191,6 @@ class Level {
    * `WARNING` is a message level indicating a potential problem.
    *
    * @type {Level}
-   * @static
    */
   static WARNING = new Level('WARNING', 900);
 
@@ -769,7 +1198,6 @@ class Level {
    * `INFO` is a message level for informational messages.
    *
    * @type {Level}
-   * @static
    */
   static INFO = new Level('INFO', 800);
 
@@ -777,7 +1205,6 @@ class Level {
    * `DEBUG` is a message level providing tracing information.
    *
    * @type {Level}
-   * @static
    */
   static DEBUG = new Level('DEBUG', 700);
 
@@ -785,7 +1212,6 @@ class Level {
    * `TRACE` is a message level providing fine-grained tracing information.
    *
    * @type {Level}
-   * @static
    */
   static TRACE = new Level('TRACE', 600);
 
@@ -793,7 +1219,6 @@ class Level {
    * `ALL` indicates that all messages should be logged.
    *
    * @type {Level}
-   * @static
    */
   static ALL = new Level('ALL', Number.MIN_SAFE_INTEGER);
 
@@ -1199,8 +1624,6 @@ class ConsoleHandler extends Handler {
 
 /**
  * A `Formatter` provides support for formatting log records.
- *
- * @abstract
  */
 class Formatter {
   /**
@@ -2282,8 +2705,6 @@ async function sleep(millis) {
 
 /**
  * A task that can be scheduled by a {@link Timer}.
- *
- * @abstract
  */
 class TimerTask {
   _state = TASK_CREATED;
@@ -2292,6 +2713,8 @@ class TimerTask {
 
   /**
    * Runs the task.
+   *
+   * @abstract
    */
   run() {
     throw new Error('Method not implemented.');
@@ -2854,7 +3277,7 @@ function reply(
 }
 
 /**
- * @import { HealthRegistry } from '../health.js'
+ * @import { HealthContributorRegistry } from '../health.js'
  * @import * as express from 'express'
  */
 
@@ -2865,7 +3288,7 @@ class ActuatorController {
 
   constructor(
     services, // FIXME Services is not defined in library
-    /** @type {HealthRegistry} */ healthRegistry,
+    /** @type {HealthContributorRegistry} */ healthRegistry,
     /** @type {express.Express} */ app,
   ) {
     this.#services = services;
@@ -3070,8 +3493,13 @@ class ConfigurationProperties {
         const content = await this.#fs.readFile(filePath, 'utf-8');
         config = JSON.parse(content);
         break;
-      } catch {
-        // Ignore error and try next location
+      } catch (err) {
+        if (err.code === 'ENOENT') {
+          // ignore file not found
+          continue;
+        }
+
+        throw err;
       }
     }
     return config;
@@ -3166,7 +3594,9 @@ class FsStub {
   async readFile(path) {
     const fileContent = this.#files[path];
     if (fileContent == null) {
-      throw new Error(`File not found: ${path}`);
+      const err = new Error(`File not found: ${path}`);
+      err.code = 'ENOENT';
+      throw err;
     }
 
     if (typeof fileContent === 'string') {
@@ -3239,7 +3669,7 @@ class LongPolling {
   #waiting = [];
   #getData;
 
-  constructor(/** @type {function(): Promise<any>} */ getData) {
+  constructor(/** @type {function(): Promise<*>} */ getData) {
     this.#getData = getData;
   }
 
@@ -3411,6 +3841,7 @@ class SseEmitter {
 exports.ActuatorController = ActuatorController;
 exports.Clock = Clock;
 exports.Color = Color;
+exports.CompositeHealth = CompositeHealth;
 exports.ConfigurableResponses = ConfigurableResponses;
 exports.ConfigurationProperties = ConfigurationProperties;
 exports.ConsoleHandler = ConsoleHandler;
@@ -3421,8 +3852,9 @@ exports.FileHandler = FileHandler;
 exports.Formatter = Formatter;
 exports.Handler = Handler;
 exports.Health = Health;
-exports.HealthIndicator = HealthIndicator;
-exports.HealthRegistry = HealthRegistry;
+exports.HealthContributorRegistry = HealthContributorRegistry;
+exports.HealthEndpoint = HealthEndpoint;
+exports.HttpCodeStatusMapper = HttpCodeStatusMapper;
 exports.JsonFormatter = JsonFormatter;
 exports.Level = Level;
 exports.Line2D = Line2D;
@@ -3434,9 +3866,12 @@ exports.OutputTracker = OutputTracker;
 exports.Random = Random;
 exports.ServiceLocator = ServiceLocator;
 exports.SimpleFormatter = SimpleFormatter;
+exports.SimpleHttpCodeStatusMapper = SimpleHttpCodeStatusMapper;
+exports.SimpleStatusAggregator = SimpleStatusAggregator;
 exports.SseClient = SseClient;
 exports.SseEmitter = SseEmitter;
 exports.Status = Status;
+exports.StatusAggregator = StatusAggregator;
 exports.StopWatch = StopWatch;
 exports.Store = Store;
 exports.Timer = Timer;

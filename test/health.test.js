@@ -1,55 +1,138 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Health, HealthRegistry } from '../lib/health.js';
+import {
+  Health,
+  HealthContributorRegistry,
+  HealthEndpoint,
+  SimpleHttpCodeStatusMapper,
+  SimpleStatusAggregator,
+  Status,
+} from '../lib/health.js';
 
 describe('Health', () => {
-  describe('Health registry', () => {
+  it('Creates default health', () => {
+    const health = Health.status();
+
+    expect(health.status).toBe(Status.UNKNOWN);
+    expect(health.details).toBeUndefined();
+  });
+
+  describe('Health endpoint', () => {
     it('Returns default health', () => {
-      const endpoint = HealthRegistry.create();
+      const { endpoint } = configure();
 
-      const health = endpoint.health();
+      const response = endpoint.health();
 
-      expect(health).toEqual({ status: 'UP' });
+      expect(response).toEqual({ status: 200, body: { status: Status.UP } });
     });
 
     it('Registers health indicators', () => {
-      const registry = HealthRegistry.create();
-      registry.register('test', {
+      const { endpoint, registry } = configure();
+      registry.registerContributor('test', {
         health() {
-          return new Health();
+          return Health.unknown();
         },
       });
 
-      const health = registry.health();
+      const response = endpoint.health();
 
-      expect(health).toEqual({
-        status: 'UP',
-        components: { test: { status: 'UP' } },
+      expect(response).toEqual({
+        status: 200,
+        body: {
+          status: Status.UNKNOWN,
+          components: { test: { status: Status.UNKNOWN } },
+        },
       });
     });
 
     it('Determines the worst status', () => {
-      const registry = HealthRegistry.create();
-      registry.register('test1', {
+      const { endpoint, registry } = configure();
+      registry.registerContributor('test1', {
         health() {
           return Health.outOfService();
         },
       });
-      registry.register('test2', {
+      registry.registerContributor('test2', {
         health() {
           return Health.down();
         },
       });
 
-      const health = registry.health();
+      const response = endpoint.health();
 
-      expect(health).toEqual({
-        status: 'DOWN',
-        components: {
-          test1: { status: 'OUT_OF_SERVICE' },
-          test2: { status: 'DOWN' },
+      expect(response).toEqual({
+        status: 503,
+        body: {
+          status: Status.DOWN,
+          components: {
+            test1: { status: Status.OUT_OF_SERVICE },
+            test2: { status: Status.DOWN },
+          },
+        },
+      });
+    });
+
+    it('Returns the details', () => {
+      const { endpoint, registry } = configure();
+      registry.registerContributor('test', {
+        health() {
+          return Health.up({
+            details: { foo: 'bar' },
+          });
+        },
+      });
+
+      const response = endpoint.health();
+
+      expect(response).toEqual({
+        status: 200,
+        body: {
+          status: Status.UP,
+          components: {
+            test: {
+              status: Status.UP,
+              details: { foo: 'bar' },
+            },
+          },
+        },
+      });
+    });
+
+    it('Adds an error to the details', () => {
+      const { endpoint, registry } = configure();
+      registry.registerContributor('test', {
+        health() {
+          return Health.down({
+            error: new TypeError('error message'),
+          });
+        },
+      });
+
+      const response = endpoint.health();
+
+      expect(response).toEqual({
+        status: 503,
+        body: {
+          status: Status.DOWN,
+          components: {
+            test: {
+              status: Status.DOWN,
+              details: { error: 'TypeError: error message' },
+            },
+          },
         },
       });
     });
   });
 });
+
+function configure() {
+  const registry = new HealthContributorRegistry();
+  const endpoint = new HealthEndpoint(registry, {
+    primary: {
+      statusAggregator: new SimpleStatusAggregator(),
+      httpCodeStatusMapper: new SimpleHttpCodeStatusMapper(),
+    },
+  });
+  return { endpoint, registry };
+}
