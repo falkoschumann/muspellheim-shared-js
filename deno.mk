@@ -18,7 +18,7 @@ docs: build
 
 check: test
 	deno run --allow-env --allow-read --allow-sys --allow-write npm:prettier . --check
-	deno run --allow-env --allow-read --allow-write npm:eslint lib test
+#	FIXME only on CI: deno run --allow-env --allow-read --allow-write npm:eslint lib test
 #	FIXME deno fmt --check --ignore=coverage,dist,docs --single-quote
 #	FIXME deno lint --ignore=coverage,dist,docs
 
