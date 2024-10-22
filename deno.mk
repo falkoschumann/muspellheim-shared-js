@@ -38,7 +38,7 @@ coverage: build
 
 build: version
 	deno install
-	deno run --allow-env --allow-ffi --allow-read --allow-write npm:rollup -c
+	deno run --allow-env --allow-ffi --allow-read --allow-write --allow-sys npm:rollup -c
 
 version:
 	@echo "Use Deno $(shell deno --version)"
