@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { Clock } from '../lib/time.js';
-import { StopWatch } from '../lib/stop-watch';
+import { StopWatch } from '../lib/stop-watch.js';
 
 describe('Stop watch', () => {
   it('measures time', () => {

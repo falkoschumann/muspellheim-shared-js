@@ -2,7 +2,6 @@
 
 var fsPromises = require('node:fs/promises');
 var path = require('node:path');
-var _ = require('lodash');
 
 const FACTOR = 0.7;
 
@@ -3284,15 +3283,15 @@ function reply(
 
 class ActuatorController {
   #services;
-  #healthRegistry;
+  #healthContributorRegistry;
 
   constructor(
     services, // FIXME Services is not defined in library
-    /** @type {HealthContributorRegistry} */ healthRegistry,
+    /** @type {HealthContributorRegistry} */ healthContributorRegistry,
     /** @type {express.Express} */ app,
   ) {
     this.#services = services;
-    this.#healthRegistry = healthRegistry;
+    this.#healthContributorRegistry = healthContributorRegistry;
 
     app.get('/actuator', this.#getActuator.bind(this));
     app.get('/actuator/info', this.#getActuatorInfo.bind(this));
@@ -3350,7 +3349,7 @@ class ActuatorController {
     /** @type {express.Request} */ request,
     /** @type {express.Response} */ response,
   ) {
-    const health = this.#healthRegistry.health();
+    const health = this.#healthContributorRegistry.health();
     const status = health.status === 'UP' ? 200 : 503;
     response.status(status).json(health);
   }
@@ -3369,6 +3368,37 @@ class ActuatorController {
     body += `# TYPE comments_count gauge\ncomments_count ${metrics.commentsCount} ${timestamp}\n\n`;
     reply(response, { body });
   }
+}
+
+// TODO deep copy
+// TODO deep equals
+
+function deepMerge(source, target) {
+  if (target === undefined) {
+    return source;
+  }
+
+  if (typeof target !== 'object' || target === null) {
+    return target;
+  }
+
+  if (Array.isArray(source) && Array.isArray(target)) {
+    for (const item of target) {
+      const element = deepMerge(undefined, item);
+      source.push(element);
+    }
+    return source;
+  }
+
+  for (const key in target) {
+    if (typeof source !== 'object' || source === null) {
+      source = {};
+    }
+
+    source[key] = deepMerge(source[key], target[key]);
+  }
+
+  return source;
 }
 
 // TODO How to handle optional values? Cast to which type?
@@ -3479,7 +3509,8 @@ class ConfigurationProperties {
    */
   async get() {
     let config = await this.#loadFile();
-    config = _.merge(this.#defaults, config);
+    // FIXME copy defaults before merging
+    config = deepMerge(this.#defaults, config);
     this.#applyEnvironmentVariables(config);
     // TODO apply command line arguments
     return this.#getSubset(config, this.#prefix);

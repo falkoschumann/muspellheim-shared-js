@@ -4,7 +4,7 @@
 -   [x] configurable-responses
 -   [x] enum
 -   [ ] feature-toggle
--   [ ] health
+-   [x] health
 -   [x] logging
 -   [ ] long-polling-client
 -   [x] output-tracker
