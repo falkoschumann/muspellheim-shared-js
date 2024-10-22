@@ -1,3 +1,4 @@
+import process from 'node:process';
 import { describe, expect, it } from '@jest/globals';
 
 import { ConfigurationProperties } from '../../lib/node/configuration-properties.js';

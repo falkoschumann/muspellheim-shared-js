@@ -5,8 +5,8 @@ import {
   Handler,
   JsonFormatter,
   Level,
-  LogRecord,
   Logger,
+  LogRecord,
   SimpleFormatter,
 } from '../lib/logging.js';
 

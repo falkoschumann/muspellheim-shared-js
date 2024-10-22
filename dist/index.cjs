@@ -1,5 +1,6 @@
 'use strict';
 
+var process = require('node:process');
 var fsPromises = require('node:fs/promises');
 var path = require('node:path');
 
@@ -324,7 +325,9 @@ function checkType(value, expectedType, { name = 'value' } = {}) {
     }
 
     return {
-      error: `The ${name} must be ${describe(expectedType, { articles: true })}, but it was ${describe(valueType, { articles: true })}.`,
+      error: `The ${name} must be ${describe(expectedType, {
+        articles: true,
+      })}, but it was ${describe(valueType, { articles: true })}.`,
     };
   }
 
@@ -334,7 +337,9 @@ function checkType(value, expectedType, { name = 'value' } = {}) {
       return { value: expectedType.valueOf(String(value).toUpperCase()) };
     } catch {
       return {
-        error: `The ${name} must be ${describe(expectedType, { articles: true })}, but it was ${describe(valueType, { articles: true })}.`,
+        error: `The ${name} must be ${describe(expectedType, {
+          articles: true,
+        })}, but it was ${describe(valueType, { articles: true })}.`,
       };
     }
   }
@@ -346,7 +351,9 @@ function checkType(value, expectedType, { name = 'value' } = {}) {
     } else {
       const convertedValue = new expectedType(value);
       if (String(convertedValue).toLowerCase().startsWith('invalid')) {
-        let error = `The ${name} must be a valid ${describe(expectedType)}, but it was ${describe(valueType, { articles: true })}`;
+        let error = `The ${name} must be a valid ${describe(
+          expectedType,
+        )}, but it was ${describe(valueType, { articles: true })}`;
         if (valueType != null) {
           error += `: ${JSON.stringify(value, { articles: true })}`;
         }
@@ -368,7 +375,9 @@ function checkType(value, expectedType, { name = 'value' } = {}) {
     }
 
     return {
-      error: `The ${name} must be ${describe(expectedType, { articles: true })}, but it was ${describe(valueType, { articles: true })}.`,
+      error: `The ${name} must be ${describe(expectedType, {
+        articles: true,
+      })}, but it was ${describe(valueType, { articles: true })}.`,
     };
   }
 
@@ -3276,8 +3285,9 @@ function reply(
 }
 
 /**
- * @import { HealthContributorRegistry } from '../health.js'
  * @import * as express from 'express'
+ *
+ * @import { HealthContributorRegistry } from '../health.js'
  */
 
 

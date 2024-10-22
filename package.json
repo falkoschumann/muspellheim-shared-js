@@ -8,12 +8,12 @@
   },
   "type": "module",
   "main": "dist/index.cjs",
-  "browser": "lib/browser/index.js",
+  "browser": "browser.js",
   "scripts": {
     "build": "rollup -c",
     "test": "NODE_OPTIONS=\"--experimental-global-customevent --experimental-vm-modules\" npx jest"
   },
-  "peerDependencies": {
+  "dependencies": {
     "express": "^4.20.0",
     "lit-html": "^3.2.0"
   },
