@@ -66,11 +66,10 @@ describe('Store', () => {
 
     it('ignores an unsubscribed listener', () => {
       const { store } = configure();
-      let unsubscribe2;
       const listener1 = createListener(() => unsubscribe2());
       const listener2 = createListener();
       store.subscribe(listener1);
-      unsubscribe2 = store.subscribe(listener2);
+      const unsubscribe2 = store.subscribe(listener2);
 
       store.dispatch({ type: 'user-changed', name: 'Bob' });
 

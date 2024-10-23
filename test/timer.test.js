@@ -198,7 +198,7 @@ describe('Timer', () => {
   });
 
   describe('Simulate task execution', () => {
-    it('ticks until before execution and time does not execute task', async () => {
+    it('ticks until before execution and time does not execute task', () => {
       const timer = Timer.createNull();
       const task = new StubbedTask();
       timer.schedule(task, 500);
@@ -209,7 +209,7 @@ describe('Timer', () => {
       expect(task._state).toBe('scheduled');
     });
 
-    it('ticks until execution time and executes task', async () => {
+    it('ticks until execution time and executes task', () => {
       const timer = Timer.createNull();
       const task = new StubbedTask();
       timer.schedule(task, 500);
@@ -220,7 +220,7 @@ describe('Timer', () => {
       expect(task._state).toBe('executed');
     });
 
-    it('ticks beyond execution time and executes task', async () => {
+    it('ticks beyond execution time and executes task', () => {
       const timer = Timer.createNull();
       const task = new StubbedTask();
       timer.schedule(task, 500);
@@ -231,7 +231,7 @@ describe('Timer', () => {
       expect(task._state).toBe('executed');
     });
 
-    it('removes cancelled task from queue', async () => {
+    it('removes cancelled task from queue', () => {
       const timer = Timer.createNull();
       const task = new StubbedTask();
       timer.schedule(task, 500);
@@ -244,7 +244,7 @@ describe('Timer', () => {
       expect(timer._queue).toEqual([]);
     });
 
-    it('ticks until first execution of periodic task', async () => {
+    it('ticks until first execution of periodic task', () => {
       const timer = Timer.createNull();
       const task = new StubbedTask();
       timer.schedule(task, 500, 50);
@@ -255,7 +255,7 @@ describe('Timer', () => {
       expect(task._state).toBe('scheduled');
     });
 
-    it('ticks until 2 executions of periodic task', async () => {
+    it('ticks until 2 executions of periodic task', () => {
       const timer = Timer.createNull();
       const task = new StubbedTask();
       timer.schedule(task, 500, 50);

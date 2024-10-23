@@ -31,5 +31,8 @@ jobs:
         uses: denolib/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno-version }}
+      - name: Format code
+        run: deno fmt
+        # TODO remove format in CI build when Prettier is replaced with deno fmt
       - name: Build
         run: make -f deno.mk

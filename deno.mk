@@ -17,14 +17,12 @@ docs: build
 	deno doc --html --name="Muspellheim Shared" lib
 
 check: test
-	deno run --allow-env --allow-read --allow-sys --allow-write npm:prettier . --check
-#	FIXME only on CI: deno run --allow-env --allow-read --allow-write npm:eslint lib test
-#	FIXME deno fmt --check --ignore=coverage,dist,docs --single-quote
-#	FIXME deno lint --ignore=coverage,dist,docs
+#	TODO deno fmt --check
+	deno lint
 
 format:
-	deno fmt --ignore=coverage,dist,docs --single-quote
-	deno lint --fix --ignore=coverage,dist,docs
+	deno fmt
+	deno lint --fix
 
 test: prepare
 	deno task test

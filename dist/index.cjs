@@ -893,7 +893,7 @@ class StatusAggregator {
    * @abstract
    */
   // eslint-disable-next-line no-unused-vars
-  getAggregateStatus(statuses) {
+  getAggregateStatus(_statuses) {
     throw new Error('Method not implemented.');
   }
 }
@@ -957,7 +957,7 @@ class HttpCodeStatusMapper {
    * @abstract
    */
   // eslint-disable-next-line no-unused-vars
-  getStatusCode(status) {
+  getStatusCode(_status) {
     throw new Error('Method not implemented.');
   }
 }
@@ -1432,7 +1432,8 @@ class Logger extends EventTarget {
 
     const record = new LogRecord(level, ...message);
     record.loggerName = this.name;
-    let logger = this;
+    this.#handlers.forEach((handler) => handler.publish(record));
+    let logger = this.parent;
     while (logger != null) {
       logger.#handlers.forEach((handler) => handler.publish(record));
       logger = logger.parent;
@@ -1583,7 +1584,7 @@ class Handler {
    * @abstract
    */
   async publish() {
-    throw new Error('Not implemented');
+    await Promise.reject('Not implemented');
   }
 
   /**
@@ -1627,6 +1628,8 @@ class ConsoleHandler extends Handler {
         console.trace(message);
         break;
     }
+
+    await Promise.resolve();
   }
 }
 
@@ -1781,7 +1784,7 @@ class LongPollingClient {
 
   async connect(eventListener) {
     this.#handleConnect(eventListener);
-    new Promise((resolve) => {
+    await new Promise((resolve) => {
       (async () => {
         while (this.isConnected) {
           try {
@@ -1802,6 +1805,7 @@ class LongPollingClient {
   async close() {
     this.#aboutController.abort();
     this.#connected = false;
+    await Promise.resolve();
   }
 
   simulateConnected(eventListener) {
@@ -1855,9 +1859,9 @@ class LongPollingClient {
   }
 }
 
-async function fetchStub(url, options) {
+async function fetchStub(_url, options) {
   // TODO use stub
-  await new Promise((resolve, reject) => {
+  await new Promise((_resolve, reject) => {
     options?.signal?.addEventListener('abort', () => reject());
   });
 }
@@ -1885,7 +1889,7 @@ class ResponseStub {
     return this.#headers;
   }
 
-  async json() {
+  json() {
     return this.#body;
   }
 }
@@ -2068,6 +2072,7 @@ class SseClient {
 
   async close() {
     this.#eventSource.close();
+    await Promise.resolve();
   }
 
   simulateMessage(data, eventType = 'message') {
@@ -2708,7 +2713,7 @@ const TASK_CANCELLED = 'cancelled';
  * @returns {Promise<void>} a promise that resolves after the specified duration
  */
 async function sleep(millis) {
-  return new Promise((resolve) => setTimeout(resolve, millis));
+  await new Promise((resolve) => setTimeout(resolve, millis));
 }
 
 /**
@@ -3125,7 +3130,7 @@ class WebSocketClient extends EventTarget {
       throw new Error('Already connected.');
     }
 
-    return new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       try {
         this.#webSocket = new this.#webSocketConstructor(url);
         this.#webSocket.onmessage = (event) =>
@@ -3148,7 +3153,7 @@ class WebSocketClient extends EventTarget {
   }
 
   async close() {
-    return new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       function closeHandler() {
         this.removeEventListener('close', closeHandler);
         resolve();
@@ -3168,7 +3173,7 @@ class WebSocketClient extends EventTarget {
   }
 
   async simulateMessageReceived({ data }) {
-    return new Promise((resolve) => {
+    await new Promise((resolve) => {
       function messageHandler() {
         this.removeEventListener('message', messageHandler);
         resolve();
@@ -3180,7 +3185,7 @@ class WebSocketClient extends EventTarget {
   }
 
   async simulateErrorOccurred() {
-    return new Promise((resolve) => {
+    await new Promise((resolve) => {
       function errorHandler() {
         this.removeEventListener('error', errorHandler);
         resolve();
@@ -3243,7 +3248,7 @@ class WebSocketStub {
 
   simulateMessageReceived({ data }) {
     setTimeout(() => {
-      let jsonString =
+      const jsonString =
         typeof data === 'string' ||
         data instanceof Blob ||
         data instanceof ArrayBuffer
@@ -3313,7 +3318,7 @@ class ActuatorController {
     );
   }
 
-  async #getActuator(
+  #getActuator(
     /** @type {express.Request} */ request,
     /** @type {express.Response} */ response,
   ) {
@@ -3333,8 +3338,8 @@ class ActuatorController {
     });
   }
 
-  async #getActuatorInfo(
-    /** @type {express.Request} */ request,
+  #getActuatorInfo(
+    /** @type {express.Request} */ _request,
     /** @type {express.Response} */ response,
   ) {
     const info = {};
@@ -3344,8 +3349,8 @@ class ActuatorController {
     response.status(200).json(info);
   }
 
-  async #getActuatorMetrics(
-    /** @type {express.Request} */ request,
+  #getActuatorMetrics(
+    /** @type {express.Request} */ _request,
     /** @type {express.Response} */ response,
   ) {
     response.status(200).json({
@@ -3356,7 +3361,7 @@ class ActuatorController {
   }
 
   #getActuatorHealth(
-    /** @type {express.Request} */ request,
+    /** @type {express.Request} */ _request,
     /** @type {express.Response} */ response,
   ) {
     const health = this.#healthContributorRegistry.health();
@@ -3365,7 +3370,7 @@ class ActuatorController {
   }
 
   async #getMetrics(
-    /** @type {express.Request} */ request,
+    /** @type {express.Request} */ _request,
     /** @type {express.Response} */ response,
   ) {
     // TODO count warnings and errors
@@ -3632,7 +3637,7 @@ class FsStub {
     this.#files = files;
   }
 
-  async readFile(path) {
+  readFile(path) {
     const fileContent = this.#files[path];
     if (fileContent == null) {
       const err = new Error(`File not found: ${path}`);
@@ -3739,7 +3744,7 @@ class LongPolling {
     return tag && tag[1] === String(this.#version);
   }
 
-  async #tryLongPolling(/** @type {express.Request} */ request) {
+  #tryLongPolling(/** @type {express.Request} */ request) {
     const time = this.#getPollingTime(request);
     if (time == null) {
       return { status: 304 };
@@ -3753,10 +3758,10 @@ class LongPolling {
     return wait != null ? Number(wait[1]) : null;
   }
 
-  async #waitForChange(/** @type {number} */ time) {
+  #waitForChange(/** @type {number} */ time) {
     return new Promise((resolve) => {
       this.#waiting.push(resolve);
-      setTimeout(async () => {
+      setTimeout(() => {
         if (this.#waiting.includes(resolve)) {
           this.#waiting = this.#waiting.filter((r) => r !== resolve);
           resolve({ status: 304 });

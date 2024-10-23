@@ -1,5 +1,5 @@
 import process from 'node:process';
 
-export default async () => {
+export default () => {
   process.env.TZ = 'Europe/Berlin';
 };

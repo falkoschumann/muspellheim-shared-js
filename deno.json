@@ -1,0 +1,9 @@
+{
+  "fmt": {
+    "singleQuote": true,
+    "exclude": ["coverage", "dist", "docs"]
+  },
+  "lint": {
+    "exclude": ["coverage", "dist", "docs"]
+  }
+}
