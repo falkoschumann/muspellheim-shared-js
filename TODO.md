@@ -34,3 +34,5 @@
 
 -   [x] configuration-properties
 -   [x] logging
+
+TODO check using of assert in Spring and Java migrated code
