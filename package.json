@@ -4,6 +4,7 @@
   "author": "Falko Schumann",
   "license": "MIT",
   "engines": {
+    "deno": ">=2.0.0",
     "node": ">=18.7.0"
   },
   "type": "module",
