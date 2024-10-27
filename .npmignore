@@ -2,11 +2,9 @@
 /test/
 .editorconfig
 .gitattributes
-.prettierignore
-.prettierrc
+babel.config.json
+deno.mk
 jest.config.js
 jest.global-setup.js
-jsconfig.json
 jsdoc.conf.json
 Makefile
-TODO.md

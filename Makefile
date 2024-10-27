@@ -16,10 +16,8 @@ docs: prepare
 	npx jsdoc lib --recurse --configure jsdoc.conf.json --destination docs --package package.json --readme README.md
 
 check: test
-	npx prettier . --check
 
 format: prepare
-	npx prettier . --write
 
 test: prepare
 	npx jest

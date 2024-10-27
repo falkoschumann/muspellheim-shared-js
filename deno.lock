@@ -10,7 +10,6 @@
     "npm:jest@29.7.0": "29.7.0",
     "npm:jsdoc@4.0.4": "4.0.4_@types+markdown-it@14.1.2_markdown-it@14.1.0",
     "npm:lit-html@^3.2.0": "3.2.1",
-    "npm:prettier@3.3.3": "3.3.3",
     "npm:rollup@4.24.0": "4.24.0"
   },
   "npm": {
@@ -2778,9 +2777,6 @@
         "find-up"
       ]
     },
-    "prettier@3.3.3": {
-      "integrity": "sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew=="
-    },
     "pretty-format@29.7.0": {
       "integrity": "sha512-Pdlw/oPxN+aXdmM9R00JVC9WVFoCLTKJvDVLgmJ+qAffBMxsV85l/Lu7sNx4zSzPyoL2euImuEwHhOXdEgNFZQ==",
       "dependencies": [
@@ -3300,7 +3296,6 @@
         "npm:jest@29.7.0",
         "npm:jsdoc@4.0.4",
         "npm:lit-html@^3.2.0",
-        "npm:prettier@3.3.3",
         "npm:rollup@4.24.0"
       ]
     }

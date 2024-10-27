@@ -1,17 +1,10 @@
 {
-  "tags": {
-    "allowUnknownTags": true,
-    "dictionaries": ["jsdoc", "closure"]
-  },
   "source": {
-    "includePattern": ".+\\.js(doc|x)?$",
-    "excludePattern": "(^|\\/|\\\\)_"
+    "includePattern": ".+\\.js(doc|x)?$"
   },
   "sourceType": "module",
   "plugins": ["plugins/markdown"],
   "templates": {
-    "cleverLinks": false,
-    "monospaceLinks": false,
     "default": {
       "outputSourceFiles": false
     }
