@@ -581,13 +581,6 @@ class FeatureToggle {
   */
 }
 
-class AssertationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'AssertationError';
-  }
-}
-
 /**
  * Assert that an object is not `null`.
  *
@@ -597,7 +590,7 @@ class AssertationError extends Error {
 function assertNotNull(object, message) {
   if (object == null) {
     message = typeof message === 'function' ? message() : message;
-    throw new AssertationError(message);
+    throw new ReferenceError(message);
   }
 }
 
@@ -3101,23 +3094,27 @@ class Line2D {
 }
 
 class WebSocketClient extends EventTarget {
-  static create() {
-    return new WebSocketClient(WebSocket);
+  static create({ heartbeatDisabled = false } = {}) {
+    return new WebSocketClient(heartbeatDisabled, WebSocket);
   }
 
-  static createNull() {
-    return new WebSocketClient(WebSocketStub);
+  static createNull({ heartbeatDisabled = true } = {}) {
+    return new WebSocketClient(heartbeatDisabled, WebSocketStub);
   }
 
-  isHeartbeatEnabled = true;
+  #heartbeatDisabled;
 
   #webSocketConstructor;
   /** @type {WebSocket} */ #webSocket;
   #heartbeatId;
 
   /** @hideconstructor */
-  constructor(/** @type {function(new:EventSource)} */ webSocketConstructor) {
+  constructor(
+    /** @type {boolean} */ heartbeatDisabled,
+    /** @type {function(new:EventSource)} */ webSocketConstructor,
+  ) {
     super();
+    this.#heartbeatDisabled = heartbeatDisabled;
     this.#webSocketConstructor = webSocketConstructor;
   }
 
@@ -3197,7 +3194,7 @@ class WebSocketClient extends EventTarget {
   }
 
   #startHeartbeat() {
-    if (!this.isHeartbeatEnabled) {
+    if (this.#heartbeatDisabled) {
       return;
     }
 
