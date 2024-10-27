@@ -12,14 +12,14 @@ distclean: clean
 
 dist: build
 
-docs:
+docs: prepare
 	npx jsdoc lib --recurse --configure jsdoc.conf.json --destination docs --package package.json --readme README.md
 
 check: test
 	npx prettier . --check
 	npx eslint lib test
 
-format:
+format: prepare
 	npx prettier . --write
 	npx eslint --fix lib test
 

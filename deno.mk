@@ -10,7 +10,7 @@ distclean: clean
 
 dist: build
 
-docs: build
+docs:
 # 	FIXME deno doc --html --name="Muspellheim Shared" --lint lib
 	deno doc --html --name="Muspellheim Shared" lib
 
@@ -25,19 +25,30 @@ format:
 test: prepare
 	deno run --allow-all npm:jest
 
-watch: build
-	deno test --watch
+unit-tests: prepare
+	deno run --allow-all npm:jest --testPathPattern=".*\/unit\/.*"
 
-coverage: build
-	deno test --coverage
+integration-tests:
+	deno run --allow-all npm:jest --testPathPattern=".*\/integration\/.*"
 
-build: version
-	deno install
+e2e-tests: prepare
+	deno run --allow-all npm:jest --testPathPattern=".*\/e2e\/.*"
+
+watch: prepare
+	deno run --allow-all npm:jest --watch
+
+coverage: prepare
+	deno run --allow-all npm:jest --coverage
+
+build: prepare
 	deno run --allow-all npm:rollup -c
+
+prepare: version
+	deno install
 
 version:
 	@echo "Use Deno $(shell deno --version)"
 
-.PHONY: all clean distclean dist check format \
-	test watch coverage \
+.PHONY: all clean distclean dist docs check format \
+	test unit-tests integration-tests e2e-tests watch coverage \
 	build prepare version
