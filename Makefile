@@ -1,5 +1,3 @@
-export NODE_OPTIONS=--experimental-global-customevent
-
 all: dist check docs
 
 clean:
@@ -12,45 +10,48 @@ distclean: clean
 
 dist: build
 
-docs: prepare
-	npx jsdoc lib --recurse --configure jsdoc.conf.json --destination docs --package package.json --readme README.md
+publish:
+	deno publish --dry-run
+
+docs:
+#	FIXME deno doc --html --name="Muspellheim Shared" --lint lib
+	deno doc --html --name="Muspellheim Shared" lib
+	npx jsdoc lib -c jsdoc.config.json
 
 check: test
+#	TODO deno fmt --check
+	deno lint
 
-format: prepare
+format:
+	deno fmt
+	deno lint --fix
+
+dev: prepare
+	deno run --allow-all npm:jest --watch
 
 test: prepare
-	npx jest
+	deno run --allow-all npm:jest
 
 unit-tests: prepare
-	npx jest --testPathPattern=".*\/unit\/.*"
+	deno run --allow-all npm:jest --testPathPattern=".*\/unit\/.*"
 
 integration-tests:
-	npx jest --testPathPattern=".*\/integration\/.*"
+	deno run --allow-all npm:jest --testPathPattern=".*\/integration\/.*"
 
 e2e-tests: prepare
-	npx jest --testPathPattern=".*\/e2e\/.*"
-
-watch: prepare
-	npx jest --watch
+	deno run --allow-all npm:jest --testPathPattern=".*\/e2e\/.*"
 
 coverage: prepare
-	npx jest --coverage
+	deno run --allow-all npm:jest --coverage
 
 build: prepare
-	npx rollup -c
+	deno run --allow-all npm:rollup -c
 
 prepare: version
-	@if [ -n "$(CI)" ] ; then \
-		echo "CI detected, run npm ci"; \
-		npm ci; \
-	else \
-		npm install; \
-	fi
+	deno install
 
 version:
-	@echo "Use Node.js $(shell node --version)"
-	@echo "Use NPM $(shell npm --version)"
+	@echo "Use Deno $(shell deno --version)"
 
 .PHONY: all clean distclean dist docs check format \
 	test unit-tests integration-tests e2e-tests watch coverage \

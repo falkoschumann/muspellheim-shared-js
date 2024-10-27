@@ -4,21 +4,6 @@ on:
   push:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: ['18.x', '20.x', '22.x', '23.x']
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Build
-        run: make
-
   build-deno:
     runs-on: ubuntu-latest
     strategy:
@@ -32,4 +17,19 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
       - name: Build
-        run: make -f deno.mk
+        run: make
+
+  build-node:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['18.x', '20.x', '22.x', '23.x']
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Build
+        run: make -f node.mk
