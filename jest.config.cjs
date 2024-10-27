@@ -1,6 +1,7 @@
 /** @type {import('jest').Config} */
 const config = {
   globalSetup: './jest.global-setup.js',
+  verbose: true,
 };
 
-export default config;
+module.exports = config;
