@@ -17,11 +17,9 @@ docs: prepare
 
 check: test
 	npx prettier . --check
-	npx eslint lib test
 
 format: prepare
 	npx prettier . --write
-	npx eslint --fix lib test
 
 test: prepare
 	npx jest

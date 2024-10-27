@@ -885,7 +885,6 @@ class StatusAggregator {
    * @returns {Status} the aggregate status
    * @abstract
    */
-  // eslint-disable-next-line no-unused-vars
   getAggregateStatus(_statuses) {
     throw new Error('Method not implemented.');
   }
@@ -949,7 +948,6 @@ class HttpCodeStatusMapper {
    * @returns {number} the HTTP status code
    * @abstract
    */
-  // eslint-disable-next-line no-unused-vars
   getStatusCode(_status) {
     throw new Error('Method not implemented.');
   }

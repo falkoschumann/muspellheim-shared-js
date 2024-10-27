@@ -19,4 +19,5 @@ The `Makefile` runs the build as default task. Other tasks are
 
 ## Open issues
 
--   [ ] check using of assert in Spring and Java migrated code
+-   [ ] Check using of asserts in Spring and Java migrated code.
+-   [ ] Remove prefixed dash `-` in JSDoc.
