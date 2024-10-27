@@ -1,11 +1,4 @@
 {
-  "name": "@muspellheim/shared",
-  "version": "0.1.0",
-  "exports": {
-    ".": "./lib/index.js",
-    "./browser": "./lib/browser/index.js",
-    "./node": "./lib/node/index.js"
-  },
   "compilerOptions": {
     "checkJs": false
   },
@@ -14,9 +7,6 @@
     "exclude": ["coverage", "dist", "docs"]
   },
   "lint": {
-    "exclude": ["coverage", "dist", "docs"],
-    "rules": {
-      "exclude": ["no-slow-types"]
-    }
+    "exclude": ["coverage", "dist", "docs"]
   }
 }
