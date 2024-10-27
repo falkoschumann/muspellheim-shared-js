@@ -16,3 +16,7 @@ The `Makefile` runs the build as default task. Other tasks are
 -   `format`: format source code
 
 ## Credits
+
+## Open issues
+
+-   [ ] check using of assert in Spring and Java migrated code
