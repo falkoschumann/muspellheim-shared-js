@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { deepMerge } from '../lib/objects.js';
+import { deepMerge } from '../../lib/objects.js';
 
 describe('Objects', () => {
   describe('deep merge', () => {

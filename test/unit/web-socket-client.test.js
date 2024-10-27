@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from '@jest/globals';
 
-import { WebSocketClient } from '../lib/web-socket-client.js';
+import { WebSocketClient } from '../../lib/web-socket-client.js';
 
 describe('Web socket client', () => {
   it('Connects to the server', async () => {

@@ -8,7 +8,7 @@ import {
   Logger,
   LogRecord,
   SimpleFormatter,
-} from '../lib/logging.js';
+} from '../../lib/logging.js';
 
 describe('Logging', () => {
   describe('Level', () => {

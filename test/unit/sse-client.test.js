@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { SseClient } from '../lib/sse-client.js';
+import { SseClient } from '../../lib/sse-client.js';
 
 describe('SSE client', () => {
   it('Connects to the server', async () => {

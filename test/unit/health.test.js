@@ -7,7 +7,7 @@ import {
   SimpleHttpCodeStatusMapper,
   SimpleStatusAggregator,
   Status,
-} from '../lib/health.js';
+} from '../../lib/health.js';
 
 describe('Health', () => {
   it('Creates default health', () => {

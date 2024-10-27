@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Line2D, Vector2D } from '../lib/vector.js';
+import { Line2D, Vector2D } from '../../lib/vector.js';
 
 describe('Vector', () => {
   describe('Vector 2D', () => {

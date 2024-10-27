@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Color } from '../lib/color.js';
+import { Color } from '../../lib/color.js';
 
 describe('Color', () => {
   it('creates a color instance from RGB values', () => {

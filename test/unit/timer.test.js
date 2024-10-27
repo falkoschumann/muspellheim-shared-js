@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Clock } from '../lib/time.js';
-import { Timer, TimerTask } from '../lib/timer.js';
+import { Clock } from '../../lib/time.js';
+import { Timer, TimerTask } from '../../lib/timer.js';
 
 describe('Timer', () => {
   it('schedules a task with delay', () => {

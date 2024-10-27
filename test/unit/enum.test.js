@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Enum } from '../lib/enum.js';
+import { Enum } from '../../lib/enum.js';
 
 describe('Enum', () => {
   it('returns name when converted to string', () => {

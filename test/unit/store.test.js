@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { createStore } from '../lib/store.js';
+import { createStore } from '../../lib/store.js';
 
 describe('Store', () => {
   describe('Create store', () => {

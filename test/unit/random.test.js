@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Random } from '../lib/random.js';
-import { Duration } from '../lib/time.js';
+import { Random } from '../../lib/random.js';
+import { Duration } from '../../lib/time.js';
 
 describe('Random', () => {
   it('Generates a random boolean', () => {

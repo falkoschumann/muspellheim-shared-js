@@ -1,6 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { Counter, MeterId, MeterRegistry, MeterType } from '../lib/metrics.js';
+import {
+  Counter,
+  MeterId,
+  MeterRegistry,
+  MeterType,
+} from '../../lib/metrics.js';
 
 describe('Metrics', () => {
   describe('Meter registry', () => {
