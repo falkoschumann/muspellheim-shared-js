@@ -2,7 +2,7 @@
  * @type {import('rollup').RollupOptions}
  */
 const config = {
-  input: 'node.js',
+  input: 'lib/node/index.js',
   external: ['node:fs/promises', 'node:path', 'node:process'],
   output: {
     file: 'dist/index.cjs',
