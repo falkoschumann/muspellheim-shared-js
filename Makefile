@@ -1,4 +1,3 @@
-export NODE_OPTIONS=--experimental-global-customevent
 export NPM_CONFIG_YES=true
 
 all: dist check docs
