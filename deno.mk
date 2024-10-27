@@ -10,8 +10,11 @@ distclean: clean
 
 dist: build
 
+publish:
+	deno publish --dry-run
+
 docs:
-# 	FIXME deno doc --html --name="Muspellheim Shared" --lint lib
+#	FIXME deno doc --html --name="Muspellheim Shared" --lint lib
 	deno doc --html --name="Muspellheim Shared" lib
 
 check: test
