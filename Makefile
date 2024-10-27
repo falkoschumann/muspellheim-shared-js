@@ -1,5 +1,4 @@
 export NODE_OPTIONS=--experimental-global-customevent
-export NPM_CONFIG_YES=true
 
 all: dist check docs
 
@@ -25,7 +24,7 @@ format:
 	npx eslint --fix lib test
 
 test: prepare
-	npm test
+	npx jest
 
 unit-tests: prepare
 	npx jest --testPathPattern=".*\/unit\/.*"
@@ -43,7 +42,7 @@ coverage: prepare
 	npx jest --coverage
 
 build: prepare
-	npm run build
+	npx rollup -c
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \

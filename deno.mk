@@ -1,5 +1,3 @@
-export NPM_CONFIG_YES=true
-
 all: dist check docs
 
 clean:
@@ -25,8 +23,7 @@ format:
 	deno lint --fix
 
 test: prepare
-	deno task test
-#	deno test
+	deno run --allow-all npm:jest
 
 watch: build
 	deno test --watch
@@ -36,7 +33,7 @@ coverage: build
 
 build: version
 	deno install
-	deno run --allow-env --allow-ffi --allow-read --allow-write --allow-sys npm:rollup -c
+	deno run --allow-all npm:rollup -c
 
 version:
 	@echo "Use Deno $(shell deno --version)"

@@ -1,0 +1,3 @@
+{
+  "globalSetup": "./jest.global-setup.js"
+}
