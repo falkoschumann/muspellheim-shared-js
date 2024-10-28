@@ -15,6 +15,7 @@ dist: build
 
 release: dist
 	npm version $(VERSION_STEP)
+	git push
 
 publish:
 	deno publish --dry-run
