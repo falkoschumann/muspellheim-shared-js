@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 
 import { Random } from '../../lib/random.js';
 import { Duration } from '../../lib/time.js';

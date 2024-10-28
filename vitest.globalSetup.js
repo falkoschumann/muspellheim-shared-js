@@ -1,5 +1,5 @@
 import process from 'node:process';
 
-export default () => {
+export default function setup() {
   process.env.TZ = 'Europe/Berlin';
-};
+}

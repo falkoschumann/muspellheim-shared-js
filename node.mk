@@ -10,23 +10,23 @@ distclean: clean
 	rm -rf dist
 	rm -rf node_modules
 
+dev: prepare
+	npx vitest
+
 test: prepare
-	npx jest
+	npx vitest run
 
 unit-tests: prepare
-	npx jest --testPathPattern=".*\/unit\/.*"
+	npx vitest run --testPathPattern=".*\/unit\/.*"
 
 integration-tests:
-	npx jest --testPathPattern=".*\/integration\/.*"
+	npx vitest run --testPathPattern=".*\/integration\/.*"
 
 e2e-tests: prepare
-	npx jest --testPathPattern=".*\/e2e\/.*"
-
-watch: prepare
-	npx jest --watch
+	npx vitest run --testPathPattern=".*\/e2e\/.*"
 
 coverage: prepare
-	npx jest --coverage
+	npx vitest --coverage
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \

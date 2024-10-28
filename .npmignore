@@ -2,9 +2,9 @@
 /test/
 .editorconfig
 .gitattributes
-babel.config.json
-deno.mk
-jest.config.js
-jest.global-setup.js
-jsdoc.conf.json
+jsdoc.config.json
 Makefile
+node.mk
+rollup.config.js
+vitest.config.js
+vitest.global-setup.js

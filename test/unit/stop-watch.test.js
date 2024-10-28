@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 
 import { Clock } from '../../lib/time.js';
 import { StopWatch } from '../../lib/stop-watch.js';

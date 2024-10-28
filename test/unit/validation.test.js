@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 
 import {
   ensureAnything,
@@ -28,9 +28,8 @@ describe('Validation', () => {
     });
 
     it('Returns value when predicate is successful', () => {
-      expect(() =>
-        ensureThat(0, (v) => v > 0, 'Value must be greater than 0.'),
-      ).toThrow(/Value must be greater than 0\./);
+      expect(() => ensureThat(0, (v) => v > 0, 'Value must be greater than 0.'))
+        .toThrow(/Value must be greater than 0\./);
     });
   });
 
@@ -375,7 +374,7 @@ describe('Validation', () => {
             { name: 'John', age: '42' },
             { name: String, age: Number },
             { name: 'User' },
-          ),
+          )
         ).toThrow(/The User.age must be a number, but it was a string\./);
       });
 
@@ -385,13 +384,13 @@ describe('Validation', () => {
             undefined,
             { name: String, age: Number },
             { name: 'User' },
-          ),
+          )
         ).toThrow(/The User must be an object, but it was undefined\./);
       });
 
       it('Fails when value is null', () => {
         expect(() =>
-          ensureType(null, { name: String, age: Number }, { name: 'User' }),
+          ensureType(null, { name: String, age: Number }, { name: 'User' })
         ).toThrow(/The User must be an object, but it was null\./);
       });
     });
@@ -531,17 +530,15 @@ describe('Validation', () => {
     });
 
     it('Fails when items does not have the expected type', () => {
-      expect(() =>
-        ensureItemType(['John', 123], String, { name: 'names' }),
-      ).toThrow(/The names.1 must be a string, but it was a number\./);
+      expect(() => ensureItemType(['John', 123], String, { name: 'names' }))
+        .toThrow(/The names.1 must be a string, but it was a number\./);
     });
   });
 
   describe('Ensure arguments', () => {
     it('Does nothing when arguments matches', () => {
-      expect(() =>
-        ensureArguments([123, 'John'], [Number, String]),
-      ).not.toThrow();
+      expect(() => ensureArguments([123, 'John'], [Number, String])).not
+        .toThrow();
     });
 
     it('Fails when too few arguments', () => {
@@ -564,7 +561,7 @@ describe('Validation', () => {
 
     it('Fails with argument name when an argument does not match', () => {
       expect(() =>
-        ensureArguments(['123', 'John'], [Number, String], ['id', 'name']),
+        ensureArguments(['123', 'John'], [Number, String], ['id', 'name'])
       ).toThrow(/The id must be a number, but it was a string\./);
     });
 

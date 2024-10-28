@@ -30,8 +30,8 @@ class Color {
       return;
     }
 
-    this.#value =
-      ((red & 0xff) << 16) | ((green & 0xff) << 8) | ((blue & 0xff) << 0);
+    this.#value = ((red & 0xff) << 16) | ((green & 0xff) << 8) |
+      ((blue & 0xff) << 0);
   }
 
   /**
@@ -325,9 +325,11 @@ function checkType(value, expectedType, { name = 'value' } = {}) {
     }
 
     return {
-      error: `The ${name} must be ${describe(expectedType, {
-        articles: true,
-      })}, but it was ${describe(valueType, { articles: true })}.`,
+      error: `The ${name} must be ${
+        describe(expectedType, {
+          articles: true,
+        })
+      }, but it was ${describe(valueType, { articles: true })}.`,
     };
   }
 
@@ -337,9 +339,11 @@ function checkType(value, expectedType, { name = 'value' } = {}) {
       return { value: expectedType.valueOf(String(value).toUpperCase()) };
     } catch {
       return {
-        error: `The ${name} must be ${describe(expectedType, {
-          articles: true,
-        })}, but it was ${describe(valueType, { articles: true })}.`,
+        error: `The ${name} must be ${
+          describe(expectedType, {
+            articles: true,
+          })
+        }, but it was ${describe(valueType, { articles: true })}.`,
       };
     }
   }
@@ -351,9 +355,11 @@ function checkType(value, expectedType, { name = 'value' } = {}) {
     } else {
       const convertedValue = new expectedType(value);
       if (String(convertedValue).toLowerCase().startsWith('invalid')) {
-        let error = `The ${name} must be a valid ${describe(
-          expectedType,
-        )}, but it was ${describe(valueType, { articles: true })}`;
+        let error = `The ${name} must be a valid ${
+          describe(
+            expectedType,
+          )
+        }, but it was ${describe(valueType, { articles: true })}`;
         if (valueType != null) {
           error += `: ${JSON.stringify(value, { articles: true })}`;
         }
@@ -375,9 +381,11 @@ function checkType(value, expectedType, { name = 'value' } = {}) {
     }
 
     return {
-      error: `The ${name} must be ${describe(expectedType, {
-        articles: true,
-      })}, but it was ${describe(valueType, { articles: true })}.`,
+      error: `The ${name} must be ${
+        describe(expectedType, {
+          articles: true,
+        })
+      }, but it was ${describe(valueType, { articles: true })}.`,
     };
   }
 
@@ -1070,8 +1078,9 @@ class HealthEndpoint {
 
     let health;
     if (statuses.length > 0) {
-      const status =
-        this.#groups.primary.statusAggregator.getAggregateStatus(statuses);
+      const status = this.#groups.primary.statusAggregator.getAggregateStatus(
+        statuses,
+      );
       health = new CompositeHealth(status, components);
     } else {
       health = Health.up();
@@ -1653,8 +1662,7 @@ class SimpleFormatter extends Formatter {
       s += ' [' + record.loggerName + ']';
     }
     s += ' ' + record.level.toString();
-    s +=
-      ' - ' +
+    s += ' - ' +
       record.message
         .map((m) => (typeof m === 'object' ? JSON.stringify(m) : m))
         .join(' ');
@@ -2047,10 +2055,9 @@ class SseClient {
       throw new Error('Already connected.');
     }
 
-    const eventType =
-      typeof eventListenerOrEventType === 'string'
-        ? eventListenerOrEventType
-        : 'message';
+    const eventType = typeof eventListenerOrEventType === 'string'
+      ? eventListenerOrEventType
+      : 'message';
     if (typeof eventListenerOrEventType === 'function') {
       eventListener = eventListenerOrEventType;
     }
@@ -2321,11 +2328,10 @@ class Duration {
    * @readonly
    */
   get secondsPart() {
-    const value =
-      (this.millis -
-        this.daysPart * 86400000 -
-        this.hoursPart * 3600000 -
-        this.minutesPart * 60000) /
+    const value = (this.millis -
+      this.daysPart * 86400000 -
+      this.hoursPart * 3600000 -
+      this.minutesPart * 60000) /
       1000;
     return this.isNegative() ? Math.ceil(value) : Math.floor(value);
   }
@@ -2337,8 +2343,7 @@ class Duration {
    * @readonly
    */
   get millisPart() {
-    const value =
-      this.millis -
+    const value = this.millis -
       this.daysPart * 86400000 -
       this.hoursPart * 3600000 -
       this.minutesPart * 60000 -
@@ -2892,8 +2897,9 @@ class Timer extends EventTarget {
         this._queue.shift();
         task._state = TASK_EXECUTED;
       } else {
-        task._nextExecutionTime =
-          task._period < 0 ? now - task._period : executionTime + task._period;
+        task._nextExecutionTime = task._period < 0
+          ? now - task._period
+          : executionTime + task._period;
       }
       task.run();
     } else {
@@ -3243,12 +3249,11 @@ class WebSocketStub {
 
   simulateMessageReceived({ data }) {
     setTimeout(() => {
-      const jsonString =
-        typeof data === 'string' ||
-        data instanceof Blob ||
-        data instanceof ArrayBuffer
-          ? data
-          : JSON.stringify(data);
+      const jsonString = typeof data === 'string' ||
+          data instanceof Blob ||
+          data instanceof ArrayBuffer
+        ? data
+        : JSON.stringify(data);
       this.onmessage?.(new MessageEvent('message', { data: jsonString }));
     });
   }
@@ -3317,8 +3322,8 @@ class ActuatorController {
     /** @type {express.Request} */ request,
     /** @type {express.Response} */ response,
   ) {
-    let requestedUrl =
-      request.protocol + '://' + request.get('host') + request.originalUrl;
+    let requestedUrl = request.protocol + '://' + request.get('host') +
+      request.originalUrl;
     if (!requestedUrl.endsWith('/')) {
       requestedUrl += '/';
     }
@@ -3373,9 +3378,12 @@ class ActuatorController {
 
     const metrics = await this.#services.getMetrics();
     const timestamp = new Date().getTime();
-    let body = `# TYPE talks_count gauge\ntalks_count ${metrics.talksCount} ${timestamp}\n\n`;
-    body += `# TYPE presenters_count gauge\npresenters_count ${metrics.presentersCount} ${timestamp}\n\n`;
-    body += `# TYPE comments_count gauge\ncomments_count ${metrics.commentsCount} ${timestamp}\n\n`;
+    let body =
+      `# TYPE talks_count gauge\ntalks_count ${metrics.talksCount} ${timestamp}\n\n`;
+    body +=
+      `# TYPE presenters_count gauge\npresenters_count ${metrics.presentersCount} ${timestamp}\n\n`;
+    body +=
+      `# TYPE comments_count gauge\ncomments_count ${metrics.commentsCount} ${timestamp}\n\n`;
     reply(response, { body });
   }
 }

@@ -1,5 +1,5 @@
 import process from 'node:process';
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 
 import { ConfigurationProperties } from '../../lib/node/configuration-properties.js';
 

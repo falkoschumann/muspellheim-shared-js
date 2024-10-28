@@ -27,22 +27,22 @@ format:
 	deno lint --fix
 
 dev: prepare
-	deno run --allow-all npm:jest --watch
+	deno run --allow-all npm:vitest
 
 test: prepare
-	deno run --allow-all npm:jest
+	deno run --allow-all npm:vitest run
 
 unit-tests: prepare
-	deno run --allow-all npm:jest --testPathPattern=".*\/unit\/.*"
+	deno run --allow-all npm:vitest run --testPathPattern=".*\/unit\/.*"
 
 integration-tests:
-	deno run --allow-all npm:jest --testPathPattern=".*\/integration\/.*"
+	deno run --allow-all npm:vitest run --testPathPattern=".*\/integration\/.*"
 
 e2e-tests: prepare
-	deno run --allow-all npm:jest --testPathPattern=".*\/e2e\/.*"
+	deno run --allow-all npm:vitest run --testPathPattern=".*\/e2e\/.*"
 
 coverage: prepare
-	deno run --allow-all npm:jest --coverage
+	deno run --allow-all npm:vitest run --coverage
 
 build: prepare
 	deno run --allow-all npm:rollup -c

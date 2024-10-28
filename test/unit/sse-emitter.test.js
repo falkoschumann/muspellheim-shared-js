@@ -1,5 +1,5 @@
 import events from 'node:events';
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 
 import { SseEmitter } from '../../lib/node/sse-emitter.js';
 

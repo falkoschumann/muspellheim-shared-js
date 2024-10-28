@@ -1,4 +1,0 @@
-{
-  "globalSetup": "./jest.global-setup.js",
-  "verbose": true
-}

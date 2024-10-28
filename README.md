@@ -12,12 +12,12 @@ Some utilities for browser and Express.js.
 
 The `Makefile` runs the build as default task. Other tasks are
 
--   `test`: run all tests,
--   `format`: format source code
+- `test`: run all tests,
+- `format`: format source code
 
 ## Credits
 
 ## Open issues
 
--   [ ] Check using of asserts in Spring and Java migrated code.
--   [ ] Remove prefixed dash `-` in JSDoc.
+- [ ] Check using of asserts in Spring and Java migrated code.
+- [ ] Remove prefixed dash `-` in JSDoc.
