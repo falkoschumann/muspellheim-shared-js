@@ -1,3 +1,6 @@
+# Possible values: major, minor, patch
+VERSION_STEP = minor
+
 all: dist check docs
 
 clean:
@@ -9,6 +12,9 @@ distclean: clean
 	rm -rf node_modules
 
 dist: build
+
+release: dist
+	npm version $(VERSION_STEP)
 
 publish:
 	deno publish --dry-run
