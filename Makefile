@@ -26,7 +26,7 @@ docs:
 	npx jsdoc lib -c jsdoc.config.json
 
 check: test
-#	TODO deno fmt --check
+	deno fmt --check
 	deno lint
 
 format:
@@ -60,6 +60,7 @@ prepare: version
 version:
 	@echo "Use Deno $(shell deno --version)"
 
-.PHONY: all clean distclean dist docs check format \
-	test unit-tests integration-tests e2e-tests watch coverage \
+.PHONY: all clean distclean dist release publish docs \
+	check format \
+	dev test unit-tests integration-tests e2e-tests watch coverage \
 	build prepare version
