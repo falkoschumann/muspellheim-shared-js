@@ -16,6 +16,7 @@ dist: build
 release: dist
 	npm version $(VERSION) -m "chore: create release v%s"
 	git push
+	git push --tags
 
 publish:
 	deno publish --dry-run
