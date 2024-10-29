@@ -14,7 +14,7 @@ distclean: clean
 dist: build
 
 release: dist
-	npm version $(VERSION)
+	npm version $(VERSION) -m "chore: create release v%s"
 	git push
 
 publish:
