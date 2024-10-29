@@ -98,7 +98,7 @@ describe('Logging', () => {
       });
     });
 
-    it.skip('logs at info level by default', () => {
+    it('logs at info level by default', () => {
       const log = Logger.getAnonymousLogger();
       const loggedMessages = log.trackMessagesLogged();
 
@@ -109,18 +109,27 @@ describe('Logging', () => {
       log.trace('trace message');
 
       expect(loggedMessages.data).toEqual([
-        objectContaining({
+        {
+          loggerName: null,
+          date: expect.any(Date),
+          sequenceNumber: expect.any(Number),
           level: Level.ERROR,
           message: ['error message'],
-        }),
-        objectContaining({
+        },
+        {
+          loggerName: null,
+          date: expect.any(Date),
+          sequenceNumber: expect.any(Number),
           level: Level.WARNING,
           message: ['warning message'],
-        }),
-        objectContaining({
+        },
+        {
+          loggerName: null,
+          date: expect.any(Date),
+          sequenceNumber: expect.any(Number),
           level: Level.INFO,
           message: ['info message'],
-        }),
+        },
       ]);
     });
 
@@ -133,10 +142,13 @@ describe('Logging', () => {
       log.warning('warning message');
 
       expect(loggedMessages.data).toEqual([
-        expect.objectContaining({
+        {
+          loggerName: null,
+          date: expect.any(Date),
+          sequenceNumber: expect.any(Number),
           level: Level.ERROR,
           message: ['error message'],
-        }),
+        },
       ]);
     });
 
@@ -150,10 +162,13 @@ describe('Logging', () => {
       log.trace('trace message');
 
       expect(loggedMessages.data).toEqual([
-        expect.objectContaining({
+        {
+          loggerName: null,
+          date: expect.any(Date),
+          sequenceNumber: expect.any(Number),
           level: Level.DEBUG,
           message: ['debug message'],
-        }),
+        },
       ]);
     });
   });
