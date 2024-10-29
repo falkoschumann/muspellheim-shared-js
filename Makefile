@@ -1,5 +1,5 @@
-# Possible values: major, minor, patch
-VERSION_STEP = minor
+# Possible values: major, minor, patch or concrete version
+VERSION = minor
 
 all: dist check docs
 
@@ -14,7 +14,7 @@ distclean: clean
 dist: build
 
 release: dist
-	npm version $(VERSION_STEP)
+	npm version $(VERSION)
 	git push
 
 publish:
