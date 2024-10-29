@@ -1761,7 +1761,7 @@ class LongPollingClient {
   }
 
   static createNull() {
-    return new LongPollingClient(0, { fetch: fetchStub });
+    return new LongPollingClient(0, fetchStub);
   }
 
   #timeout;
@@ -1790,6 +1790,7 @@ class LongPollingClient {
             const headers = this.#createHeaders();
             const response = await this.#fetch('/api/talks', {
               headers,
+              signal: this.#aboutController.signal,
             });
             await this.#handleResponse(response);
           } catch (error) {
@@ -1829,7 +1830,7 @@ class LongPollingClient {
   }
 
   #createHeaders() {
-    const headers = { signal: this.#aboutController.signal };
+    const headers = {};
     if (this.#tag) {
       headers['If-None-Match'] = this.#tag;
       headers.Prefer = 'wait=90';
@@ -1860,8 +1861,9 @@ class LongPollingClient {
 
 async function fetchStub(_url, options) {
   // TODO use stub
-  await new Promise((_resolve, reject) => {
+  return await new Promise((resolve, reject) => {
     options?.signal?.addEventListener('abort', () => reject());
+    resolve(new ResponseStub({ status: 304 }));
   });
 }
 

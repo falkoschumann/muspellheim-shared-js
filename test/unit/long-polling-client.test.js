@@ -3,6 +3,16 @@ import { describe, expect, it } from 'vitest';
 import { LongPollingClient } from '../../lib/long-polling-client.js';
 
 describe('Long polling client', () => {
+  it('connects and close connection', async () => {
+    const client = LongPollingClient.createNull();
+
+    client.connect(() => {});
+    expect(client.isConnected).toBe(true);
+
+    await client.close();
+    expect(client.isConnected).toBe(false);
+  });
+
   it('Connects to the server', () => {
     const client = LongPollingClient.createNull();
 
