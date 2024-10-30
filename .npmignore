@@ -2,6 +2,7 @@
 /test/
 .editorconfig
 .gitattributes
+deno.lock
 jsdoc.config.json
 Makefile
 node.mk
