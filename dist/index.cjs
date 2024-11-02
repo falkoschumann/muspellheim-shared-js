@@ -2031,11 +2031,100 @@ class ServiceLocator {
   }
 }
 
-class SseClient {
+/**
+ * @import { LongPollingClient } from './long-polling-client.js'
+ * @import { SseClient } from './sse-client.js'
+ * @import { WebSocketClient } from './web-socket-client.js'
+ */
+
+/**
+ * An interface for a streaming message client.
+ *
+ * Emits the following events:
+ *
+ * - open
+ * - message
+ * - close
+ * - error
+ *
+ * It is used for wrappers around {@link EventSource} and {@link WebSocket},
+ * also for long polling.
+ *
+ * @interface
+ * @see SseClient
+ * @see WebSocketClient
+ * @see LongPollingClient
+ */
+class MessageClient extends EventTarget {
+  /**
+   * Returns whether the client is connected.
+   *
+   * @type {boolean}
+   * @readonly
+   */
+  get isConnected() {
+    throw new Error('Not implemented.');
+  }
+
+  /**
+   * Returns the server URL.
+   *
+   * @type {string}
+   * @readonly
+   */
+  get url() {
+    throw new Error('Not implemented.');
+  }
+
+  /**
+   * Connects to the server.
+   *
+   * @param {URL | string} url The server URL to connect to.
+   */
+  async connect(_url) {
+    await Promise.reject('Not implemented.');
+  }
+
+  /**
+   * Sends a message to the server.
+   *
+   * This is an optional method for streams with bidirectional communication.
+   *
+   * @param {string} message The message to send.
+   * @param {string} type The optional message type.
+   */
+  async send(_message, _type) {
+    await Promise.reject('Not implemented.');
+  }
+
+  /**
+   * Closes the connection.
+   */
+  async close() {
+    await Promise.reject('Not implemented.');
+  }
+}
+
+/**
+ * A client for the server-sent events protocol.
+ *
+ * @implements {MessageClient}
+ */
+class SseClient extends MessageClient {
+  /**
+   * Creates a SSE client.
+   *
+   * @returns {SseClient} A new SSE client.
+   */
   static create() {
     return new SseClient(EventSource);
   }
 
+  /**
+   * Creates a nulled SSE client.
+   *
+   * @returns {SseClient} A new SSE client.
+   */
   static createNull() {
     return new SseClient(EventSourceStub);
   }
@@ -2043,8 +2132,14 @@ class SseClient {
   #eventSourceConstructor;
   /** @type {EventSource} */ #eventSource;
 
-  /** @hideconstructor */
+  /**
+   * The constructor is for internal use. Use the factory methods instead.
+   *
+   * @see SseClient.create
+   * @see SseClient.createNull
+   */
   constructor(/** @type {function(new:EventSource)} */ eventSourceConstructor) {
+    super();
     this.#eventSourceConstructor = eventSourceConstructor;
   }
 
@@ -2052,47 +2147,120 @@ class SseClient {
     return this.#eventSource?.readyState === this.#eventSourceConstructor.OPEN;
   }
 
-  async connect(eventListenerOrEventType, eventListener) {
-    if (this.isConnected) {
-      throw new Error('Already connected.');
-    }
+  get url() {
+    return this.#eventSource?.url;
+  }
 
-    const eventType = typeof eventListenerOrEventType === 'string'
-      ? eventListenerOrEventType
-      : 'message';
-    if (typeof eventListenerOrEventType === 'function') {
-      eventListener = eventListenerOrEventType;
-    }
-    await new Promise((resolve) => {
-      this.#eventSource = new this.#eventSourceConstructor('/api/talks');
-      this.#eventSource.addEventListener(eventType, eventListener);
-      this.#eventSource.addEventListener('open', () => resolve());
+  /**
+   * Connects to the server.
+   *
+   * @param {URL | string} url The server URL to connect to.
+   * @param {string} [eventName=message] The optional event type to listen to.
+   */
+
+  async connect(url, eventName = 'message') {
+    await new Promise((resolve, reject) => {
+      if (this.isConnected) {
+        reject(new Error('Already connected.'));
+        return;
+      }
+
+      try {
+        this.#eventSource = new this.#eventSourceConstructor(url);
+        this.#eventSource.addEventListener('open', (e) => {
+          this.#handleOpen(e);
+          resolve();
+        });
+        this.#eventSource.addEventListener(
+          eventName,
+          (e) => this.#handleMessage(e),
+        );
+        this.#eventSource.addEventListener(
+          'error',
+          (e) => this.#handleError(e),
+        );
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 
   async close() {
-    this.#eventSource.close();
-    await Promise.resolve();
+    await new Promise((resolve, reject) => {
+      if (!this.isConnected) {
+        resolve();
+        return;
+      }
+
+      try {
+        this.#eventSource.close();
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
-  simulateMessage(data, eventType = 'message') {
-    this.#eventSource.dispatchEvent(new MessageEvent(eventType, { data }));
+  /**
+   * Simulates a message event from the server.
+   *
+   * @param {string} message The message to receive.
+   * @param {string} [eventName=message] The optional event type.
+   * @param {string} [lastEventId] The optional last event ID.
+   */
+  simulateMessage(message, eventName = 'message', lastEventId = undefined) {
+    this.#handleMessage(
+      new MessageEvent(eventName, { data: message, lastEventId }),
+    );
+  }
+
+  /**
+   * Simulates a close event.
+   *
+   * @param {number} code An optional code.
+   * @param {string} reason An optional reason.
+   */
+  simulateClose(code, reason) {
+    this.#handleClose(new CloseEvent('close', { code, reason }));
+  }
+
+  /**
+   * Simulates an error event.
+   */
+  simulateError() {
+    this.#handleError(new Event('error'));
+  }
+
+  #handleOpen(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
+  }
+
+  #handleMessage(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
+  }
+
+  #handleClose(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
+  }
+
+  #handleError(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
   }
 }
 
 class EventSourceStub extends EventTarget {
+  // The constants have to be defined here because JSDOM is missing EventSource.
   static CONNECTING = 0;
   static OPEN = 1;
   static CLOSED = 2;
 
-  constructor() {
+  constructor(url) {
     super();
-
-    this.readyState = EventSourceStub.CONNECTING;
+    this.url = url;
     setTimeout(() => {
       this.readyState = EventSourceStub.OPEN;
       this.dispatchEvent(new Event('open'));
-    });
+    }, 0);
   }
 
   close() {
@@ -3099,173 +3267,228 @@ class Line2D {
   }
 }
 
-class WebSocketClient extends EventTarget {
-  static create({ heartbeatDisabled = false } = {}) {
-    return new WebSocketClient(heartbeatDisabled, WebSocket);
+const HEARTBEAT_TYPE = 'heartbeat';
+const MESSAGE_SENT_EVENT = 'message-sent';
+
+/**
+ * A client for the WebSocket protocol.
+ *
+ * @implements {MessageClient}
+ */
+class WebSocketClient extends MessageClient {
+  /**
+   * Creates a WebSocket client.
+   *
+   * @param {object} options
+   * @param {number} [options.heartbeat=30000] The heartbeat interval i
+   *   milliseconds. A value <= 0 disables the heartbeat.
+   * @returns {WebSocketClient} A new WebSocket client.
+   */
+  static create({ heartbeat = 30000 } = {}) {
+    return new WebSocketClient(heartbeat, Timer.create(), WebSocket);
   }
 
-  static createNull({ heartbeatDisabled = true } = {}) {
-    return new WebSocketClient(heartbeatDisabled, WebSocketStub);
+  /**
+   * Creates a nulled WebSocket client.
+   *
+   * @param {object} options
+   * @param {number} [options.heartbeat=-1] The heartbeat interval in
+   *   milliseconds. A value <= 0 disables the heartbeat.
+   * @returns {WebSocketClient} A new nulled WebSocket client.
+   */
+  static createNull({ heartbeat = -1 } = {}) {
+    return new WebSocketClient(heartbeat, Timer.createNull(), WebSocketStub);
   }
 
-  #heartbeatDisabled;
-
+  #heartbeat;
+  #timer;
   #webSocketConstructor;
   /** @type {WebSocket} */ #webSocket;
-  #heartbeatId;
 
-  /** @hideconstructor */
+  /**
+   * The constructor is for internal use. Use the factory methods instead.
+   *
+   * @see WebSocketClient.create
+   * @see WebSocketClient.createNull
+   */
   constructor(
-    /** @type {boolean} */ heartbeatDisabled,
-    /** @type {function(new:EventSource)} */ webSocketConstructor,
+    /** @type {number} */ heartbeat,
+    /** @type {Timer} */ timer,
+    /** @type {function(new:WebSocket)} */ webSocketConstructor,
   ) {
     super();
-    this.#heartbeatDisabled = heartbeatDisabled;
+    this.#heartbeat = heartbeat;
+    this.#timer = timer;
     this.#webSocketConstructor = webSocketConstructor;
   }
 
   get isConnected() {
-    return this.#webSocket?.readyState === this.#webSocketConstructor.OPEN;
+    return this.#webSocket?.readyState === WebSocket.OPEN;
+  }
+
+  get url() {
+    return this.#webSocket?.url;
   }
 
   async connect(/** @type {string | URL} */ url) {
-    if (this.isConnected) {
-      throw new Error('Already connected.');
-    }
-
     await new Promise((resolve, reject) => {
+      if (this.isConnected) {
+        reject(new Error('Already connected.'));
+        return;
+      }
+
       try {
         this.#webSocket = new this.#webSocketConstructor(url);
-        this.#webSocket.onmessage = (event) =>
-          this.dispatchEvent(new event.constructor(event.type, event));
-        this.#webSocket.onclose = (event) => {
-          this.dispatchEvent(new event.constructor(event.type, event));
-          this.#stopHeartbeat();
-        };
-        this.#webSocket.onerror = (event) =>
-          this.dispatchEvent(new event.constructor(event.type, event));
-        this.#webSocket.onopen = (event) => {
-          this.dispatchEvent(new event.constructor(event.type, event));
-          this.#startHeartbeat();
+        this.#webSocket.addEventListener('open', (e) => {
+          this.#handleOpen(e);
           resolve();
-        };
+        });
+        this.#webSocket.addEventListener(
+          'message',
+          (e) => this.#handleMessage(e),
+        );
+        this.#webSocket.addEventListener('close', (e) => this.#handleClose(e));
+        this.#webSocket.addEventListener('error', (e) => this.#handleError(e));
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  async close() {
-    await new Promise((resolve, reject) => {
-      function closeHandler() {
-        this.removeEventListener('close', closeHandler);
-        resolve();
-      }
-
-      try {
-        this.addEventListener('close', closeHandler);
-        this.#webSocket.close(1000, 'user request');
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
+  /**
+   * Sends a message to the server.
+   *
+   * @param {string} message The message to send.
+   */
   send(message) {
-    this.#webSocket.send(JSON.stringify(message));
+    this.#webSocket.send(message);
+    this.dispatchEvent(
+      new CustomEvent(MESSAGE_SENT_EVENT, { detail: message }),
+    );
   }
 
-  async simulateMessageReceived({ data }) {
+  trackMessageSent() {
+    return OutputTracker.create(this, MESSAGE_SENT_EVENT);
+  }
+
+  /**
+   * Closes the connection.
+   *
+   * If a code is provided, also a reason should be provided.
+   *
+   * @param {number} code An optional code.
+   * @param {string} reason An optional reason.
+   */
+  async close(code, reason) {
     await new Promise((resolve) => {
-      function messageHandler() {
-        this.removeEventListener('message', messageHandler);
+      if (!this.isConnected) {
         resolve();
+        return;
       }
 
-      this.addEventListener('message', messageHandler);
-      this.#webSocket.simulateMessageReceived({ data });
+      this.#webSocket.addEventListener('close', () => resolve());
+      this.#webSocket.close(code, reason);
     });
   }
 
-  async simulateErrorOccurred() {
-    await new Promise((resolve) => {
-      function errorHandler() {
-        this.removeEventListener('error', errorHandler);
-        resolve();
-      }
+  /**
+   * Simulates a message event from the server.
+   *
+   * @param {string} message The message to receive.
+   */
+  simulateMessage(message) {
+    this.#handleMessage(new MessageEvent('message', { data: message }));
+  }
 
-      this.addEventListener('error', errorHandler);
-      this.#webSocket.simulateErrorOccurred();
-    });
+  /**
+   * Simulates a heartbeat.
+   */
+  simulateHeartbeat() {
+    this.#timer.simulateTaskExecution({ ticks: this.#heartbeat });
+  }
+
+  /**
+   * Simulates a close event.
+   *
+   * @param {number} code An optional code.
+   * @param {string} reason An optional reason.
+   */
+  simulateClose(code, reason) {
+    this.#handleClose(new CloseEvent('close', { code, reason }));
+  }
+
+  /**
+   * Simulates an error event.
+   */
+  simulateError() {
+    this.#handleError(new Event('error'));
+  }
+
+  #handleOpen(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
+    this.#startHeartbeat();
+  }
+
+  #handleMessage(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
+  }
+
+  #handleClose(event) {
+    this.#stopHeartbeat();
+    this.dispatchEvent(new event.constructor(event.type, event));
+  }
+
+  #handleError(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
   }
 
   #startHeartbeat() {
-    if (this.#heartbeatDisabled) {
+    if (this.#heartbeat <= 0) {
       return;
     }
 
-    this.#heartbeatId = setInterval(
-      () => this.send({ type: 'heartbeat' }),
-      30000,
+    this.#timer.scheduleAtFixedRate(
+      new HeartbeatTask(this),
+      this.#heartbeat,
+      this.#heartbeat,
     );
   }
 
   #stopHeartbeat() {
-    clearInterval(this.#heartbeatId);
+    this.#timer.cancel();
   }
 }
 
-class WebSocketStub {
-  // TODO simplify WebSocket fake to stub
-  static CONNECTING = 0;
-  static OPEN = 1;
-  static CLOSING = 2;
-  static CLOSED = 3;
+class HeartbeatTask extends TimerTask {
+  #client;
 
-  readyState = WebSocketStub.CONNECTING;
-  onclose;
-  onerror;
-
-  #onopen;
-
-  get onopen() {
-    return this.#onopen;
+  constructor(/** @type {WebSocketClient} */ client) {
+    super();
+    this.#client = client;
   }
 
-  set onopen(listener) {
-    this.#onopen = listener;
-    setTimeout(() => {
-      this.readyState = WebSocketStub.OPEN;
-      this.onopen(new Event('open'));
-    });
+  run() {
+    this.#client.send(HEARTBEAT_TYPE);
   }
+}
 
-  close(code, reason) {
+class WebSocketStub extends EventTarget {
+  readyState = WebSocket.CONNECTING;
+
+  constructor(url) {
+    super();
+    this.url = url;
     setTimeout(() => {
-      this.readyState = WebSocketStub.CLOSED;
-      this.onclose?.(new CloseEvent('close', { wasClean: true, code, reason }));
-    });
+      this.readyState = WebSocket.OPEN;
+      this.dispatchEvent(new Event('open'));
+    }, 0);
   }
 
   send() {}
 
-  simulateMessageReceived({ data }) {
-    setTimeout(() => {
-      const jsonString = typeof data === 'string' ||
-          data instanceof Blob ||
-          data instanceof ArrayBuffer
-        ? data
-        : JSON.stringify(data);
-      this.onmessage?.(new MessageEvent('message', { data: jsonString }));
-    });
-  }
-
-  simulateErrorOccurred() {
-    setTimeout(() => {
-      this.readyState = WebSocketStub.CLOSED;
-      this.onclose?.(new globalThis.CloseEvent('close', { wasClean: false }));
-      this.onerror?.(new Event('error'));
-    });
+  close() {
+    this.readyState = WebSocket.CLOSED;
+    this.dispatchEvent(new Event('close'));
   }
 }
 
@@ -3901,6 +4124,7 @@ exports.Enum = Enum;
 exports.FeatureToggle = FeatureToggle;
 exports.FileHandler = FileHandler;
 exports.Formatter = Formatter;
+exports.HEARTBEAT_TYPE = HEARTBEAT_TYPE;
 exports.Handler = Handler;
 exports.Health = Health;
 exports.HealthContributorRegistry = HealthContributorRegistry;
