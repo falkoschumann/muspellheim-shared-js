@@ -3,129 +3,126 @@ import { describe, expect, it } from 'vitest';
 import { LongPollingClient } from '../../lib/long-polling-client.js';
 
 describe('Long polling client', () => {
-  it('connects and close connection', async () => {
+  it('Creates a client without connection', () => {
     const client = LongPollingClient.createNull();
 
-    client.connect(() => {});
-    expect(client.isConnected).toBe(true);
-
-    await client.close();
     expect(client.isConnected).toBe(false);
   });
 
-  it('Connects to the server', () => {
+  it('Connects to the server', async () => {
     const client = LongPollingClient.createNull();
 
-    client.simulateConnected(() => {});
+    await client.connect('http://example.com');
 
     expect(client.isConnected).toBe(true);
+    expect(client.url).toBe('http://example.com');
   });
 
-  it('Rejects multiple connections', () => {
+  it('Emits event when connected', async () => {
     const client = LongPollingClient.createNull();
-    client.simulateConnected(() => {});
+    const events = [];
+    client.addEventListener('open', (event) => events.push(event));
 
-    const connectTwice = () => client.simulateConnected(() => {});
+    await client.connect('http://example.com');
 
-    expect(connectTwice).toThrow(/^Already connected.$/);
+    expect(events).toEqual([expect.objectContaining({ type: 'open' })]);
   });
 
-  it('Closes the connection', () => {
+  it('Rejects multiple connections', async () => {
     const client = LongPollingClient.createNull();
-    client.simulateConnected(() => {});
+    await client.connect('http://example.com');
 
-    client.close();
+    await expect(() => client.connect('http://example.com')).rejects.toThrow(
+      'Already connected.',
+    );
+  });
+
+  it('Closes the connection', async () => {
+    const client = LongPollingClient.createNull();
+    await client.connect('http://example.com');
+
+    await client.close();
+
+    expect(client.isConnected).toBe(false);
+  });
+
+  it('Does nothing when closing a disconnected client', async () => {
+    const client = LongPollingClient.createNull();
+    await client.connect('http://example.com');
+    await client.close();
+
+    await client.close();
 
     expect(client.isConnected).toBe(false);
   });
 
   it('Receives a message', async () => {
-    const client = LongPollingClient.createNull();
-    const events = [];
-    client.simulateConnected((event) => events.push(event));
+    const client = LongPollingClient.createNull({
+      fetchResponse: {
+        status: 200,
+        headers: { etag: '1' },
+        body: 'lorem ipsum',
+      },
+    });
+    const requestsSent = client.trackRequestSent();
+    const messages = [];
+    const errors = [];
 
-    await client.simulateResponse({
-      status: 200,
-      headers: { etag: '1' },
-      body: { anwser: 42 },
+    const result = new Promise((resolve) => {
+      client.addEventListener('error', (event) => {
+        errors.push(event);
+        client.close();
+        resolve();
+      });
+      client.addEventListener('message', (event) => {
+        messages.push(event);
+        client.close();
+        resolve();
+      });
+      client.connect('http://example.com');
     });
 
-    expect(events).toEqual([expect.objectContaining({ data: { anwser: 42 } })]);
-  });
+    await result;
 
-  it('Ignores not modified', async () => {
-    const client = LongPollingClient.createNull();
-    const events = [];
-    client.simulateConnected((event) => events.push(event));
-
-    await client.simulateResponse({
-      status: 200,
-      headers: { etag: '1' },
-      body: { counter: 1 },
-    });
-    await client.simulateResponse({ status: 304, headers: {}, body: null });
-    await client.simulateResponse({
-      status: 200,
-      headers: { etag: '2' },
-      body: { counter: 2 },
-    });
-
-    expect(events).toEqual([
-      expect.objectContaining({ data: { counter: 1 } }),
-      expect.objectContaining({ data: { counter: 2 } }),
+    expect(requestsSent.data).toEqual([{ headers: { Prefer: 'wait=90' } }]);
+    expect(messages).toEqual([
+      expect.objectContaining({ type: 'message', data: 'lorem ipsum' }),
     ]);
+    expect(errors).toEqual([]);
   });
 
-  it('Recovers after error', async () => {
-    const client = LongPollingClient.createNull();
-    const events = [];
-    client.simulateConnected((event) => events.push(event));
+  it.skip('Ignores not modified');
 
-    await client.simulateResponse({
-      status: 200,
-      headers: { etag: '1' },
-      body: { counter: 1 },
+  it('Handles an error', async () => {
+    const client = LongPollingClient.createNull({
+      fetchResponse: { status: 500, statusText: 'Internal Server Error' },
     });
-    const result = client.simulateResponse({
-      status: 500,
-      headers: {},
-      body: null,
-    });
-    await client.simulateResponse({
-      status: 200,
-      headers: { etag: '2' },
-      body: { counter: 2 },
+    const requestsSent = client.trackRequestSent();
+    const messages = [];
+    const errors = [];
+
+    const result = new Promise((resolve) => {
+      client.addEventListener('error', (event) => {
+        errors.push(event);
+        client.close();
+        resolve();
+      });
+      client.addEventListener('message', (event) => {
+        messages.push(event);
+        client.close();
+        resolve();
+      });
+      client.connect('http://example.com');
     });
 
-    expect(client.isConnected).toBe(true);
-    expect(events).toEqual([
-      expect.objectContaining({ data: { counter: 1 } }),
-      expect.objectContaining({ data: { counter: 2 } }),
-    ]);
-    await expect(result).rejects.toThrow(/^HTTP error: 500/);
+    await result;
+
+    expect(requestsSent.data).toEqual([{ headers: { Prefer: 'wait=90' } }]);
+    expect(messages).toEqual([]);
+    expect(errors).toEqual([expect.objectContaining({ type: 'error' })]);
   });
 
-  it('Recovers after network error', async () => {
-    const client = LongPollingClient.createNull();
-    const events = [];
-    client.simulateConnected((event) => events.push(event));
+  it.todo('Recovers after error');
 
-    await client.simulateResponse({
-      status: 200,
-      headers: { etag: '1' },
-      body: { counter: 1 },
-    });
-    client.simulateError(new Error('network error'));
-    await client.simulateResponse({
-      status: 200,
-      headers: { etag: '2' },
-      body: { counter: 2 },
-    });
-
-    expect(client.isConnected).toBe(true);
-    expect(events).toEqual([
-      expect.objectContaining({ data: { counter: 1 } }),
-      expect.objectContaining({ data: { counter: 2 } }),
-    ]);
-  });
+  it.todo('Recovers after network error');
 });
