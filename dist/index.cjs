@@ -4,6 +4,8 @@ var process = require('node:process');
 var fsPromises = require('node:fs/promises');
 var path = require('node:path');
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 const FACTOR = 0.7;
 
 /**
@@ -142,6 +144,8 @@ class Color {
   }
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 /**
  * Handle returning a pre-configured responses.
  *
@@ -203,6 +207,8 @@ class ConfigurableResponses {
     return response;
   }
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 // TODO Use JSON schema to validate like Java Bean Validation?
 
@@ -502,6 +508,9 @@ function describe(type, { articles = false } = {}) {
   return name;
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
+
 /**
  * This is a base class for creating enum objects.
  *
@@ -581,6 +590,8 @@ class Enum {
   }
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 class FeatureToggle {
   /*
   static isFoobarEnabled() {
@@ -588,6 +599,8 @@ class FeatureToggle {
   }
   */
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 /**
  * Assert that an object is not `null`.
@@ -601,6 +614,9 @@ function assertNotNull(object, message) {
     throw new ReferenceError(message);
   }
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 
 /**
  * Express state of a component.
@@ -1089,6 +1105,8 @@ class HealthEndpoint {
   }
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 /**
  * Tracks output events.
  *
@@ -1171,6 +1189,9 @@ class OutputTracker {
     this.#eventTarget.removeEventListener(this.#event, this.#tracker);
   }
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 
 const MESSAGE_LOGGED_EVENT = 'message-logged';
 
@@ -1752,6 +1773,8 @@ class LogManager {
   }
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 /**
  * @import { LongPollingClient } from './long-polling-client.js'
  * @import { SseClient } from './sse-client.js'
@@ -1824,6 +1847,8 @@ class MessageClient extends EventTarget {
     await Promise.reject('Not implemented.');
   }
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 /**
  * A clock provides access to the current timestamp.
@@ -2253,9 +2278,7 @@ class Duration {
   }
 }
 
-/**
- * import { Duration } from './time.js'
- */
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 
 const TASK_CREATED = 'created';
@@ -2473,6 +2496,9 @@ class TimeoutStub {
   setTimeout() {}
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
+
 const REQUEST_SENT_EVENT = 'request-sent';
 
 /**
@@ -2641,6 +2667,8 @@ function createFetchStub(response) {
   };
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 /**
  * An instance of `Random` is used to generate random numbers.
  */
@@ -2734,6 +2762,8 @@ class Random {
   }
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 /**
  * A central place to register and resolve services.
  */
@@ -2776,6 +2806,9 @@ class ServiceLocator {
     return typeof service === 'function' ? service() : service;
   }
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 
 /**
  * A client for the server-sent events protocol.
@@ -2926,6 +2959,9 @@ class EventSourceStub extends EventTarget {
   }
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
+
 /**
  * A simple stop watch.
  */
@@ -2975,6 +3011,8 @@ class StopWatch {
     return this.getTotalTimeMillis() / 1000;
   }
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 /**
  * A reducer is a function that changes the state of the application based on an
@@ -3091,6 +3129,8 @@ class Store {
     this.#listeners = this.#listeners.filter((l) => l !== listener);
   }
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 /**
  * A vector in a two-dimensional space.
@@ -3276,6 +3316,9 @@ class Line2D {
     return { foot, scalar };
   }
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 
 const HEARTBEAT_TYPE = 'heartbeat';
 
@@ -3517,6 +3560,8 @@ class WebSocketStub extends EventTarget {
   }
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 /**
  * @import * as express from 'express'
  */
@@ -3539,11 +3584,7 @@ function reply(
   response.status(status).header(headers).send(body);
 }
 
-/**
- * @import * as express from 'express'
- *
- * @import { HealthContributorRegistry } from '../health.js'
- */
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 
 class ActuatorController {
@@ -3638,6 +3679,8 @@ class ActuatorController {
   }
 }
 
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 // TODO deep copy
 // TODO deep equals
 
@@ -3668,6 +3711,9 @@ function deepMerge(source, target) {
 
   return source;
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 
 // TODO How to handle optional values? Cast to which type?
 // TODO Use JSON schema to validate the configuration?
@@ -3906,9 +3952,7 @@ class FsStub {
   }
 }
 
-/**
- * @import { LogRecord } from '../logging.js';
- */
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 
 /**
@@ -3958,9 +4002,7 @@ class FileHandler extends Handler {
   }
 }
 
-/**
- * @import * as express from 'express'
- */
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 
 class LongPolling {
@@ -4036,6 +4078,8 @@ class LongPolling {
     };
   }
 }
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 /**
  * @import http from 'node:http'

@@ -21,5 +21,3 @@ The `Makefile` runs the build as default task. Other tasks are
 
 - [ ] Check using of asserts in Spring and Java migrated code.
 - [ ] Remove prefixed dash `-` in JSDoc.
-- [ ] Add copyright header to all source files
-      `// Copyright (c) 2024 Falko Schumann. All rights reserved. MIT license.`

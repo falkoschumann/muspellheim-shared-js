@@ -1,3 +1,5 @@
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 import { describe, expect, it } from 'vitest';
 
 import { Line2D, Vector2D } from '../../lib/vector.js';
