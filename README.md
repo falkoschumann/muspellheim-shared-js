@@ -19,5 +19,6 @@ The `Makefile` runs the build as default task. Other tasks are
 
 ## Open issues
 
+- [ ] Documents module.
+- [ ] Add JSDoc as GitHub Pages
 - [ ] Check using of asserts in Spring and Java migrated code.
-- [ ] Remove prefixed dash `-` in JSDoc.
