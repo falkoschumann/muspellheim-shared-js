@@ -1884,6 +1884,15 @@ class MessageClient extends EventTarget {
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 /**
+ * An API for time and durations.
+ *
+ * Portation of
+ * [Java Time](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html).
+ *
+ * @module
+ */
+
+/**
  * A clock provides access to the current timestamp.
  */
 class Clock {
@@ -3074,6 +3083,16 @@ class StopWatch {
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 /**
+ * Simple global state management with store and reducer.
+ *
+ * This implementation is compatible with [Redux](https://redux.js.org). It is
+ * intended to replace it with Redux if necessary, for example if the
+ * application grows.
+ *
+ * @module
+ */
+
+/**
  * A reducer is a function that changes the state of the application based on an
  * action.
  *
@@ -3192,6 +3211,12 @@ class Store {
 }
 
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
+/**
+ * Calculate with vectors in a two-dimensional space.
+ *
+ * @module
+ */
 
 /**
  * A vector in a two-dimensional space.

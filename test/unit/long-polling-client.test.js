@@ -93,7 +93,7 @@ describe('Long polling client', () => {
     expect(errors).toEqual([]);
   });
 
-  it.skip('Ignores not modified');
+  it.todo('Ignores not modified');
 
   it('Handles an error', async () => {
     const client = LongPollingClient.createNull({
