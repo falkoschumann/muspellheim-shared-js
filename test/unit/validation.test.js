@@ -11,7 +11,7 @@ import {
   ensureType,
   ensureUnreachable,
 } from '../../lib/validation.js';
-import { Enum } from '../../lib/enum.js';
+import { Enum } from '../../lib/lang.js';
 
 describe('Validation', () => {
   describe('Ensure unreachable', () => {

@@ -19,7 +19,6 @@ The `Makefile` runs the build as default task. Other tasks are
 
 ## Open issues
 
-- [ ] Document module.
-- [ ] Combine modules from same Java package.
+- [ ] Add missing docs.
 - [ ] Add JSDoc as GitHub Pages.
 - [ ] Check using of asserts in Spring and Java migrated code.

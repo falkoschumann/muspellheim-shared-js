@@ -6,6 +6,22 @@ var path = require('node:path');
 
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
+/**
+ * Assert that an object is not `null`.
+ *
+ * @param {*} object The object to check.
+ * @param {string|Function} message The message to throw or a function that
+ *   returns the message.
+ */
+function assertNotNull(object, message) {
+  if (object == null) {
+    message = typeof message === 'function' ? message() : message;
+    throw new ReferenceError(message);
+  }
+}
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 const FACTOR = 0.7;
 
 /**
@@ -596,6 +612,17 @@ class Enum {
   }
 }
 
+/**
+ * Temporarily cease execution for the specified duration.
+ *
+ * @param {number} millis The duration to sleep in milliseconds.
+ * @returns {Promise<void>} A promise that resolves after the specified
+ *   duration.
+ */
+async function sleep(millis) {
+  await new Promise((resolve) => setTimeout(resolve, millis));
+}
+
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 class FeatureToggle {
@@ -604,22 +631,6 @@ class FeatureToggle {
     return true;
   }
   */
-}
-
-// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
-
-/**
- * Assert that an object is not `null`.
- *
- * @param {*} object The object to check.
- * @param {string|Function} message The message to throw or a function that
- *   returns the message.
- */
-function assertNotNull(object, message) {
-  if (object == null) {
-    message = typeof message === 'function' ? message() : message;
-    throw new ReferenceError(message);
-  }
 }
 
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
@@ -1883,10 +1894,489 @@ class MessageClient extends EventTarget {
 
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
+
+const REQUEST_SENT_EVENT = 'request-sent';
+
+/**
+ * A client handling long polling a HTTP request.
+ *
+ * @implements {MessageClient}
+ */
+class LongPollingClient extends MessageClient {
+  /**
+   * Creates a long polling client.
+   *
+   * @param {object} options
+   * @param {number} [options.wait=90000] The wait interval for a response.
+   * @param {number} [options.retry=1000] The retry interval after an error.
+   * @returns {LongPollingClient} A new long polling client.
+   */
+  static create({ wait = 90000, retry = 1000 } = {}) {
+    return new LongPollingClient(
+      wait,
+      retry,
+      globalThis.fetch.bind(globalThis),
+    );
+  }
+
+  /**
+   * Creates a nulled long polling client.
+   *
+   * @param {object} options
+   * @returns {LongPollingClient} A new nulled long polling client.
+   */
+  static createNull(
+    {
+      fetchResponse = {
+        status: 304,
+        statusText: 'Not Modified',
+        headers: undefined,
+        body: null,
+      },
+    } = {},
+  ) {
+    return new LongPollingClient(90000, 0, createFetchStub(fetchResponse));
+  }
+
+  #wait;
+  #retry;
+  #fetch;
+  #connected;
+  #aboutController;
+  #url;
+  #tag;
+
+  /**
+   * The constructor is for internal use. Use the factory methods instead.
+   *
+   * @see LongPollingClient.create
+   * @see LongPollingClient.createNull
+   */
+  constructor(
+    /** @type {number} */ wait,
+    /** @type {number} */ retry,
+    /** @type {fetch} */ fetchFunc,
+  ) {
+    super();
+    this.#wait = wait;
+    this.#retry = retry;
+    this.#fetch = fetchFunc;
+    this.#connected = false;
+    this.#aboutController = new AbortController();
+  }
+
+  get isConnected() {
+    return this.#connected;
+  }
+
+  get url() {
+    return this.#url;
+  }
+
+  async connect(url) {
+    if (this.isConnected) {
+      throw new Error('Already connected.');
+    }
+
+    this.#url = url;
+    this.#startPolling();
+    this.dispatchEvent(new Event('open'));
+    await Promise.resolve();
+  }
+
+  /**
+   * Returns a tracker for requests sent.
+   *
+   * @returns {OutputTracker} A new output tracker.
+   */
+  trackRequestSent() {
+    return OutputTracker.create(this, REQUEST_SENT_EVENT);
+  }
+
+  async close() {
+    this.#aboutController.abort();
+    this.#connected = false;
+    await Promise.resolve();
+  }
+
+  async #startPolling() {
+    this.#connected = true;
+    while (this.isConnected) {
+      try {
+        const headers = { Prefer: `wait=${this.#wait / 1000}` };
+        if (this.#tag) {
+          headers['If-None-Match'] = this.#tag;
+        }
+        this.dispatchEvent(
+          new CustomEvent(REQUEST_SENT_EVENT, { detail: { headers } }),
+        );
+        const response = await this.#fetch(this.#url, {
+          headers,
+          signal: this.#aboutController.signal,
+        });
+        await this.#handleResponse(response);
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          break;
+        } else {
+          this.#handleError(error);
+        }
+      }
+    }
+  }
+
+  async #handleResponse(/** @type {Response} */ response) {
+    if (response.status === 304) {
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
+    }
+
+    this.#tag = response.headers.get('ETag');
+    const message = await response.text();
+    this.dispatchEvent(new MessageEvent('message', { data: message }));
+  }
+
+  #handleError(error) {
+    console.error(error);
+    this.dispatchEvent(new Event('error'));
+  }
+}
+
+function createFetchStub(response) {
+  const responses = ConfigurableResponses.create(response);
+  return async (_url, options) => {
+    await sleep(0);
+    return new Promise((resolve, reject) => {
+      options?.signal?.addEventListener('abort', () => reject());
+      const res = responses.next();
+      resolve(
+        new Response(res.body, {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers,
+        }),
+      );
+    });
+  };
+}
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
+
+// TODO Create gauges (can increment and decrement)
+// TODO Create timers (total time, average time and count)
+// TODO Publish metrics to a server via HTTP
+// TODO Provide metrics for Prometheus
+
+class MeterRegistry {
+  static create() {
+    return new MeterRegistry();
+  }
+
+  #meters = [];
+
+  get meters() {
+    return this.#meters;
+  }
+
+  counter(name, tags) {
+    const id = MeterId.create({ name, tags, type: MeterType.COUNTER });
+    /** @type {Counter} */ let meter = this.#meters.find((meter) =>
+      meter.id.equals(id)
+    );
+    if (!meter) {
+      meter = new Counter(id);
+      this.#meters.push(meter);
+    }
+
+    // TODO validate found meter is a counter
+    return meter;
+  }
+}
+
+class Meter {
+  #id;
+
+  constructor(/** @type {MeterId} */ id) {
+    // TODO validate parameters are not null
+    this.#id = id;
+  }
+
+  get id() {
+    return this.#id;
+  }
+}
+
+class Counter extends Meter {
+  #count = 0;
+
+  constructor(/** @type {MeterId} */ id) {
+    super(id);
+    // TODO validate type is counter
+  }
+
+  count() {
+    return this.#count;
+  }
+
+  increment(amount = 1) {
+    this.#count += amount;
+  }
+}
+
+class MeterId {
+  static create({ name, tags = [], type }) {
+    return new MeterId(name, tags, type);
+  }
+
+  #name;
+  #tags;
+  #type;
+
+  constructor(
+    /** @type {string} */ name,
+    /** @type {string[]} */ tags,
+    /** @type {MeterType} */ type,
+  ) {
+    // TODO validate parameters are not null
+    this.#name = name;
+    this.#tags = Array.from(tags).sort();
+    this.#type = type;
+  }
+
+  get name() {
+    return this.#name;
+  }
+
+  get tags() {
+    return this.#tags;
+  }
+
+  get type() {
+    return this.#type;
+  }
+
+  equals(other) {
+    return (
+      this.name === other.name &&
+      this.tags.length === other.tags.length &&
+      this.tags.every((tag, index) => tag === other.tags[index])
+    );
+  }
+}
+
+class MeterType extends Enum {
+  static COUNTER = new MeterType('COUNTER', 0);
+  static GAUGE = new MeterType('GAUGE', 1);
+  static TIMER = new MeterType('TIMER', 2);
+}
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
+/**
+ * A central place to register and resolve services.
+ */
+class ServiceLocator {
+  static #instance = new ServiceLocator();
+
+  /**
+   * Gets the default service locator.
+   *
+   * @returns {ServiceLocator} The default service locator.
+   */
+  static getDefault() {
+    return ServiceLocator.#instance;
+  }
+
+  #services = new Map();
+
+  /**
+   * Registers a service with name.
+   *
+   * @param {string} name The name of the service.
+   * @param {object|Function} service The service object or constructor.
+   */
+  register(name, service) {
+    this.#services.set(name, service);
+  }
+
+  /**
+   * Resolves a service by name.
+   *
+   * @param {string} name The name of the service.
+   * @returns {object} The service object.
+   */
+  resolve(name) {
+    const service = this.#services.get(name);
+    if (service == null) {
+      throw new Error(`Service not found: ${name}.`);
+    }
+
+    return typeof service === 'function' ? service() : service;
+  }
+}
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
+
+/**
+ * A client for the server-sent events protocol.
+ *
+ * @implements {MessageClient}
+ */
+class SseClient extends MessageClient {
+  /**
+   * Creates a SSE client.
+   *
+   * @returns {SseClient} A new SSE client.
+   */
+  static create() {
+    return new SseClient(EventSource);
+  }
+
+  /**
+   * Creates a nulled SSE client.
+   *
+   * @returns {SseClient} A new SSE client.
+   */
+  static createNull() {
+    return new SseClient(EventSourceStub);
+  }
+
+  #eventSourceConstructor;
+  /** @type {EventSource} */ #eventSource;
+
+  /**
+   * The constructor is for internal use. Use the factory methods instead.
+   *
+   * @see SseClient.create
+   * @see SseClient.createNull
+   */
+  constructor(/** @type {function(new:EventSource)} */ eventSourceConstructor) {
+    super();
+    this.#eventSourceConstructor = eventSourceConstructor;
+  }
+
+  get isConnected() {
+    return this.#eventSource?.readyState === this.#eventSourceConstructor.OPEN;
+  }
+
+  get url() {
+    return this.#eventSource?.url;
+  }
+
+  /**
+   * Connects to the server.
+   *
+   * @param {URL | string} url The server URL to connect to.
+   * @param {string} [eventName=message] The optional event type to listen to.
+   */
+
+  async connect(url, eventName = 'message') {
+    await new Promise((resolve, reject) => {
+      if (this.isConnected) {
+        reject(new Error('Already connected.'));
+        return;
+      }
+
+      try {
+        this.#eventSource = new this.#eventSourceConstructor(url);
+        this.#eventSource.addEventListener('open', (e) => {
+          this.#handleOpen(e);
+          resolve();
+        });
+        this.#eventSource.addEventListener(
+          eventName,
+          (e) => this.#handleMessage(e),
+        );
+        this.#eventSource.addEventListener(
+          'error',
+          (e) => this.#handleError(e),
+        );
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async close() {
+    await new Promise((resolve, reject) => {
+      if (!this.isConnected) {
+        resolve();
+        return;
+      }
+
+      try {
+        this.#eventSource.close();
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  /**
+   * Simulates a message event from the server.
+   *
+   * @param {string} message The message to receive.
+   * @param {string} [eventName=message] The optional event type.
+   * @param {string} [lastEventId] The optional last event ID.
+   */
+  simulateMessage(message, eventName = 'message', lastEventId = undefined) {
+    this.#handleMessage(
+      new MessageEvent(eventName, { data: message, lastEventId }),
+    );
+  }
+
+  /**
+   * Simulates an error event.
+   */
+  simulateError() {
+    this.#handleError(new Event('error'));
+  }
+
+  #handleOpen(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
+  }
+
+  #handleMessage(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
+  }
+
+  #handleError(event) {
+    this.dispatchEvent(new event.constructor(event.type, event));
+  }
+}
+
+class EventSourceStub extends EventTarget {
+  // The constants have to be defined here because JSDOM is missing EventSource.
+  static CONNECTING = 0;
+  static OPEN = 1;
+  static CLOSED = 2;
+
+  constructor(url) {
+    super();
+    this.url = url;
+    setTimeout(() => {
+      this.readyState = EventSourceStub.OPEN;
+      this.dispatchEvent(new Event('open'));
+    }, 0);
+  }
+
+  close() {
+    this.readyState = EventSourceStub.CLOSED;
+  }
+}
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
 /**
  * An API for time and durations.
  *
- * Portation of
+ * Portated from
  * [Java Time](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html).
  *
  * @module
@@ -2328,21 +2818,329 @@ class Duration {
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
 
+/**
+ * A simple stop watch.
+ */
+class StopWatch {
+  #clock;
+  #startTime;
+  #stopTime;
+
+  /**
+   * Creates a new stop watch.
+   *
+   * @param {Clock} [clock=Clock.system()] The clock to use for time
+   *   measurement.
+   */
+  constructor(clock = Clock.system()) {
+    this.#clock = clock;
+  }
+
+  /**
+   * Starts an unnamed task.
+   */
+  start() {
+    this.#startTime = this.#clock.millis();
+  }
+
+  /**
+   * Stops the current task.
+   */
+  stop() {
+    this.#stopTime = this.#clock.millis();
+  }
+
+  /**
+   * Gets the total time in milliseconds.
+   *
+   * @returns {number} The total time in milliseconds.
+   */
+  getTotalTimeMillis() {
+    return this.#stopTime - this.#startTime;
+  }
+
+  /**
+   * Gets the total time in seconds.
+   *
+   * @returns {number} The total time in seconds.
+   */
+  getTotalTimeSeconds() {
+    return this.getTotalTimeMillis() / 1000;
+  }
+}
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
+/**
+ * Simple global state management with store and reducer.
+ *
+ * This implementation is compatible with [Redux](https://redux.js.org). It is
+ * intended to replace it with Redux if necessary, for example if the
+ * application grows.
+ *
+ * @module
+ */
+
+/**
+ * A reducer is a function that changes the state of the application based on an
+ * action.
+ *
+ * @callback ReducerType
+ * @param {StateType} state The current state of the application.
+ * @param {ActionType} action The action to handle.
+ * @returns {StateType} The next state of the application or the initial state
+ *   if the state parameter is `undefined`.
+ */
+
+/**
+ * The application state can be any object.
+ *
+ * @typedef {object} StateType
+ */
+
+/**
+ * An action describe an command or an event that changes the state of the
+ * application.
+ *
+ * An action can have any properties, but it should have a `type` property.
+ *
+ * @typedef {object} ActionType
+ * @property {string} type A string that identifies the action.
+ */
+
+/**
+ * A listener is a function that is called when the state of the store changes.
+ *
+ * @callback ListenerType
+ */
+
+/**
+ * An unsubscriber is a function that removes a listener from the store.
+ *
+ * @callback UnsubscriberType
+ */
+
+/**
+ * Creates a new store with the given reducer and optional preloaded state.
+ *
+ * @param {ReducerType} reducer The reducer function.
+ * @param {StateType} [preloadedState] The optional initial state of the store.
+ * @returns {Store} The new store.
+ */
+function createStore(reducer, preloadedState) {
+  const initialState = preloadedState || reducer(undefined, { type: '@@INIT' });
+  return new Store(reducer, initialState);
+}
+
+/**
+ * A simple store compatible with [Redux](https://redux.js.org/api/store).
+ */
+class Store {
+  #reducer;
+  #state;
+  #listeners = [];
+
+  /**
+   * Creates a new store with the given reducer and initial state.
+   *
+   * @param {ReducerType} reducer
+   * @param {StateType} initialState
+   */
+  constructor(reducer, initialState) {
+    this.#reducer = reducer;
+    this.#state = initialState;
+  }
+
+  /**
+   * Returns the current state of the store.
+   *
+   * @returns {StateType} The current state of the store.
+   */
+  getState() {
+    return this.#state;
+  }
+
+  /**
+   * Updates the state of the store by dispatching an action to the reducer.
+   *
+   * @param {ActionType} action The action to dispatch.
+   */
+  dispatch(action) {
+    const oldState = this.#state;
+    this.#state = this.#reducer(this.#state, action);
+    if (oldState !== this.#state) {
+      this.#emitChange();
+    }
+  }
+
+  /**
+   * Subscribes a listener to store changes.
+   *
+   * @param {ListenerType} listener The listener to subscribe.
+   * @returns {UnsubscriberType} A function that unsubscribes the listener.
+   */
+  subscribe(listener) {
+    this.#listeners.push(listener);
+    return () => this.#unsubscribe(listener);
+  }
+
+  #emitChange() {
+    this.#listeners.forEach((listener) => {
+      // Unsubscribe replace listeners array with a new array, so we must double
+      // check if listener is still subscribed.
+      if (this.#listeners.includes(listener)) {
+        listener();
+      }
+    });
+  }
+
+  #unsubscribe(listener) {
+    this.#listeners = this.#listeners.filter((l) => l !== listener);
+  }
+}
+
+// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+
+
+// TODO check if import from time.js is needed
+// TODO deep copy
+// TODO deep equals
+
+function deepMerge(source, target) {
+  if (target === undefined) {
+    return source;
+  }
+
+  if (typeof target !== 'object' || target === null) {
+    return target;
+  }
+
+  if (Array.isArray(source) && Array.isArray(target)) {
+    for (const item of target) {
+      const element = deepMerge(undefined, item);
+      source.push(element);
+    }
+    return source;
+  }
+
+  for (const key in target) {
+    if (typeof source !== 'object' || source === null) {
+      source = {};
+    }
+
+    source[key] = deepMerge(source[key], target[key]);
+  }
+
+  return source;
+}
+
+/**
+ * An instance of `Random` is used to generate random numbers.
+ */
+class Random {
+  static create() {
+    return new Random();
+  }
+
+  /** @hideconstructor */
+  constructor() {}
+
+  /**
+   * Returns a random boolean value.
+   *
+   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
+   *   `undefined`.
+   * @returns {boolean|undefined} A random boolean between `origin` (inclusive)
+   *   and `bound` (exclusive) or undefined.
+   */
+  nextBoolean(probabilityOfUndefined = 0.0) {
+    return this.#randomOptional(
+      () => Math.random() < 0.5,
+      probabilityOfUndefined,
+    );
+  }
+
+  /**
+   * Returns a random integer between `origin` (inclusive) and `bound`
+   * (exclusive).
+   *
+   * @param {number} [origin=0] The least value that can be returned.
+   * @param {number} [bound=1] The upper bound (exclusive) for the returned
+   *   value.
+   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
+   *  `undefined`.
+   * @returns {number|undefined} A random integer between `origin` (inclusive)
+   *   and `bound` (exclusive) or undefined.
+   */
+  nextInt(origin = 0, bound = 1, probabilityOfUndefined = 0.0) {
+    return this.#randomOptional(
+      () => Math.floor(this.nextFloat(origin, bound)),
+      probabilityOfUndefined,
+    );
+  }
+
+  /**
+   * Returns a random float between `origin` (inclusive) and `bound`
+   * (exclusive).
+   *
+   * @param {number} [origin=0.0] The least value that can be returned.
+   * @param {number} [bound=1.0] The upper bound (exclusive) for the returned
+   *   value.
+   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
+   *   `undefined`.
+   * @returns {number|undefined} A random float between `origin` (inclusive) and
+   *   `bound` (exclusive) or undefined.
+   */
+  nextFloat(origin = 0.0, bound = 1.0, probabilityOfUndefined = 0.0) {
+    return this.#randomOptional(
+      () => Math.random() * (bound - origin) + origin,
+      probabilityOfUndefined,
+    );
+  }
+
+  /**
+   * Returns a random timestamp with optional random offset.
+   *
+   * @param {number} [maxMillis=0] The maximum offset in milliseconds.
+   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
+   *   `undefined`.
+   * @returns {Date|undefined} A random timestamp or `undefined`.
+   */
+  nextDate(maxMillis = 0, probabilityOfUndefined = 0.0) {
+    return this.#randomOptional(() => {
+      const now = new Date();
+      let t = now.getTime();
+      const r = Math.random();
+      t += r * maxMillis;
+      return new Date(t);
+    }, probabilityOfUndefined);
+  }
+
+  /**
+   * Returns a random value from an array.
+   *
+   * @param {Array} [values=[]] The array of values.
+   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
+   *   `undefined`.
+   * @returns {*|undefined} A random value from the array or `undefined`.
+   */
+  nextValue(values = [], probabilityOfUndefined = 0.0) {
+    return this.#randomOptional(() => {
+      const index = new Random().nextInt(0, values.length - 1);
+      return values[index];
+    }, probabilityOfUndefined);
+  }
+
+  #randomOptional(randomFactory, probabilityOfUndefined) {
+    const r = Math.random();
+    return r < probabilityOfUndefined ? undefined : randomFactory();
+  }
+}
+
 const TASK_CREATED = 'created';
 const TASK_SCHEDULED = 'scheduled';
 const TASK_EXECUTED = 'executed';
 const TASK_CANCELLED = 'cancelled';
-
-/**
- * Temporarily cease execution for the specified duration.
- *
- * @param {number} millis The duration to sleep in milliseconds.
- * @returns {Promise<void>} A promise that resolves after the specified
- *   duration.
- */
-async function sleep(millis) {
-  await new Promise((resolve) => setTimeout(resolve, millis));
-}
 
 /**
  * A task that can be scheduled by a {@link Timer}.
@@ -2551,663 +3349,6 @@ class Timer extends EventTarget {
 
 class TimeoutStub {
   setTimeout() {}
-}
-
-// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
-
-
-const REQUEST_SENT_EVENT = 'request-sent';
-
-/**
- * A client handling long polling a HTTP request.
- *
- * @implements {MessageClient}
- */
-class LongPollingClient extends MessageClient {
-  /**
-   * Creates a long polling client.
-   *
-   * @param {object} options
-   * @param {number} [options.wait=90000] The wait interval for a response.
-   * @param {number} [options.retry=1000] The retry interval after an error.
-   * @returns {LongPollingClient} A new long polling client.
-   */
-  static create({ wait = 90000, retry = 1000 } = {}) {
-    return new LongPollingClient(
-      wait,
-      retry,
-      globalThis.fetch.bind(globalThis),
-    );
-  }
-
-  /**
-   * Creates a nulled long polling client.
-   *
-   * @param {object} options
-   * @returns {LongPollingClient} A new nulled long polling client.
-   */
-  static createNull(
-    {
-      fetchResponse = {
-        status: 304,
-        statusText: 'Not Modified',
-        headers: undefined,
-        body: null,
-      },
-    } = {},
-  ) {
-    return new LongPollingClient(90000, 0, createFetchStub(fetchResponse));
-  }
-
-  #wait;
-  #retry;
-  #fetch;
-  #connected;
-  #aboutController;
-  #url;
-  #tag;
-
-  /**
-   * The constructor is for internal use. Use the factory methods instead.
-   *
-   * @see LongPollingClient.create
-   * @see LongPollingClient.createNull
-   */
-  constructor(
-    /** @type {number} */ wait,
-    /** @type {number} */ retry,
-    /** @type {fetch} */ fetchFunc,
-  ) {
-    super();
-    this.#wait = wait;
-    this.#retry = retry;
-    this.#fetch = fetchFunc;
-    this.#connected = false;
-    this.#aboutController = new AbortController();
-  }
-
-  get isConnected() {
-    return this.#connected;
-  }
-
-  get url() {
-    return this.#url;
-  }
-
-  async connect(url) {
-    if (this.isConnected) {
-      throw new Error('Already connected.');
-    }
-
-    this.#url = url;
-    this.#startPolling();
-    this.dispatchEvent(new Event('open'));
-    await Promise.resolve();
-  }
-
-  /**
-   * Returns a tracker for requests sent.
-   *
-   * @returns {OutputTracker} A new output tracker.
-   */
-  trackRequestSent() {
-    return OutputTracker.create(this, REQUEST_SENT_EVENT);
-  }
-
-  async close() {
-    this.#aboutController.abort();
-    this.#connected = false;
-    await Promise.resolve();
-  }
-
-  async #startPolling() {
-    this.#connected = true;
-    while (this.isConnected) {
-      try {
-        const headers = { Prefer: `wait=${this.#wait / 1000}` };
-        if (this.#tag) {
-          headers['If-None-Match'] = this.#tag;
-        }
-        this.dispatchEvent(
-          new CustomEvent(REQUEST_SENT_EVENT, { detail: { headers } }),
-        );
-        const response = await this.#fetch(this.#url, {
-          headers,
-          signal: this.#aboutController.signal,
-        });
-        await this.#handleResponse(response);
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          break;
-        } else {
-          this.#handleError(error);
-        }
-      }
-    }
-  }
-
-  async #handleResponse(/** @type {Response} */ response) {
-    if (response.status === 304) {
-      return;
-    }
-
-    if (!response.ok) {
-      throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
-    }
-
-    this.#tag = response.headers.get('ETag');
-    const message = await response.text();
-    this.dispatchEvent(new MessageEvent('message', { data: message }));
-  }
-
-  #handleError(error) {
-    console.error(error);
-    this.dispatchEvent(new Event('error'));
-  }
-}
-
-function createFetchStub(response) {
-  const responses = ConfigurableResponses.create(response);
-  return async (_url, options) => {
-    await sleep(0);
-    return new Promise((resolve, reject) => {
-      options?.signal?.addEventListener('abort', () => reject());
-      const res = responses.next();
-      resolve(
-        new Response(res.body, {
-          status: res.status,
-          statusText: res.statusText,
-          headers: res.headers,
-        }),
-      );
-    });
-  };
-}
-
-// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
-
-/**
- * An instance of `Random` is used to generate random numbers.
- */
-class Random {
-  static create() {
-    return new Random();
-  }
-
-  /** @hideconstructor */
-  constructor() {}
-
-  /**
-   * Returns a random boolean value.
-   *
-   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
-   *   `undefined`.
-   * @returns {boolean|undefined} A random boolean between `origin` (inclusive)
-   *   and `bound` (exclusive) or undefined.
-   */
-  nextBoolean(probabilityOfUndefined = 0.0) {
-    return this.#randomOptional(
-      () => Math.random() < 0.5,
-      probabilityOfUndefined,
-    );
-  }
-
-  /**
-   * Returns a random integer between `origin` (inclusive) and `bound`
-   * (exclusive).
-   *
-   * @param {number} [origin=0] The least value that can be returned.
-   * @param {number} [bound=1] The upper bound (exclusive) for the returned
-   *   value.
-   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
-   *  `undefined`.
-   * @returns {number|undefined} A random integer between `origin` (inclusive)
-   *   and `bound` (exclusive) or undefined.
-   */
-  nextInt(origin = 0, bound = 1, probabilityOfUndefined = 0.0) {
-    return this.#randomOptional(
-      () => Math.floor(this.nextFloat(origin, bound)),
-      probabilityOfUndefined,
-    );
-  }
-
-  /**
-   * Returns a random float between `origin` (inclusive) and `bound`
-   * (exclusive).
-   *
-   * @param {number} [origin=0.0] The least value that can be returned.
-   * @param {number} [bound=1.0] The upper bound (exclusive) for the returned
-   *   value.
-   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
-   *   `undefined`.
-   * @returns {number|undefined} A random float between `origin` (inclusive) and
-   *   `bound` (exclusive) or undefined.
-   */
-  nextFloat(origin = 0.0, bound = 1.0, probabilityOfUndefined = 0.0) {
-    return this.#randomOptional(
-      () => Math.random() * (bound - origin) + origin,
-      probabilityOfUndefined,
-    );
-  }
-
-  /**
-   * Returns a random timestamp with optional random offset.
-   *
-   * @param {number} [maxMillis=0] The maximum offset in milliseconds.
-   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
-   *   `undefined`.
-   * @returns {Date|undefined} A random timestamp or `undefined`.
-   */
-  nextDate(maxMillis = 0, probabilityOfUndefined = 0.0) {
-    return this.#randomOptional(() => {
-      const now = new Date();
-      let t = now.getTime();
-      const r = Math.random();
-      t += r * maxMillis;
-      return new Date(t);
-    }, probabilityOfUndefined);
-  }
-
-  /**
-   * Returns a random value from an array.
-   *
-   * @param {Array} [values=[]] The array of values.
-   * @param {number} [probabilityOfUndefined=0.0] The probability of returning
-   *   `undefined`.
-   * @returns {*|undefined} A random value from the array or `undefined`.
-   */
-  nextValue(values = [], probabilityOfUndefined = 0.0) {
-    return this.#randomOptional(() => {
-      const index = new Random().nextInt(0, values.length - 1);
-      return values[index];
-    }, probabilityOfUndefined);
-  }
-
-  #randomOptional(randomFactory, probabilityOfUndefined) {
-    const r = Math.random();
-    return r < probabilityOfUndefined ? undefined : randomFactory();
-  }
-}
-
-// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
-
-/**
- * A central place to register and resolve services.
- */
-class ServiceLocator {
-  static #instance = new ServiceLocator();
-
-  /**
-   * Gets the default service locator.
-   *
-   * @returns {ServiceLocator} The default service locator.
-   */
-  static getDefault() {
-    return ServiceLocator.#instance;
-  }
-
-  #services = new Map();
-
-  /**
-   * Registers a service with name.
-   *
-   * @param {string} name The name of the service.
-   * @param {object|Function} service The service object or constructor.
-   */
-  register(name, service) {
-    this.#services.set(name, service);
-  }
-
-  /**
-   * Resolves a service by name.
-   *
-   * @param {string} name The name of the service.
-   * @returns {object} The service object.
-   */
-  resolve(name) {
-    const service = this.#services.get(name);
-    if (service == null) {
-      throw new Error(`Service not found: ${name}.`);
-    }
-
-    return typeof service === 'function' ? service() : service;
-  }
-}
-
-// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
-
-
-/**
- * A client for the server-sent events protocol.
- *
- * @implements {MessageClient}
- */
-class SseClient extends MessageClient {
-  /**
-   * Creates a SSE client.
-   *
-   * @returns {SseClient} A new SSE client.
-   */
-  static create() {
-    return new SseClient(EventSource);
-  }
-
-  /**
-   * Creates a nulled SSE client.
-   *
-   * @returns {SseClient} A new SSE client.
-   */
-  static createNull() {
-    return new SseClient(EventSourceStub);
-  }
-
-  #eventSourceConstructor;
-  /** @type {EventSource} */ #eventSource;
-
-  /**
-   * The constructor is for internal use. Use the factory methods instead.
-   *
-   * @see SseClient.create
-   * @see SseClient.createNull
-   */
-  constructor(/** @type {function(new:EventSource)} */ eventSourceConstructor) {
-    super();
-    this.#eventSourceConstructor = eventSourceConstructor;
-  }
-
-  get isConnected() {
-    return this.#eventSource?.readyState === this.#eventSourceConstructor.OPEN;
-  }
-
-  get url() {
-    return this.#eventSource?.url;
-  }
-
-  /**
-   * Connects to the server.
-   *
-   * @param {URL | string} url The server URL to connect to.
-   * @param {string} [eventName=message] The optional event type to listen to.
-   */
-
-  async connect(url, eventName = 'message') {
-    await new Promise((resolve, reject) => {
-      if (this.isConnected) {
-        reject(new Error('Already connected.'));
-        return;
-      }
-
-      try {
-        this.#eventSource = new this.#eventSourceConstructor(url);
-        this.#eventSource.addEventListener('open', (e) => {
-          this.#handleOpen(e);
-          resolve();
-        });
-        this.#eventSource.addEventListener(
-          eventName,
-          (e) => this.#handleMessage(e),
-        );
-        this.#eventSource.addEventListener(
-          'error',
-          (e) => this.#handleError(e),
-        );
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  async close() {
-    await new Promise((resolve, reject) => {
-      if (!this.isConnected) {
-        resolve();
-        return;
-      }
-
-      try {
-        this.#eventSource.close();
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  /**
-   * Simulates a message event from the server.
-   *
-   * @param {string} message The message to receive.
-   * @param {string} [eventName=message] The optional event type.
-   * @param {string} [lastEventId] The optional last event ID.
-   */
-  simulateMessage(message, eventName = 'message', lastEventId = undefined) {
-    this.#handleMessage(
-      new MessageEvent(eventName, { data: message, lastEventId }),
-    );
-  }
-
-  /**
-   * Simulates an error event.
-   */
-  simulateError() {
-    this.#handleError(new Event('error'));
-  }
-
-  #handleOpen(event) {
-    this.dispatchEvent(new event.constructor(event.type, event));
-  }
-
-  #handleMessage(event) {
-    this.dispatchEvent(new event.constructor(event.type, event));
-  }
-
-  #handleError(event) {
-    this.dispatchEvent(new event.constructor(event.type, event));
-  }
-}
-
-class EventSourceStub extends EventTarget {
-  // The constants have to be defined here because JSDOM is missing EventSource.
-  static CONNECTING = 0;
-  static OPEN = 1;
-  static CLOSED = 2;
-
-  constructor(url) {
-    super();
-    this.url = url;
-    setTimeout(() => {
-      this.readyState = EventSourceStub.OPEN;
-      this.dispatchEvent(new Event('open'));
-    }, 0);
-  }
-
-  close() {
-    this.readyState = EventSourceStub.CLOSED;
-  }
-}
-
-// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
-
-
-/**
- * A simple stop watch.
- */
-class StopWatch {
-  #clock;
-  #startTime;
-  #stopTime;
-
-  /**
-   * Creates a new stop watch.
-   *
-   * @param {Clock} [clock=Clock.system()] The clock to use for time
-   *   measurement.
-   */
-  constructor(clock = Clock.system()) {
-    this.#clock = clock;
-  }
-
-  /**
-   * Starts an unnamed task.
-   */
-  start() {
-    this.#startTime = this.#clock.millis();
-  }
-
-  /**
-   * Stops the current task.
-   */
-  stop() {
-    this.#stopTime = this.#clock.millis();
-  }
-
-  /**
-   * Gets the total time in milliseconds.
-   *
-   * @returns {number} The total time in milliseconds.
-   */
-  getTotalTimeMillis() {
-    return this.#stopTime - this.#startTime;
-  }
-
-  /**
-   * Gets the total time in seconds.
-   *
-   * @returns {number} The total time in seconds.
-   */
-  getTotalTimeSeconds() {
-    return this.getTotalTimeMillis() / 1000;
-  }
-}
-
-// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
-
-/**
- * Simple global state management with store and reducer.
- *
- * This implementation is compatible with [Redux](https://redux.js.org). It is
- * intended to replace it with Redux if necessary, for example if the
- * application grows.
- *
- * @module
- */
-
-/**
- * A reducer is a function that changes the state of the application based on an
- * action.
- *
- * @callback ReducerType
- * @param {StateType} state The current state of the application.
- * @param {ActionType} action The action to handle.
- * @returns {StateType} The next state of the application or the initial state
- *   if the state parameter is `undefined`.
- */
-
-/**
- * The application state can be any object.
- *
- * @typedef {object} StateType
- */
-
-/**
- * An action describe an command or an event that changes the state of the
- * application.
- *
- * An action can have any properties, but it should have a `type` property.
- *
- * @typedef {object} ActionType
- * @property {string} type A string that identifies the action.
- */
-
-/**
- * A listener is a function that is called when the state of the store changes.
- *
- * @callback ListenerType
- */
-
-/**
- * An unsubscriber is a function that removes a listener from the store.
- *
- * @callback UnsubscriberType
- */
-
-/**
- * Creates a new store with the given reducer and optional preloaded state.
- *
- * @param {ReducerType} reducer The reducer function.
- * @param {StateType} [preloadedState] The optional initial state of the store.
- * @returns {Store} The new store.
- */
-function createStore(reducer, preloadedState) {
-  const initialState = preloadedState || reducer(undefined, { type: '@@INIT' });
-  return new Store(reducer, initialState);
-}
-
-/**
- * A simple store compatible with [Redux](https://redux.js.org/api/store).
- */
-class Store {
-  #reducer;
-  #state;
-  #listeners = [];
-
-  /**
-   * Creates a new store with the given reducer and initial state.
-   *
-   * @param {ReducerType} reducer
-   * @param {StateType} initialState
-   */
-  constructor(reducer, initialState) {
-    this.#reducer = reducer;
-    this.#state = initialState;
-  }
-
-  /**
-   * Returns the current state of the store.
-   *
-   * @returns {StateType} The current state of the store.
-   */
-  getState() {
-    return this.#state;
-  }
-
-  /**
-   * Updates the state of the store by dispatching an action to the reducer.
-   *
-   * @param {ActionType} action The action to dispatch.
-   */
-  dispatch(action) {
-    const oldState = this.#state;
-    this.#state = this.#reducer(this.#state, action);
-    if (oldState !== this.#state) {
-      this.#emitChange();
-    }
-  }
-
-  /**
-   * Subscribes a listener to store changes.
-   *
-   * @param {ListenerType} listener The listener to subscribe.
-   * @returns {UnsubscriberType} A function that unsubscribes the listener.
-   */
-  subscribe(listener) {
-    this.#listeners.push(listener);
-    return () => this.#unsubscribe(listener);
-  }
-
-  #emitChange() {
-    this.#listeners.forEach((listener) => {
-      // Unsubscribe replace listeners array with a new array, so we must double
-      // check if listener is still subscribed.
-      if (this.#listeners.includes(listener)) {
-        listener();
-      }
-    });
-  }
-
-  #unsubscribe(listener) {
-    this.#listeners = this.#listeners.filter((l) => l !== listener);
-  }
 }
 
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
@@ -3769,39 +3910,6 @@ class ActuatorController {
 
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
-// TODO deep copy
-// TODO deep equals
-
-function deepMerge(source, target) {
-  if (target === undefined) {
-    return source;
-  }
-
-  if (typeof target !== 'object' || target === null) {
-    return target;
-  }
-
-  if (Array.isArray(source) && Array.isArray(target)) {
-    for (const item of target) {
-      const element = deepMerge(undefined, item);
-      source.push(element);
-    }
-    return source;
-  }
-
-  for (const key in target) {
-    if (typeof source !== 'object' || source === null) {
-      source = {};
-    }
-
-    source[key] = deepMerge(source[key], target[key]);
-  }
-
-  return source;
-}
-
-// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
-
 
 // TODO How to handle optional values? Cast to which type?
 // TODO Use JSON schema to validate the configuration?
@@ -4290,6 +4398,7 @@ exports.CompositeHealth = CompositeHealth;
 exports.ConfigurableResponses = ConfigurableResponses;
 exports.ConfigurationProperties = ConfigurationProperties;
 exports.ConsoleHandler = ConsoleHandler;
+exports.Counter = Counter;
 exports.Duration = Duration;
 exports.Enum = Enum;
 exports.FeatureToggle = FeatureToggle;
@@ -4308,6 +4417,11 @@ exports.LogRecord = LogRecord;
 exports.Logger = Logger;
 exports.LongPolling = LongPolling;
 exports.LongPollingClient = LongPollingClient;
+exports.MessageClient = MessageClient;
+exports.Meter = Meter;
+exports.MeterId = MeterId;
+exports.MeterRegistry = MeterRegistry;
+exports.MeterType = MeterType;
 exports.OutputTracker = OutputTracker;
 exports.Random = Random;
 exports.ServiceLocator = ServiceLocator;
@@ -4325,7 +4439,9 @@ exports.TimerTask = TimerTask;
 exports.ValidationError = ValidationError;
 exports.Vector2D = Vector2D;
 exports.WebSocketClient = WebSocketClient;
+exports.assertNotNull = assertNotNull;
 exports.createStore = createStore;
+exports.deepMerge = deepMerge;
 exports.ensureAnything = ensureAnything;
 exports.ensureArguments = ensureArguments;
 exports.ensureItemType = ensureItemType;
