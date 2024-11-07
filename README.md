@@ -1,6 +1,4 @@
-[![Build](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/pipeline.yml/badge.svg)](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/pipeline.yml)
-
-# Shared
+# Shared [![Build](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/pipeline.yml/badge.svg)](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/pipeline.yml)
 
 Some shared modules for the browser and Node from my projects.
 
