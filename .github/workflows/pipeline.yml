@@ -21,7 +21,7 @@ jobs:
       - name: Upload docs
         uses: actions/upload-pages-artifact@v3
         with:
-          name: docs/@muspellheim/shared/0.3.0/ # TODO extract version as variable
+          path: docs/@muspellheim/shared/0.3.0/ # TODO extract version as variable
 
   build-node:
     runs-on: ubuntu-latest
