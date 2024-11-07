@@ -92,7 +92,7 @@ class Color {
    * Creates a new color that is brighter than this color.
    *
    * @param {number} [factor] The optional factor to brighten the color.
-   * @returns {Color} The brighter color.
+   * @return {Color} The brighter color.
    */
   brighter(factor = FACTOR) {
     if (Number.isNaN(this.rgb)) {
@@ -123,7 +123,7 @@ class Color {
    * Creates a new color that is darker than this color.
    *
    * @param {number} [factor] The optional factor to darken the color.
-   * @returns {Color} The darker color.
+   * @return {Color} The darker color.
    */
   darker(factor = FACTOR) {
     if (Number.isNaN(this.rgb)) {
@@ -140,7 +140,7 @@ class Color {
   /**
    * Returns the RGB value of the color.
    *
-   * @returns {number} The RGB value of the color.
+   * @return {number} The RGB value of the color.
    */
   valueOf() {
     return this.rgb;
@@ -149,7 +149,7 @@ class Color {
   /**
    * Returns the hexadecimal representation of the color.
    *
-   * @returns {string} The hexadecimal representation of the color.
+   * @return {string} The hexadecimal representation of the color.
    */
   toString() {
     if (Number.isNaN(this.rgb)) {
@@ -216,7 +216,7 @@ class ConfigurableResponses {
    * If there are no more responses, an error is thrown. If a single response is
    * configured, it is always returned.
    *
-   * @returns {*} The next response.
+   * @return {*} The next response.
    */
   next() {
     const response = Array.isArray(this.#responses)
@@ -241,7 +241,7 @@ class ValidationError extends Error {
   }
 }
 
-/** @returns {never} */
+/** @return {never} */
 function ensureUnreachable(message = 'Unreachable code executed.') {
   throw new Error(message);
 }
@@ -331,7 +331,7 @@ function ensureArguments(args, expectedTypes = [], names = []) {
   });
 }
 
-/** @returns {{value: ?*, error: ?string}}} */
+/** @return {{value: ?*, error: ?string}}} */
 function checkType(value, expectedType, { name = 'value' } = {}) {
   const valueType = getType(value);
 
@@ -551,7 +551,7 @@ class Enum {
   /**
    * Returns all enum constants.
    *
-   * @returns {T[]} All enum constants.
+   * @return {T[]} All enum constants.
    */
   static values() {
     return Object.values(this);
@@ -561,7 +561,7 @@ class Enum {
    * Returns an enum constant by its name.
    *
    * @param {string} name The name of the enum constant.
-   * @returns {T} The enum constant.
+   * @return {T} The enum constant.
    */
   static valueOf(name) {
     const value = this.values().find((v) => v.name === name);
@@ -587,7 +587,7 @@ class Enum {
   /**
    * Returns the name of the enum constant.
    *
-   * @returns {string} The name of the enum constant.
+   * @return {string} The name of the enum constant.
    */
   toString() {
     return this.name;
@@ -596,7 +596,7 @@ class Enum {
   /**
    * Returns the ordinal of the enum constant.
    *
-   * @returns {number} The ordinal of the enum constant.
+   * @return {number} The ordinal of the enum constant.
    */
   valueOf() {
     return this.ordinal;
@@ -605,7 +605,7 @@ class Enum {
   /**
    * Returns the name of the enum constant.
    *
-   * @returns {string} The name of the enum constant.
+   * @return {string} The name of the enum constant.
    */
   toJSON() {
     return this.name;
@@ -616,7 +616,7 @@ class Enum {
  * Temporarily cease execution for the specified duration.
  *
  * @param {number} millis The duration to sleep in milliseconds.
- * @returns {Promise<void>} A promise that resolves after the specified
+ * @return {Promise<void>} A promise that resolves after the specified
  *   duration.
  */
 async function sleep(millis) {
@@ -681,7 +681,7 @@ class Status {
   /**
    * Returns a string representation of the status.
    *
-   * @returns {string} The status code.
+   * @return {string} The status code.
    */
   toString() {
     return this.code;
@@ -690,7 +690,7 @@ class Status {
   /**
    * Returns the value of the status.
    *
-   * @returns {string} The status code.
+   * @return {string} The status code.
    */
   valueOf() {
     return this.code;
@@ -699,7 +699,7 @@ class Status {
   /**
    * Returns the status code.
    *
-   * @returns {string} The status code.
+   * @return {string} The status code.
    */
   toJSON() {
     return this.code;
@@ -858,7 +858,7 @@ class HealthContributorRegistry {
   /**
    * Returns the default registry.
    *
-   * @returns {HealthContributorRegistry} The default registry.
+   * @return {HealthContributorRegistry} The default registry.
    */
   static getDefault() {
     return HealthContributorRegistry.#instance;
@@ -899,7 +899,7 @@ class HealthContributorRegistry {
    * Returns a contributor by name.
    *
    * @param {string} name The name of the contributor.
-   * @returns {HealthIndicator} The contributorm or `undefined` if not found.
+   * @return {HealthIndicator} The contributorm or `undefined` if not found.
    */
   getContributor(name) {
     return this.#contributors.get(name);
@@ -908,7 +908,7 @@ class HealthContributorRegistry {
   /**
    * Returns an iterator over the named contributors.
    *
-   * @returns {IterableIterator<NamedContributor>} The iterator.
+   * @return {IterableIterator<NamedContributor>} The iterator.
    */
   *[Symbol.iterator]() {
     for (const [name, contributor] of this.#contributors) {
@@ -925,7 +925,7 @@ class StatusAggregator {
   /**
    * Returns the default status aggregator.
    *
-   * @returns {StatusAggregator} The default status aggregator.
+   * @return {StatusAggregator} The default status aggregator.
    */
   static getDefault() {
     return SimpleStatusAggregator.INSTANCE;
@@ -935,7 +935,7 @@ class StatusAggregator {
    * Returns the aggregate status of the given statuses.
    *
    * @param {Status[]} statuses The statuses to aggregate.
-   * @returns {Status} The aggregate status.
+   * @return {Status} The aggregate status.
    * @abstract
    */
   getAggregateStatus(_statuses) {
@@ -989,7 +989,7 @@ class HttpCodeStatusMapper {
   /**
    * Returns the default HTTP code status mapper.
    *
-   * @returns {HttpCodeStatusMapper} The default HTTP code status mapper.
+   * @return {HttpCodeStatusMapper} The default HTTP code status mapper.
    */
   static getDefault() {
     return SimpleHttpCodeStatusMapper.INSTANCE;
@@ -999,7 +999,7 @@ class HttpCodeStatusMapper {
    * Returns the HTTP status code for the given status.
    *
    * @param {Status} status The status.
-   * @returns {number} The HTTP status code.
+   * @return {number} The HTTP status code.
    * @abstract
    */
   getStatusCode(_status) {
@@ -1080,7 +1080,7 @@ class HealthEndpoint {
   /**
    * Returns the default health endpoint.
    *
-   * @returns {HealthEndpoint} The default health endpoint.
+   * @return {HealthEndpoint} The default health endpoint.
    */
   static getDefault() {
     return HealthEndpoint.#INSTANCE;
@@ -1106,7 +1106,7 @@ class HealthEndpoint {
   /**
    * Returns the health of the application.
    *
-   * @returns {EndpointResponse} The health response.
+   * @return {EndpointResponse} The health response.
    */
   health() {
     const result = this.#getHealth();
@@ -1203,7 +1203,7 @@ class OutputTracker {
   /**
    * Returns the tracked data.
    *
-   * @returns {Array} The tracked data.
+   * @return {Array} The tracked data.
    */
   get data() {
     return this.#data;
@@ -1212,7 +1212,7 @@ class OutputTracker {
   /**
    * Clears the tracked data and returns the cleared data.
    *
-   * @returns {Array} The cleared data.
+   * @return {Array} The cleared data.
    */
   clear() {
     const result = [...this.#data];
@@ -1297,7 +1297,7 @@ class Level {
    * - "1000"
    *
    * @param {string|number} name The name or value of the level.
-   * @returns The parsed value.
+   * @return The parsed value.
    */
   static parse(name) {
     const level = Level.#levels.find(
@@ -1339,7 +1339,7 @@ class Level {
   /**
    * Returns a string representation of the level.
    *
-   * @returns {string} The name of the level.
+   * @return {string} The name of the level.
    */
   toString() {
     return this.name;
@@ -1348,7 +1348,7 @@ class Level {
   /**
    * Returns the value of the level.
    *
-   * @returns {number} The value of the level.
+   * @return {number} The value of the level.
    */
   valueOf() {
     return this.value;
@@ -1357,7 +1357,7 @@ class Level {
   /**
    * Returns the name of the level.
    *
-   * @returns {string} The name of the level.
+   * @return {string} The name of the level.
    */
   toJSON() {
     return this.name;
@@ -1373,7 +1373,7 @@ class Logger extends EventTarget {
    * Finds or creates a logger with the given name.
    *
    * @param {string} name The name of the logger.
-   * @returns {Logger} The logger.
+   * @return {Logger} The logger.
    */
   static getLogger(name) {
     const manager = LogManager.getLogManager();
@@ -1385,7 +1385,7 @@ class Logger extends EventTarget {
    *
    * @param {Object} options The options for the logger.
    * @param {Level} options.level The level of the logger.
-   * @returns {Logger} The logger.
+   * @return {Logger} The logger.
    */
   static getAnonymousLogger() {
     const manager = LogManager.getLogManager();
@@ -1511,7 +1511,7 @@ class Logger extends EventTarget {
   /**
    * Returns an output tracker for messages logged by this logger.
    *
-   * @returns {OutputTracker} The output tracker.
+   * @return {OutputTracker} The output tracker.
    */
   trackMessagesLogged() {
     return new OutputTracker(this, MESSAGE_LOGGED_EVENT);
@@ -1522,7 +1522,7 @@ class Logger extends EventTarget {
    * logger.
    *
    * @param {Level} level The level to check.
-   * @returns {boolean} `true` if the message would be logged.
+   * @return {boolean} `true` if the message would be logged.
    */
   isLoggable(level) {
     return this.level != null
@@ -1551,7 +1551,7 @@ class Logger extends EventTarget {
   /**
    * Returns the handlers of the logger.
    *
-   * @returns {Handler[]} The handlers of the logger.
+   * @return {Handler[]} The handlers of the logger.
    */
   getHandlers() {
     return Array.from(this.#handlers);
@@ -1656,7 +1656,7 @@ class Handler {
    * Checks if this handler would actually log a given `LogRecord`.
    *
    * @param {Level} level The level to check.
-   * @returns {boolean} `true` if the message would be logged.
+   * @return {boolean} `true` if the message would be logged.
    */
   isLoggable(level) {
     return level >= this.level;
@@ -1706,7 +1706,7 @@ class Formatter {
    * Formats the given log record and return the formatted string.
    *
    * @param {LogRecord} record The log record to format.
-   * @returns {string} The formatted log record.
+   * @return {string} The formatted log record.
    * @abstract
    */
   format() {
@@ -1909,7 +1909,7 @@ class LongPollingClient extends MessageClient {
    * @param {object} options
    * @param {number} [options.wait=90000] The wait interval for a response.
    * @param {number} [options.retry=1000] The retry interval after an error.
-   * @returns {LongPollingClient} A new long polling client.
+   * @return {LongPollingClient} A new long polling client.
    */
   static create({ wait = 90000, retry = 1000 } = {}) {
     return new LongPollingClient(
@@ -1923,7 +1923,7 @@ class LongPollingClient extends MessageClient {
    * Creates a nulled long polling client.
    *
    * @param {object} options
-   * @returns {LongPollingClient} A new nulled long polling client.
+   * @return {LongPollingClient} A new nulled long polling client.
    */
   static createNull(
     {
@@ -1987,7 +1987,7 @@ class LongPollingClient extends MessageClient {
   /**
    * Returns a tracker for requests sent.
    *
-   * @returns {OutputTracker} A new output tracker.
+   * @return {OutputTracker} A new output tracker.
    */
   trackRequestSent() {
     return OutputTracker.create(this, REQUEST_SENT_EVENT);
@@ -2185,7 +2185,7 @@ class ServiceLocator {
   /**
    * Gets the default service locator.
    *
-   * @returns {ServiceLocator} The default service locator.
+   * @return {ServiceLocator} The default service locator.
    */
   static getDefault() {
     return ServiceLocator.#instance;
@@ -2207,7 +2207,7 @@ class ServiceLocator {
    * Resolves a service by name.
    *
    * @param {string} name The name of the service.
-   * @returns {object} The service object.
+   * @return {object} The service object.
    */
   resolve(name) {
     const service = this.#services.get(name);
@@ -2231,7 +2231,7 @@ class SseClient extends MessageClient {
   /**
    * Creates a SSE client.
    *
-   * @returns {SseClient} A new SSE client.
+   * @return {SseClient} A new SSE client.
    */
   static create() {
     return new SseClient(EventSource);
@@ -2240,7 +2240,7 @@ class SseClient extends MessageClient {
   /**
    * Creates a nulled SSE client.
    *
-   * @returns {SseClient} A new SSE client.
+   * @return {SseClient} A new SSE client.
    */
   static createNull() {
     return new SseClient(EventSourceStub);
@@ -2389,7 +2389,7 @@ class Clock {
   /**
    * Creates a clock using system clock.
    *
-   * @returns {Clock} A clock that uses system clock.
+   * @return {Clock} A clock that uses system clock.
    */
   static system() {
     return new Clock();
@@ -2399,7 +2399,7 @@ class Clock {
    * Creates a clock using a fixed date.
    *
    * @param {Date} [fixed='2024-02-21T19:16:00Z'] The fixed date of the clock.
-   * @returns {Clock} A clock that returns alaways a fixed date.
+   * @return {Clock} A clock that returns alaways a fixed date.
    * @see Clock#add
    */
   static fixed(fixedDate = new Date('2024-02-21T19:16:00Z')) {
@@ -2416,7 +2416,7 @@ class Clock {
   /**
    * Returns the current timestamp of the clock.
    *
-   * @returns {Date} The current timestamp.
+   * @return {Date} The current timestamp.
    */
   date() {
     return this.#date ? new Date(this.#date) : new Date();
@@ -2425,7 +2425,7 @@ class Clock {
   /**
    * Returns the current timestamp of the clock in milliseconds.
    *
-   * @returns {number} The current timestamp in milliseconds.
+   * @return {number} The current timestamp in milliseconds.
    */
   millis() {
     return this.date().getTime();
@@ -2452,7 +2452,7 @@ class Duration {
   /**
    * Creates a duration with zero value.
    *
-   * @returns {Duration} A zero duration.
+   * @return {Duration} A zero duration.
    */
   static zero() {
     return new Duration();
@@ -2462,7 +2462,7 @@ class Duration {
    * Creates a duration from a ISO 8601 string like `[-]P[dD]T[hH][mM][s[.f]S]`.
    *
    * @param {string} isoString The ISO 8601 string to parse.
-   * @returns {Duration} The parsed duration.
+   * @return {Duration} The parsed duration.
    */
   static parse(isoString) {
     const match = isoString.match(
@@ -2493,7 +2493,7 @@ class Duration {
    *
    * @param {Date|number} startInclusive  The start date or millis, inclusive.
    * @param {Date|number} endExclusive  The end date or millis, exclusive.
-   * @returns {Duration} The duration between the two dates.
+   * @return {Duration} The duration between the two dates.
    */
   static between(startInclusive, endExclusive) {
     return new Duration(endExclusive - startInclusive);
@@ -2667,7 +2667,7 @@ class Duration {
   /**
    * Returns a copy of this duration with a positive length.
    *
-   * @returns {Duration} The absolute value of the duration.
+   * @return {Duration} The absolute value of the duration.
    */
   absolutized() {
     return new Duration(Math.abs(this.millis));
@@ -2676,7 +2676,7 @@ class Duration {
   /**
    * Returns a copy of this duration with length negated.
    *
-   * @returns {Duration} The negated value of the duration.
+   * @return {Duration} The negated value of the duration.
    */
   negated() {
     return new Duration(-this.millis);
@@ -2687,7 +2687,7 @@ class Duration {
    *
    * @param {Duration|string|number} duration The duration to add or number of
    *   millis.
-   * @returns {Duration} The new duration.
+   * @return {Duration} The new duration.
    */
   plus(duration) {
     return new Duration(this.millis + new Duration(duration).millis);
@@ -2698,7 +2698,7 @@ class Duration {
    *
    * @param {Duration|string|number} duration The duration to subtract or number
    *   of millis.
-   * @returns {Duration} The new duration.
+   * @return {Duration} The new duration.
    */
   minus(duration) {
     return new Duration(this.millis - new Duration(duration));
@@ -2708,7 +2708,7 @@ class Duration {
    * Returns a copy of this duration multiplied by the scalar.
    *
    * @param {number} multiplicand The value to multiply the duration by.
-   * @returns {Duration} The new duration.
+   * @return {Duration} The new duration.
    */
   multipliedBy(multiplicand) {
     return new Duration(this.millis * multiplicand);
@@ -2718,7 +2718,7 @@ class Duration {
    * Returns a copy of this duration divided by the specified value.
    *
    * @param {number} divisor The value to divide the duration by.
-   * @returns {Duration} The new duration.
+   * @return {Duration} The new duration.
    */
   dividedBy(divisor) {
     return new Duration(this.millis / divisor);
@@ -2728,7 +2728,7 @@ class Duration {
    * Returns a string representation of this duration using ISO 8601, such as
    * `PT8H6M12.345S`.
    *
-   * @returns {string} The ISO 8601 string representation of the duration.
+   * @return {string} The ISO 8601 string representation of the duration.
    */
   toISOString() {
     if (this.isZero()) {
@@ -2761,7 +2761,7 @@ class Duration {
   /**
    * Returns a parsable string representation of this duration.
    *
-   * @returns {string} The string representation of this duration.
+   * @return {string} The string representation of this duration.
    */
   toJSON() {
     return this.toISOString();
@@ -2773,7 +2773,7 @@ class Duration {
    * @param {object} options The options to create the string.
    * @param {string} [options.style='medium'] The style of the string (`short`,
    *   `medium`, `long`).
-   * @returns {string} The string representation of the duration.
+   * @return {string} The string representation of the duration.
    */
   toString({ style = 'medium' } = {}) {
     if (Number.isNaN(this.valueOf())) {
@@ -2800,7 +2800,7 @@ class Duration {
   /**
    * Returns the value of the duration in milliseconds.
    *
-   * @returns {number} The value of the duration in milliseconds.
+   * @return {number} The value of the duration in milliseconds.
    */
   valueOf() {
     return this.millis;
@@ -2853,7 +2853,7 @@ class StopWatch {
   /**
    * Gets the total time in milliseconds.
    *
-   * @returns {number} The total time in milliseconds.
+   * @return {number} The total time in milliseconds.
    */
   getTotalTimeMillis() {
     return this.#stopTime - this.#startTime;
@@ -2862,7 +2862,7 @@ class StopWatch {
   /**
    * Gets the total time in seconds.
    *
-   * @returns {number} The total time in seconds.
+   * @return {number} The total time in seconds.
    */
   getTotalTimeSeconds() {
     return this.getTotalTimeMillis() / 1000;
@@ -2888,7 +2888,7 @@ class StopWatch {
  * @callback ReducerType
  * @param {StateType} state The current state of the application.
  * @param {ActionType} action The action to handle.
- * @returns {StateType} The next state of the application or the initial state
+ * @return {StateType} The next state of the application or the initial state
  *   if the state parameter is `undefined`.
  */
 
@@ -2925,7 +2925,7 @@ class StopWatch {
  *
  * @param {ReducerType} reducer The reducer function.
  * @param {StateType} [preloadedState] The optional initial state of the store.
- * @returns {Store} The new store.
+ * @return {Store} The new store.
  */
 function createStore(reducer, preloadedState) {
   const initialState = preloadedState || reducer(undefined, { type: '@@INIT' });
@@ -2954,7 +2954,7 @@ class Store {
   /**
    * Returns the current state of the store.
    *
-   * @returns {StateType} The current state of the store.
+   * @return {StateType} The current state of the store.
    */
   getState() {
     return this.#state;
@@ -2977,7 +2977,7 @@ class Store {
    * Subscribes a listener to store changes.
    *
    * @param {ListenerType} listener The listener to subscribe.
-   * @returns {UnsubscriberType} A function that unsubscribes the listener.
+   * @return {UnsubscriberType} A function that unsubscribes the listener.
    */
   subscribe(listener) {
     this.#listeners.push(listener);
@@ -3050,7 +3050,7 @@ class Random {
    *
    * @param {number} [probabilityOfUndefined=0.0] The probability of returning
    *   `undefined`.
-   * @returns {boolean|undefined} A random boolean between `origin` (inclusive)
+   * @return {boolean|undefined} A random boolean between `origin` (inclusive)
    *   and `bound` (exclusive) or undefined.
    */
   nextBoolean(probabilityOfUndefined = 0.0) {
@@ -3069,7 +3069,7 @@ class Random {
    *   value.
    * @param {number} [probabilityOfUndefined=0.0] The probability of returning
    *  `undefined`.
-   * @returns {number|undefined} A random integer between `origin` (inclusive)
+   * @return {number|undefined} A random integer between `origin` (inclusive)
    *   and `bound` (exclusive) or undefined.
    */
   nextInt(origin = 0, bound = 1, probabilityOfUndefined = 0.0) {
@@ -3088,7 +3088,7 @@ class Random {
    *   value.
    * @param {number} [probabilityOfUndefined=0.0] The probability of returning
    *   `undefined`.
-   * @returns {number|undefined} A random float between `origin` (inclusive) and
+   * @return {number|undefined} A random float between `origin` (inclusive) and
    *   `bound` (exclusive) or undefined.
    */
   nextFloat(origin = 0.0, bound = 1.0, probabilityOfUndefined = 0.0) {
@@ -3104,7 +3104,7 @@ class Random {
    * @param {number} [maxMillis=0] The maximum offset in milliseconds.
    * @param {number} [probabilityOfUndefined=0.0] The probability of returning
    *   `undefined`.
-   * @returns {Date|undefined} A random timestamp or `undefined`.
+   * @return {Date|undefined} A random timestamp or `undefined`.
    */
   nextDate(maxMillis = 0, probabilityOfUndefined = 0.0) {
     return this.#randomOptional(() => {
@@ -3122,7 +3122,7 @@ class Random {
    * @param {Array} [values=[]] The array of values.
    * @param {number} [probabilityOfUndefined=0.0] The probability of returning
    *   `undefined`.
-   * @returns {*|undefined} A random value from the array or `undefined`.
+   * @return {*|undefined} A random value from the array or `undefined`.
    */
   nextValue(values = [], probabilityOfUndefined = 0.0) {
     return this.#randomOptional(() => {
@@ -3162,7 +3162,7 @@ class TimerTask {
   /**
    * Cancels the task.
    *
-   * @returns {boolean} `true` if this task was scheduled for one-time execution
+   * @return {boolean} `true` if this task was scheduled for one-time execution
    *   and has not yet run, or this task was scheduled for repeated execution.
    *   Return `false` if the task was scheduled for one-time execution and has
    *   already run, or if the task was never scheduled, or if the task was
@@ -3190,7 +3190,7 @@ class TimerTask {
    *
    * ```
    *
-   * @returns {number} The time in milliseconds since the epoch, undefined if
+   * @return {number} The time in milliseconds since the epoch, undefined if
    *   the task has not yet run for the first time.
    */
   scheduledExecutionTime() {
@@ -3276,7 +3276,7 @@ class Timer extends EventTarget {
   /**
    * Removes all cancelled tasks from the task queue.
    *
-   * @returns {number} The number of tasks removed from the task queue.
+   * @return {number} The number of tasks removed from the task queue.
    */
   purge() {
     let result = 0;
@@ -3368,7 +3368,7 @@ class Vector2D {
    *
    * @param {Vector2D} a The first point.
    * @param {Vector2D} b The second point.
-   * @returns {Vector2D} The vector from a to b.
+   * @return {Vector2D} The vector from a to b.
    */
   static fromPoints(a, b) {
     return new Vector2D(b.x - a.x, b.y - a.y);
@@ -3406,7 +3406,7 @@ class Vector2D {
   /**
    * Returns the length of the vector.
    *
-   * @returns {number} The length of the vector.
+   * @return {number} The length of the vector.
    */
   length() {
     return Math.hypot(this.x, this.y);
@@ -3416,7 +3416,7 @@ class Vector2D {
    * Adds another vector to this vector and return the new vector.
    *
    * @param {Vector2D} v The vector to add.
-   * @returns {Vector2D} The new vector.
+   * @return {Vector2D} The new vector.
    */
   add(v) {
     v = new Vector2D(v);
@@ -3427,7 +3427,7 @@ class Vector2D {
    * Subtracts another vector from this vector and return the new vector.
    *
    * @param {Vector2D} v The vector to subtract.
-   * @returns {Vector2D} The new vector.
+   * @return {Vector2D} The new vector.
    */
   subtract(v) {
     v = new Vector2D(v);
@@ -3438,7 +3438,7 @@ class Vector2D {
    * Multiplies the vector with a scalar and returns the new vector.
    *
    * @param {number} scalar The scalar to multiply with.
-   * @returns {Vector2D} The new vector.
+   * @return {Vector2D} The new vector.
    */
   scale(scalar) {
     return new Vector2D(this.x * scalar, this.y * scalar);
@@ -3448,7 +3448,7 @@ class Vector2D {
    * Multiplies the vector with another vector and returns the scalar.
    *
    * @param {Vector2D} v The vector to multiply with.
-   * @returns {number} The scalar.
+   * @return {number} The scalar.
    */
   dot(v) {
     v = new Vector2D(v);
@@ -3459,7 +3459,7 @@ class Vector2D {
    * Returns the distance between this vector and another vector.
    *
    * @param {Vector2D} v The other vector.
-   * @returns {number} The distance.
+   * @return {number} The distance.
    */
   distance(v) {
     v = new Vector2D(v);
@@ -3470,7 +3470,7 @@ class Vector2D {
    * Returns the rotated vector by the given angle in radians.
    *
    * @param {number} angle The angle in radians.
-   * @returns {Vector2D} The rotated vector.
+   * @return {Vector2D} The rotated vector.
    */
   rotate(angle) {
     const cos = Math.cos(angle);
@@ -3484,7 +3484,7 @@ class Vector2D {
   /**
    * Returns the unit vector of this vector.
    *
-   * @returns {Vector2D} The unit vector.
+   * @return {Vector2D} The unit vector.
    */
   normalize() {
     return this.scale(1 / this.length());
@@ -3500,7 +3500,7 @@ class Line2D {
    *
    * @param {Vector2D} a The first point.
    * @param {Vector2D} b The second point.
-   * @returns {Line2D} The line from a to b.
+   * @return {Line2D} The line from a to b.
    */
   static fromPoints(a, b) {
     return new Line2D(a, Vector2D.fromPoints(a, b));
@@ -3521,7 +3521,7 @@ class Line2D {
    * Returns the perpendicular of a point on this line.
    *
    * @param {Vector2D} point A point.
-   * @returns {{foot: number, scalar: number}} The `foot` and the `scalar`.
+   * @return {{foot: number, scalar: number}} The `foot` and the `scalar`.
    */
   perpendicular(point) {
     // dissolve after r: (line.position + r * line.direction - point) * line.direction = 0
@@ -3574,7 +3574,7 @@ class WebSocketClient extends MessageClient {
    * @param {object} options
    * @param {number} [options.heartbeat=30000] The heartbeat interval i
    *   milliseconds. A value <= 0 disables the heartbeat.
-   * @returns {WebSocketClient} A new WebSocket client.
+   * @return {WebSocketClient} A new WebSocket client.
    */
   static create({ heartbeat = 30000 } = {}) {
     return new WebSocketClient(heartbeat, Timer.create(), WebSocket);
@@ -3586,7 +3586,7 @@ class WebSocketClient extends MessageClient {
    * @param {object} options
    * @param {number} [options.heartbeat=-1] The heartbeat interval in
    *   milliseconds. A value <= 0 disables the heartbeat.
-   * @returns {WebSocketClient} A new nulled WebSocket client.
+   * @return {WebSocketClient} A new nulled WebSocket client.
    */
   static createNull({ heartbeat = -1 } = {}) {
     return new WebSocketClient(heartbeat, Timer.createNull(), WebSocketStub);
@@ -3662,7 +3662,7 @@ class WebSocketClient extends MessageClient {
   /**
    * Returns a tracker for messages sent.
    *
-   * @returns {OutputTracker} A new output tracker.
+   * @return {OutputTracker} A new output tracker.
    */
   trackMessageSent() {
     return OutputTracker.create(this, MESSAGE_SENT_EVENT);
@@ -3950,7 +3950,7 @@ class ConfigurationProperties {
    *   configuration file.
    * @param {string[]} [options.location=['.', 'config']] The locations where to
    *   search for the configuration file.
-   * @returns {ConfigurationProperties} The new instance.
+   * @return {ConfigurationProperties} The new instance.
    */
   static create({
     defaults = {},
@@ -4025,7 +4025,7 @@ class ConfigurationProperties {
   /**
    * Loads the configuration from the file.
    *
-   * @returns {Promise<object>} The configuration object.
+   * @return {Promise<object>} The configuration object.
    */
   async get() {
     let config = await this.#loadFile();
