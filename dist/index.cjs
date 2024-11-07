@@ -2019,7 +2019,7 @@ class LongPollingClient extends MessageClient {
         if (error.name === 'AbortError') {
           break;
         } else {
-          this.#handleError(error);
+          await this.#handleError(error);
         }
       }
     }
@@ -2039,9 +2039,10 @@ class LongPollingClient extends MessageClient {
     this.dispatchEvent(new MessageEvent('message', { data: message }));
   }
 
-  #handleError(error) {
+  async #handleError(error) {
     console.error(error);
     this.dispatchEvent(new Event('error'));
+    await sleep(this.#retry);
   }
 }
 
