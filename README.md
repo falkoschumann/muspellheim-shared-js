@@ -1,12 +1,20 @@
-[![Build](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/build.yml/badge.svg)](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/build.yml)
+[![Build](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/pipeline.yml/badge.svg)](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/pipeline.yml)
 
-# Utilities
+# Shared
 
-Some utilities for browser and Express.js.
+Some shared modules for the browser and Node from my projects.
 
 ## Installation
 
+    npm install @muspellheim/shared
+
 ## Usage
+
+    import { XXX } from '@muspellheim/shared';
+    import { XXX } from '@muspellheim/shared/browser/index.js';
+    import { XXX } from '@muspellheim/shared/browser/node.js';
+
+See https://falkoschumann.github.io/muspellheim-shared-javascript/
 
 ## Contributing
 
@@ -21,4 +29,5 @@ The `Makefile` runs the build as default task. Other tasks are
 
 - [ ] Add missing docs.
 - [ ] Add JSDoc as GitHub Pages.
+- [ ] Check using `exports` in `package.json`.
 - [ ] Use asserts for parameters.
