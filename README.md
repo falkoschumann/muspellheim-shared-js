@@ -28,6 +28,5 @@ The `Makefile` runs the build as default task. Other tasks are
 ## Open issues
 
 - [ ] Add missing docs.
-- [ ] Add JSDoc as GitHub Pages.
 - [ ] Check using `exports` in `package.json`.
 - [ ] Use asserts for parameters.
