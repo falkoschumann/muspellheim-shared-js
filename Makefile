@@ -13,13 +13,15 @@ distclean: clean
 
 dist: build
 
-release: dist
+release: dist check docs
 	npm version $(VERSION) -m "chore: create release v%s"
 	git push
 	git push --tags
 
-publish:
-	deno publish --dry-run
+publish: dist check
+#	deno publish --dry-run
+	npm login --scope @muspellheim
+	npm publish --access public
 
 docs:
 #	FIXME deno doc --html --name="Muspellheim Shared" --lint lib
@@ -63,5 +65,5 @@ version:
 
 .PHONY: all clean distclean dist release publish docs \
 	check format \
-	dev test unit-tests integration-tests e2e-tests watch coverage \
+	dev test unit-tests integration-tests e2e-tests coverage \
 	build prepare version
