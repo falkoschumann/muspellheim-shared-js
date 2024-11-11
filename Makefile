@@ -20,7 +20,6 @@ release: dist check docs
 
 publish: dist check
 #	deno publish --dry-run
-#	npm login --scope @muspellheim
 	npm publish --access public
 
 docs:
