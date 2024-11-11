@@ -55,7 +55,6 @@ coverage: prepare
 	deno run --allow-all npm:vitest run --coverage
 
 build: prepare
-	deno run --allow-all npm:rollup -c
 
 prepare: version
 	deno install

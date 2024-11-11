@@ -8,6 +8,5 @@ deno.lock
 jsdoc.config.json
 Makefile
 node.mk
-rollup.config.js
 vitest.config.js
 vitest.global-setup.js

@@ -8,10 +8,15 @@
     "node": ">=18.7.0"
   },
   "type": "module",
-  "main": "dist/index.cjs",
-  "browser": "lib/browser/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./*.js": "./lib/*.js",
+    "./browser": "./lib/browser/index.js",
+    "./browser/*.js": "./lib/browser/*.js",
+    "./node": "./lib/node/index.js",
+    "./node/*.js": "./lib/node/*.js"
+  },
   "scripts": {
-    "build": "rollup -c",
     "test": "vitest"
   },
   "dependencies": {
@@ -22,7 +27,6 @@
     "@vitest/coverage-v8": "2.1.4",
     "jsdoc": "4.0.4",
     "jsdom": "25.0.1",
-    "rollup": "4.25.0",
     "vitest": "2.1.4"
   }
 }
