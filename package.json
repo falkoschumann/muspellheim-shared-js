@@ -22,7 +22,7 @@
     "@vitest/coverage-v8": "2.1.4",
     "jsdoc": "4.0.4",
     "jsdom": "25.0.1",
-    "rollup": "4.24.3",
+    "rollup": "4.25.0",
     "vitest": "2.1.4"
   }
 }
