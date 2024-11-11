@@ -1,6 +1,9 @@
-# Shared [![Build](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/pipeline.yml/badge.svg)](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/pipeline.yml)
+# Shared
 
 Some shared modules for the browser and Node from my projects.
+
+[![Build](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/build.yml/badge.svg)](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/build.yml)
+[![NPM Version](https://img.shields.io/npm/v/%40muspellheim%2Fshared)](https://www.npmjs.com/package/@muspellheim/shared)
 
 ## Installation
 
