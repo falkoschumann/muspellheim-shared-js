@@ -12,8 +12,8 @@ Some shared modules for the browser and Node from my projects.
 ## Usage
 
     import { XXX } from '@muspellheim/shared';
-    import { XXX } from '@muspellheim/shared/browser/index.js';
-    import { XXX } from '@muspellheim/shared/browser/node.js';
+    import { XXX } from '@muspellheim/shared/browser';
+    import { XXX } from '@muspellheim/shared/node';
 
 See https://falkoschumann.github.io/muspellheim-shared-javascript/
 
