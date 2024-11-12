@@ -4,9 +4,9 @@
   },
   "fmt": {
     "singleQuote": true,
-    "exclude": ["coverage", "dist", "docs"]
+    "exclude": ["coverage", "docs"]
   },
   "lint": {
-    "exclude": ["coverage", "dist", "docs"]
+    "exclude": ["coverage", "docs"]
   }
 }

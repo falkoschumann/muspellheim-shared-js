@@ -104,9 +104,7 @@ describe('Web socket client', () => {
 
     client.simulateError();
 
-    expect(events).toEqual([
-      expect.objectContaining({ type: 'error' }),
-    ]);
+    expect(events).toEqual([expect.objectContaining({ type: 'error' })]);
   });
 
   it.todo('Recovers after error');

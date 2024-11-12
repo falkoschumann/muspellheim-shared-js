@@ -103,8 +103,6 @@ describe('SSE client', () => {
 
     client.simulateError();
 
-    expect(events).toEqual([
-      expect.objectContaining({ type: 'error' }),
-    ]);
+    expect(events).toEqual([expect.objectContaining({ type: 'error' })]);
   });
 });
