@@ -42,12 +42,12 @@ describe('Configuration properties', () => {
     });
   });
 
-  it('returns empty object when configuration file not found', async () => {
+  it('returns null when configuration file not found', async () => {
     const configuration = ConfigurationProperties.createNull();
 
     const config = await configuration.get();
 
-    expect(config).toEqual({});
+    expect(config).toBeNull();
   });
 
   it('returns default configuration when configuration file not found', async () => {
