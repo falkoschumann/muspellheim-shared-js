@@ -22,7 +22,7 @@ publish: all
 
 docs:
 # FIXME	deno doc --html --name="Muspellheim Shared" --lint lib
-	deno doc --html --name="Muspellheim Shared" lib
+# FIXME deno doc --html --name="Muspellheim Shared" lib
 
 check: test
 	deno run --allow-all npm:eslint lib test
