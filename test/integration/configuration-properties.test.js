@@ -247,6 +247,135 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaults, nullValue: null });
     });
   });
+
+  describe('Apply command line arguments', () => {
+    it('overwrites number value', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--numberValue=42');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, numberValue: 42 });
+    });
+
+    it('unsets number value', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--numberValue=');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, numberValue: null });
+    });
+
+    it('overwrites string value', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--stringValue=bar');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, stringValue: 'bar' });
+    });
+
+    it('unsets string value', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--stringValue=');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, stringValue: null });
+    });
+
+    it('overwrites boolean value', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--booleanValue=false');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, booleanValue: false });
+    });
+
+    it('unsets boolean value', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--booleanValue=');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, booleanValue: null });
+    });
+
+    it('overwrites objects property', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--objectValue.key=other');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, objectValue: { key: 'other' } });
+    });
+
+    it('unsets objects property', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--objectValue.key=');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, objectValue: { key: null } });
+    });
+
+    it('unsets object', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--objectValue=');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, objectValue: null });
+    });
+
+    it.skip('overwrites an array element', async () => {
+      // TODO Implement array element
+      const { configuration, defaults } = configure();
+      process.argv.push('--arrayValue[1]=b');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, arrayValue: [1, 'b', true] });
+    });
+
+    it('overwrites array', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--arrayValue=2,b,false');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, arrayValue: ['2', 'b', 'false'] });
+    });
+
+    it('unsets array', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--arrayValue=');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, arrayValue: null });
+    });
+
+    it('overwrites null value', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--nullValue=5');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, nullValue: '5' });
+    });
+
+    it('unsets null value', async () => {
+      const { configuration, defaults } = configure();
+      process.argv.push('--nullValue=');
+
+      const config = await configuration.get();
+
+      expect(config).toEqual({ ...defaults, nullValue: null });
+    });
+  });
 });
 
 function configure({
@@ -259,6 +388,8 @@ function configure({
     nullValue: null,
   },
 } = {}) {
+  process.argv = process.argv.slice(0, 2);
+
   delete process.env.NUMBERVALUE;
   delete process.env.STRINGVALUE;
   delete process.env.BOOLEANVALUE;
