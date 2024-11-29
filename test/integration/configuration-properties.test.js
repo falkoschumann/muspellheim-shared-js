@@ -6,6 +6,9 @@ import { describe, expect, it } from 'vitest';
 import { ConfigurationProperties } from '../../lib/node/configuration-properties.js';
 
 describe('Configuration properties', () => {
+  // TODO Use create() and read real file
+  // TODO Test error handling with corrupt file
+
   it('loads configuration from default path', async () => {
     const configuration = ConfigurationProperties.createNull({
       files: {
@@ -52,7 +55,7 @@ describe('Configuration properties', () => {
 
   it('returns default configuration when configuration file not found', async () => {
     const configuration = ConfigurationProperties.createNull({
-      defaults: {
+      defaultProperties: {
         port: 8080,
         database: { host: 'localhost', port: 5432 },
       },
@@ -68,7 +71,7 @@ describe('Configuration properties', () => {
 
   it('merges default configuration with custom configuration', async () => {
     const configuration = ConfigurationProperties.createNull({
-      defaults: {
+      defaultProperties: {
         port: 8080,
         database: { host: 'localhost', port: 5432 },
       },
@@ -122,264 +125,288 @@ describe('Configuration properties', () => {
 
   describe('Apply environment variables', () => {
     it('overwrites number value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.NUMBERVALUE = '42';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, numberValue: 42 });
+      expect(config).toEqual({ ...defaultProperties, numberValue: 42 });
     });
 
     it('unsets number value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.NUMBERVALUE = '';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, numberValue: null });
+      expect(config).toEqual({ ...defaultProperties, numberValue: null });
     });
 
     it('overwrites string value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.STRINGVALUE = 'bar';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, stringValue: 'bar' });
+      expect(config).toEqual({ ...defaultProperties, stringValue: 'bar' });
     });
 
     it('unsets string value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.STRINGVALUE = '';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, stringValue: null });
+      expect(config).toEqual({ ...defaultProperties, stringValue: null });
     });
 
     it('overwrites boolean value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.BOOLEANVALUE = 'false';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, booleanValue: false });
+      expect(config).toEqual({ ...defaultProperties, booleanValue: false });
     });
 
     it('unsets boolean value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.BOOLEANVALUE = '';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, booleanValue: null });
+      expect(config).toEqual({ ...defaultProperties, booleanValue: null });
     });
 
     it('overwrites objects property', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.OBJECTVALUE_KEY = 'other';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, objectValue: { key: 'other' } });
+      expect(config).toEqual({
+        ...defaultProperties,
+        objectValue: { key: 'other' },
+      });
     });
 
     it('unsets objects property', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.OBJECTVALUE_KEY = '';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, objectValue: { key: null } });
+      expect(config).toEqual({
+        ...defaultProperties,
+        objectValue: { key: null },
+      });
     });
 
     it('unsets object', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.OBJECTVALUE = '';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, objectValue: null });
+      expect(config).toEqual({ ...defaultProperties, objectValue: null });
     });
 
     it('overwrites an array element', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.ARRAYVALUE_1 = 'b';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, arrayValue: [1, 'b', true] });
+      expect(config).toEqual({
+        ...defaultProperties,
+        arrayValue: [1, 'b', true],
+      });
     });
 
     it('overwrites array', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.ARRAYVALUE = '2,b,false';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, arrayValue: ['2', 'b', 'false'] });
+      expect(config).toEqual({
+        ...defaultProperties,
+        arrayValue: ['2', 'b', 'false'],
+      });
     });
 
     it('unsets array', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.ARRAYVALUE = '';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, arrayValue: null });
+      expect(config).toEqual({ ...defaultProperties, arrayValue: null });
     });
 
     it('overwrites null value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.NULLVALUE = '5';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, nullValue: '5' });
+      expect(config).toEqual({ ...defaultProperties, nullValue: '5' });
     });
 
     it('unsets null value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.env.NULLVALUE = '';
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, nullValue: null });
+      expect(config).toEqual({ ...defaultProperties, nullValue: null });
     });
   });
 
   describe('Apply command line arguments', () => {
     it('overwrites number value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--numberValue=42');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, numberValue: 42 });
+      expect(config).toEqual({ ...defaultProperties, numberValue: 42 });
     });
 
     it('unsets number value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--numberValue=');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, numberValue: null });
+      expect(config).toEqual({ ...defaultProperties, numberValue: null });
     });
 
     it('overwrites string value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--stringValue=bar');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, stringValue: 'bar' });
+      expect(config).toEqual({ ...defaultProperties, stringValue: 'bar' });
     });
 
     it('unsets string value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--stringValue=');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, stringValue: null });
+      expect(config).toEqual({ ...defaultProperties, stringValue: null });
     });
 
     it('overwrites boolean value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--booleanValue=false');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, booleanValue: false });
+      expect(config).toEqual({ ...defaultProperties, booleanValue: false });
     });
 
     it('unsets boolean value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--booleanValue=');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, booleanValue: null });
+      expect(config).toEqual({ ...defaultProperties, booleanValue: null });
     });
 
     it('overwrites objects property', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--objectValue.key=other');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, objectValue: { key: 'other' } });
+      expect(config).toEqual({
+        ...defaultProperties,
+        objectValue: { key: 'other' },
+      });
     });
 
     it('unsets objects property', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--objectValue.key=');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, objectValue: { key: null } });
+      expect(config).toEqual({
+        ...defaultProperties,
+        objectValue: { key: null },
+      });
     });
 
     it('unsets object', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--objectValue=');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, objectValue: null });
+      expect(config).toEqual({ ...defaultProperties, objectValue: null });
     });
 
     it.skip('overwrites an array element', async () => {
       // TODO Implement array element
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--arrayValue[1]=b');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, arrayValue: [1, 'b', true] });
+      expect(config).toEqual({
+        ...defaultProperties,
+        arrayValue: [1, 'b', true],
+      });
     });
 
     it('overwrites array', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--arrayValue=2,b,false');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, arrayValue: ['2', 'b', 'false'] });
+      expect(config).toEqual({
+        ...defaultProperties,
+        arrayValue: ['2', 'b', 'false'],
+      });
     });
 
     it('unsets array', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--arrayValue=');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, arrayValue: null });
+      expect(config).toEqual({ ...defaultProperties, arrayValue: null });
     });
 
     it('overwrites null value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--nullValue=5');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, nullValue: '5' });
+      expect(config).toEqual({ ...defaultProperties, nullValue: '5' });
     });
 
     it('unsets null value', async () => {
-      const { configuration, defaults } = configure();
+      const { configuration, defaultProperties } = configure();
       process.argv.push('--nullValue=');
 
       const config = await configuration.get();
 
-      expect(config).toEqual({ ...defaults, nullValue: null });
+      expect(config).toEqual({ ...defaultProperties, nullValue: null });
     });
   });
 });
 
 function configure({
-  defaults = {
+  defaultProperties = {
     numberValue: 5,
     stringValue: 'foo',
     booleanValue: true,
@@ -399,6 +426,8 @@ function configure({
   delete process.env.ARRAYVALUE_1;
   delete process.env.NULLVALUE;
 
-  const configuration = ConfigurationProperties.createNull({ defaults });
-  return { configuration, defaults };
+  const configuration = ConfigurationProperties.createNull({
+    defaultProperties,
+  });
+  return { configuration, defaultProperties };
 }
