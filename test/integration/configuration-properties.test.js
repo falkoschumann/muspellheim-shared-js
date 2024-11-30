@@ -1,13 +1,51 @@
 // Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
 
+import path from 'node:path';
 import process from 'node:process';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { ConfigurationProperties } from '../../lib/node/configuration-properties.js';
 
 describe('Configuration properties', () => {
-  // TODO Use create() and read real file
-  // TODO Test error handling with corrupt file
+  afterEach(() => {
+    delete process.env.CONFIG_NAME;
+    delete process.env.CONFIG_LOCATION;
+    delete process.argv.CONFIG_NAME;
+    delete process.argv.CONFIG_LOCATION;
+  });
+
+  it('loads configuration from file', async () => {
+    process.env.CONFIG_NAME = 'configuration.json';
+    process.env.CONFIG_LOCATION = path.join(import.meta.dirname, 'data');
+    const configuration = ConfigurationProperties.create();
+
+    const config = await configuration.get();
+
+    expect(config).toEqual({
+      port: 8080,
+      database: { host: 'localhost', port: 5432 },
+    });
+  });
+
+  it('does not fail when configuration file does not exist', async () => {
+    process.env.CONFIG_NAME = 'configuration-non-existent.json';
+    process.env.CONFIG_LOCATION = path.join(import.meta.dirname, 'data');
+    const configuration = ConfigurationProperties.create();
+
+    const config = await configuration.get();
+
+    expect(config).toEqual(null);
+  });
+
+  it('fails when configuration file is corrupt', async () => {
+    process.env.CONFIG_NAME = 'configuration-corrupt.json';
+    process.env.CONFIG_LOCATION = path.join(import.meta.dirname, 'data');
+    const configuration = ConfigurationProperties.create();
+
+    const config = configuration.get();
+
+    await expect(config).rejects.toThrow(SyntaxError);
+  });
 
   it('loads configuration from default path', async () => {
     const configuration = ConfigurationProperties.createNull({
