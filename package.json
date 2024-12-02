@@ -24,7 +24,7 @@
     "lit-html": "^3.1.0"
   },
   "devDependencies": {
-    "@eslint/js": "9.15.0",
+    "@eslint/js": "9.16.0",
     "@vitest/coverage-v8": "2.1.6",
     "eslint": "9.16.0",
     "globals": "15.12.0",
