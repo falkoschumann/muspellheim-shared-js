@@ -14,7 +14,7 @@ describe('Configuration properties', () => {
     delete process.argv.CONFIG_LOCATION;
   });
 
-  it('loads configuration from file', async () => {
+  it('Loads configuration from file', async () => {
     process.env.CONFIG_NAME = 'configuration.json';
     process.env.CONFIG_LOCATION = path.join(import.meta.dirname, 'data');
     const configuration = ConfigurationProperties.create();
@@ -27,17 +27,17 @@ describe('Configuration properties', () => {
     });
   });
 
-  it('does not fail when configuration file does not exist', async () => {
+  it('Does not fail when configuration file does not exist', async () => {
     process.env.CONFIG_NAME = 'configuration-non-existent.json';
     process.env.CONFIG_LOCATION = path.join(import.meta.dirname, 'data');
     const configuration = ConfigurationProperties.create();
 
     const config = await configuration.get();
 
-    expect(config).toEqual(null);
+    expect(config).toBeNull();
   });
 
-  it('fails when configuration file is corrupt', async () => {
+  it('Fails when configuration file is corrupt', async () => {
     process.env.CONFIG_NAME = 'configuration-corrupt.json';
     process.env.CONFIG_LOCATION = path.join(import.meta.dirname, 'data');
     const configuration = ConfigurationProperties.create();
@@ -47,7 +47,7 @@ describe('Configuration properties', () => {
     await expect(config).rejects.toThrow(SyntaxError);
   });
 
-  it('loads configuration from default path', async () => {
+  it('Loads configuration from default path', async () => {
     const configuration = ConfigurationProperties.createNull({
       files: {
         'application.json': {
@@ -65,7 +65,7 @@ describe('Configuration properties', () => {
     });
   });
 
-  it('loads configuration from subdir', async () => {
+  it('Loads configuration from subdir', async () => {
     const configuration = ConfigurationProperties.createNull({
       files: {
         'config/application.json': {
@@ -83,7 +83,7 @@ describe('Configuration properties', () => {
     });
   });
 
-  it('returns null when configuration file not found', async () => {
+  it('Returns null when configuration file not found', async () => {
     const configuration = ConfigurationProperties.createNull();
 
     const config = await configuration.get();
@@ -91,7 +91,7 @@ describe('Configuration properties', () => {
     expect(config).toBeNull();
   });
 
-  it('returns default configuration when configuration file not found', async () => {
+  it('Returns default configuration when configuration file not found', async () => {
     const configuration = ConfigurationProperties.createNull({
       defaultProperties: {
         port: 8080,
@@ -107,7 +107,7 @@ describe('Configuration properties', () => {
     });
   });
 
-  it('merges default configuration with custom configuration', async () => {
+  it('Merges file configuration into default configuration', async () => {
     const configuration = ConfigurationProperties.createNull({
       defaultProperties: {
         port: 8080,
@@ -130,7 +130,7 @@ describe('Configuration properties', () => {
     });
   });
 
-  it('loads configuration subset', async () => {
+  it('Loads configuration subset', async () => {
     const configuration = ConfigurationProperties.createNull({
       files: {
         'application.json': {
@@ -146,7 +146,7 @@ describe('Configuration properties', () => {
     expect(config).toEqual({ host: 'localhost', port: 5432 });
   });
 
-  it('loads configuration sub-subset', async () => {
+  it('Loads configuration sub-subset', async () => {
     const configuration = ConfigurationProperties.createNull({
       files: {
         'application.json': {
@@ -162,7 +162,7 @@ describe('Configuration properties', () => {
   });
 
   describe('Apply environment variables', () => {
-    it('overwrites number value', async () => {
+    it('Overwrites number value', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.NUMBERVALUE = '42';
 
@@ -171,7 +171,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, numberValue: 42 });
     });
 
-    it('unsets number value', async () => {
+    it('Unsets number value', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.NUMBERVALUE = '';
 
@@ -180,7 +180,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, numberValue: null });
     });
 
-    it('overwrites string value', async () => {
+    it('Overwrites string value', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.STRINGVALUE = 'bar';
 
@@ -189,7 +189,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, stringValue: 'bar' });
     });
 
-    it('unsets string value', async () => {
+    it('Unsets string value', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.STRINGVALUE = '';
 
@@ -198,7 +198,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, stringValue: null });
     });
 
-    it('overwrites boolean value', async () => {
+    it('Overwrites boolean value', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.BOOLEANVALUE = 'false';
 
@@ -207,7 +207,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, booleanValue: false });
     });
 
-    it('unsets boolean value', async () => {
+    it('Unsets boolean value', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.BOOLEANVALUE = '';
 
@@ -216,7 +216,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, booleanValue: null });
     });
 
-    it('overwrites objects property', async () => {
+    it('Overwrites objects property', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.OBJECTVALUE_KEY = 'other';
 
@@ -228,7 +228,7 @@ describe('Configuration properties', () => {
       });
     });
 
-    it('unsets objects property', async () => {
+    it('Unsets objects property', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.OBJECTVALUE_KEY = '';
 
@@ -240,7 +240,7 @@ describe('Configuration properties', () => {
       });
     });
 
-    it('unsets object', async () => {
+    it('Unsets object', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.OBJECTVALUE = '';
 
@@ -249,7 +249,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, objectValue: null });
     });
 
-    it('overwrites an array element', async () => {
+    it('Overwrites an array element', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.ARRAYVALUE_1 = 'b';
 
@@ -261,7 +261,7 @@ describe('Configuration properties', () => {
       });
     });
 
-    it('overwrites array', async () => {
+    it('Overwrites array', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.ARRAYVALUE = '2,b,false';
 
@@ -273,7 +273,7 @@ describe('Configuration properties', () => {
       });
     });
 
-    it('unsets array', async () => {
+    it('Unsets array', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.ARRAYVALUE = '';
 
@@ -282,7 +282,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, arrayValue: null });
     });
 
-    it('overwrites null value', async () => {
+    it('Overwrites null value', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.NULLVALUE = '5';
 
@@ -291,7 +291,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, nullValue: '5' });
     });
 
-    it('unsets null value', async () => {
+    it('Unsets null value', async () => {
       const { configuration, defaultProperties } = configure();
       process.env.NULLVALUE = '';
 
@@ -302,7 +302,7 @@ describe('Configuration properties', () => {
   });
 
   describe('Apply command line arguments', () => {
-    it('overwrites number value', async () => {
+    it('Overwrites number value', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--numberValue=42');
 
@@ -311,7 +311,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, numberValue: 42 });
     });
 
-    it('unsets number value', async () => {
+    it('Unsets number value', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--numberValue=');
 
@@ -320,7 +320,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, numberValue: null });
     });
 
-    it('overwrites string value', async () => {
+    it('Overwrites string value', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--stringValue=bar');
 
@@ -329,7 +329,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, stringValue: 'bar' });
     });
 
-    it('unsets string value', async () => {
+    it('Unsets string value', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--stringValue=');
 
@@ -338,7 +338,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, stringValue: null });
     });
 
-    it('overwrites boolean value', async () => {
+    it('Overwrites boolean value', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--booleanValue=false');
 
@@ -347,7 +347,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, booleanValue: false });
     });
 
-    it('unsets boolean value', async () => {
+    it('Unsets boolean value', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--booleanValue=');
 
@@ -356,7 +356,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, booleanValue: null });
     });
 
-    it('overwrites objects property', async () => {
+    it('Overwrites objects property', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--objectValue.key=other');
 
@@ -368,7 +368,7 @@ describe('Configuration properties', () => {
       });
     });
 
-    it('unsets objects property', async () => {
+    it('Unsets objects property', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--objectValue.key=');
 
@@ -380,7 +380,7 @@ describe('Configuration properties', () => {
       });
     });
 
-    it('unsets object', async () => {
+    it('Unsets object', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--objectValue=');
 
@@ -389,7 +389,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, objectValue: null });
     });
 
-    it.skip('overwrites an array element', async () => {
+    it.skip('Overwrites an array element', async () => {
       // TODO Implement array element
       const { configuration, defaultProperties } = configure();
       process.argv.push('--arrayValue[1]=b');
@@ -402,7 +402,7 @@ describe('Configuration properties', () => {
       });
     });
 
-    it('overwrites array', async () => {
+    it('Overwrites array', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--arrayValue=2,b,false');
 
@@ -414,7 +414,7 @@ describe('Configuration properties', () => {
       });
     });
 
-    it('unsets array', async () => {
+    it('Unsets array', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--arrayValue=');
 
@@ -423,7 +423,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, arrayValue: null });
     });
 
-    it('overwrites null value', async () => {
+    it('Overwrites null value', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--nullValue=5');
 
@@ -432,7 +432,7 @@ describe('Configuration properties', () => {
       expect(config).toEqual({ ...defaultProperties, nullValue: '5' });
     });
 
-    it('unsets null value', async () => {
+    it('Unsets null value', async () => {
       const { configuration, defaultProperties } = configure();
       process.argv.push('--nullValue=');
 

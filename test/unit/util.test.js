@@ -7,68 +7,62 @@ import { deepMerge, Random, Timer, TimerTask } from '../../lib/util.js';
 
 describe('Util', () => {
   describe('Objects', () => {
-    describe('deep merge', () => {
-      it('returns string when target is a string', () => {
+    describe('Deep merge', () => {
+      it('Returns source when target is undefined', () => {
         const result = deepMerge(undefined, 'a');
 
         expect(result).toBe('a');
       });
 
-      it('returns number when target is a number', () => {
-        const result = deepMerge(undefined, 1);
-
-        expect(result).toBe(1);
-      });
-
-      it('returns boolean when target is a boolean', () => {
-        const result = deepMerge(undefined, false);
-
-        expect(result).toBe(false);
-      });
-
-      it('returns null when target is null', () => {
-        const result = deepMerge(undefined, null);
-
-        expect(result).toBeNull();
-      });
-
-      it('returns source value when target is undefined', () => {
+      it('Returns target when source is undefined', () => {
         const result = deepMerge(2, undefined);
 
         expect(result).toBe(2);
       });
 
-      it('merges target property when source does not have it', () => {
+      it('Overwrites target when source is not undefined', () => {
+        const result = deepMerge(2, 'a');
+
+        expect(result).toBe('a');
+      });
+
+      it('Overwrites target when source is null', () => {
+        const result = deepMerge(2, null);
+
+        expect(result).toBeNull();
+      });
+
+      it('Merges source property when target does not have it', () => {
         const result = deepMerge({ a: 1 }, { b: 2 });
 
         expect(result).toEqual({ a: 1, b: 2 });
       });
 
-      it('overrides source property with target property', () => {
+      it('Overwrites target property with source property', () => {
         const result = deepMerge({ a: 1 }, { a: 2 });
 
         expect(result).toEqual({ a: 2 });
       });
 
-      it('merges nested objects', () => {
+      it('Merges nested objects', () => {
         const result = deepMerge({ a: { b: 1 } }, { a: { c: 2 } });
 
         expect(result).toEqual({ a: { b: 1, c: 2 } });
       });
 
-      it('creates nested objects when source does not have it', () => {
+      it('Creates nested objects when target does not have it', () => {
         const result = deepMerge({}, { a: { b: 2 } });
 
         expect(result).toEqual({ a: { b: 2 } });
       });
 
-      it('overrides type of property', () => {
+      it('Overwrites type of property', () => {
         const result = deepMerge({ a: 1 }, { a: { b: 2 } });
 
         expect(result).toEqual({ a: { b: 2 } });
       });
 
-      it('combines arrays', () => {
+      it('Combines arrays', () => {
         const result = deepMerge({ a: [1] }, { a: [{ b: 2 }] });
 
         expect(result).toEqual({ a: [1, { b: 2 }] });
@@ -152,7 +146,7 @@ describe('Util', () => {
   });
 
   describe('Timer', () => {
-    it('schedules a task with delay', () => {
+    it('Schedules a task with delay', () => {
       const clock = Clock.fixed(1000);
       const timer = Timer.createNull({ clock });
 
@@ -167,7 +161,7 @@ describe('Util', () => {
       });
     });
 
-    it('schedules a task at time', () => {
+    it('Schedules a task at time', () => {
       const clock = Clock.fixed(1000);
       const timer = Timer.createNull({ clock });
 
@@ -182,7 +176,7 @@ describe('Util', () => {
       });
     });
 
-    it('schedules a periodic task with delay', () => {
+    it('Schedules a periodic task with delay', () => {
       const clock = Clock.fixed(2000);
       const timer = Timer.createNull({ clock });
 
@@ -206,7 +200,7 @@ describe('Util', () => {
       });
     });
 
-    it('schedules a periodic task with start time', () => {
+    it('Schedules a periodic task with start time', () => {
       const clock = Clock.fixed(2000);
       const timer = Timer.createNull({ clock });
 
@@ -230,7 +224,7 @@ describe('Util', () => {
       });
     });
 
-    it('schedules at fixed rate a periodic task with delay', () => {
+    it('Schedules at fixed rate a periodic task with delay', () => {
       const clock = Clock.fixed(2000);
       const timer = Timer.createNull({ clock });
 
@@ -254,7 +248,7 @@ describe('Util', () => {
       });
     });
 
-    it('schedules at fixed rate a periodic task with start time', () => {
+    it('Schedules at fixed rate a periodic task with start time', () => {
       const clock = Clock.fixed(2000);
       const timer = Timer.createNull({ clock });
 
@@ -278,7 +272,7 @@ describe('Util', () => {
       });
     });
 
-    it('cancels a task', () => {
+    it('Cancels a task', () => {
       const clock = Clock.fixed(1000);
       const timer = Timer.createNull({ clock });
       const task = new TimerTask();
@@ -294,7 +288,7 @@ describe('Util', () => {
       });
     });
 
-    it('cancels a task that has not yet been scheduled', () => {
+    it('Cancels a task that has not yet been scheduled', () => {
       const task = new TimerTask();
 
       const result = task.cancel();
@@ -307,7 +301,7 @@ describe('Util', () => {
       });
     });
 
-    it('cancels all tasks', () => {
+    it('Cancels all tasks', () => {
       const timer = Timer.createNull();
       const task1 = new TimerTask();
       const task2 = new TimerTask();
@@ -320,7 +314,7 @@ describe('Util', () => {
       expect(task2._state).toBe('cancelled');
     });
 
-    it('purges cancelled tasks', () => {
+    it('Purges cancelled tasks', () => {
       const timer = Timer.createNull();
       const task1 = new TimerTask();
       const task2 = new TimerTask();
@@ -335,7 +329,7 @@ describe('Util', () => {
       expect(task2._state).toBe('scheduled');
     });
 
-    it('queues tasks in ascending next execution time', () => {
+    it('Queues tasks in ascending next execution time', () => {
       const timer = Timer.createNull();
       const task1 = new TimerTask();
       const task2 = new TimerTask();
@@ -346,7 +340,7 @@ describe('Util', () => {
     });
 
     describe('Simulate task execution', () => {
-      it('ticks until before execution and time does not execute task', () => {
+      it('Ticks until before execution and time does not execute task', () => {
         const timer = Timer.createNull();
         const task = new StubbedTask();
         timer.schedule(task, 500);
@@ -357,7 +351,7 @@ describe('Util', () => {
         expect(task._state).toBe('scheduled');
       });
 
-      it('ticks until execution time and executes task', () => {
+      it('Ticks until execution time and executes task', () => {
         const timer = Timer.createNull();
         const task = new StubbedTask();
         timer.schedule(task, 500);
@@ -368,7 +362,7 @@ describe('Util', () => {
         expect(task._state).toBe('executed');
       });
 
-      it('ticks beyond execution time and executes task', () => {
+      it('Ticks beyond execution time and executes task', () => {
         const timer = Timer.createNull();
         const task = new StubbedTask();
         timer.schedule(task, 500);
@@ -379,7 +373,7 @@ describe('Util', () => {
         expect(task._state).toBe('executed');
       });
 
-      it('removes cancelled task from queue', () => {
+      it('Removes cancelled task from queue', () => {
         const timer = Timer.createNull();
         const task = new StubbedTask();
         timer.schedule(task, 500);
@@ -392,7 +386,7 @@ describe('Util', () => {
         expect(timer._queue).toEqual([]);
       });
 
-      it('ticks until first execution of periodic task', () => {
+      it('Ticks until first execution of periodic task', () => {
         const timer = Timer.createNull();
         const task = new StubbedTask();
         timer.schedule(task, 500, 50);
@@ -403,7 +397,7 @@ describe('Util', () => {
         expect(task._state).toBe('scheduled');
       });
 
-      it('ticks until 2 executions of periodic task', () => {
+      it('Ticks until 2 executions of periodic task', () => {
         const timer = Timer.createNull();
         const task = new StubbedTask();
         timer.schedule(task, 500, 50);

@@ -30,3 +30,5 @@ The `Makefile` runs the build as default task. Other tasks are
 
 -   [ ] Add missing docs.
 -   [ ] Use asserts for parameters.
+-   [ ] Rename project to `muspellheim-shared-js`
+-   [ ] Create equality tester for vite using method `equals` if it exists
