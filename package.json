@@ -14,7 +14,9 @@
     "./browser": "./lib/browser/index.js",
     "./browser/*.js": "./lib/browser/*.js",
     "./node": "./lib/node/index.js",
-    "./node/*.js": "./lib/node/*.js"
+    "./node/*.js": "./lib/node/*.js",
+    "./vitest": "./lib/vitest/index.js",
+    "./vitest/*.js": "./lib/vitest/*.js"
   },
   "scripts": {
     "test": "vitest"
