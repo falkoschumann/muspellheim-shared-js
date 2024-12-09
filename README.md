@@ -21,14 +21,14 @@ See https://falkoschumann.github.io/muspellheim-shared-javascript/
 
 The `Makefile` runs the build as default task. Other tasks are
 
--   `test`: run all tests,
--   `format`: format source code
+- `test`: run all tests,
+- `format`: format source code
 
 ## Credits
 
 ## Open issues
 
--   [ ] Add missing docs
--   [ ] Use asserts for parameters
--   [ ] Rename project to `muspellheim-shared-js`
--   [ ] Use equatable protocol for value objects
+- [ ] Add missing docs
+- [ ] Use asserts for parameters
+- [ ] Rename project to `muspellheim-shared-js`
+- [ ] Use equatable protocol for value objects
