@@ -1,4 +1,4 @@
-# Possible values: major, minor, patch or concrete version
+# Possible values: e.g. major, minor, patch or new version like `1.2.3`
 VERSION = minor
 
 # TODO remove --experimental-global-customevent when Node.js 18 must not be supported anymore
