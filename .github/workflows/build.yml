@@ -2,6 +2,10 @@ name: Build
 
 on:
   push:
+    branches:
+      - "**"
+    tags:
+      - v*
   pull_request:
   release:
   workflow_dispatch:
@@ -44,7 +48,7 @@ jobs:
       - name: Upload docs when release
         uses: actions/upload-pages-artifact@v4
         with:
-          path: docs/@muspellheim/shared/${{ steps.version.outputs.current-version}}/
+          path: docs/
 
   deploy-docs:
     runs-on: ubuntu-latest
