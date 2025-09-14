@@ -19,7 +19,7 @@ release: all
 publish: all
 	npm publish --access public
 
-docs:
+docs: prepare
 	npx typedoc src/mod.ts
 
 check: test
@@ -30,10 +30,10 @@ format:
 	npx eslint --fix .
 	npx prettier --write .
 
-dev: build
+dev: prepare
 	npx vitest
 
-test: build
+test: prepare
 	npx vitest run
 
 watch: prepare
