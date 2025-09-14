@@ -1,5 +1,5 @@
 # Possible values: e.g. major, minor, patch or new version like `1.2.3`
-VERSION = minor
+VERSION?=minor
 
 all: dist docs check
 
