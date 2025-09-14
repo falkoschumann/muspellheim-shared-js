@@ -1,9 +1,8 @@
 # see also https://gitignore.io
 
-dist/
+/dist/
 /docs/
 tmp/
-vendor/
 
 # Gradle
 .gradle/

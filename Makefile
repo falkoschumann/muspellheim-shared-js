@@ -1,17 +1,13 @@
 # Possible values: e.g. major, minor, patch or new version like `1.2.3`
 VERSION = minor
 
-# TODO remove --experimental-global-customevent when Node.js 18 must not be supported anymore
-export NODE_OPTIONS=--experimental-global-customevent
-
 all: dist docs check
 
 clean:
 	rm -rf coverage docs
 
 distclean: clean
-	rm -rf dist
-	rm -rf node_modules
+	rm -rf dist node_modules
 
 dist: build
 
@@ -24,15 +20,15 @@ publish: all
 	npm publish --access public
 
 docs:
-	npx jsdoc lib -c jsdoc.config.json
+	npx typedoc src/mod.ts
 
 check: test
-	npx eslint lib test
-	npx prettier . --check
+	npx eslint .
+	npx prettier --check .
 
 format:
-	npx eslint --fix lib test
-	npx prettier . --write
+	npx eslint --fix .
+	npx prettier --write .
 
 dev: build
 	npx vitest
@@ -40,19 +36,23 @@ dev: build
 test: build
 	npx vitest run
 
-unit-tests: build
-	npx vitest run --testPathPattern=".*\/unit\/.*"
+watch: prepare
+	npm test
 
-integration-tests: build
-	npx vitest run --testPathPattern=".*\/integration\/.*"
+coverage: prepare
+	npx vitest run --coverage
 
-e2e-tests: build
-	npx vitest run --testPathPattern=".*\/e2e\/.*"
+unit-tests: prepare
+	npx vitest run unit
 
-coverage: build
-	npx vitest --coverage
+integration-tests: prepare
+	npx vitest run integration
+
+e2e-tests: prepare
+	npx vitest run e2e
 
 build: prepare
+	npm run build
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \
@@ -66,7 +66,9 @@ version:
 	@echo "Use Node.js $(shell node --version)"
 	@echo "Use NPM $(shell npm --version)"
 
-.PHONY: all clean distclean dist release publish docs \
+.PHONY: \
+	all clean distclean dist \
+	release publish docs \
 	check format
-	dev test unit-tests integration-tests e2e-tests watch coverage \
+	dev test watch coverage unit-tests integration-tests e2e-tests \
 	build prepare version

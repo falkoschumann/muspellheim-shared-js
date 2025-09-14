@@ -9,16 +9,15 @@ jobs:
     strategy:
       matrix:
         node-version: [
-            '18.x', # Maintenance
-            '20.x', # Maintenance
-            '22.x', # Active
-            '23.x', # Current
+            "20.x", # Maintenance
+            "22.x", # LTS
+            "23.x", # Current
           ]
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
       - name: Build
@@ -29,37 +28,20 @@ jobs:
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v5
+      - name: Set up Node.js LTS
+        uses: actions/setup-node@v5
         with:
-          node-version: '22.x'
+          node-version: "22.x" # LTS
       - name: Build docs
         run: make docs
       - name: Get version
         id: version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
       - name: Upload docs when release
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
-          path:
-            docs/@muspellheim/shared/${{
-            steps.version.outputs.current-version}}/
-
-  build-with-deno:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        deno-version: ['v2.0.x', 'v2.1.x']
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-      - name: Set up Deno
-        uses: denolib/setup-deno@v2
-        with:
-          deno-version: ${{ matrix.deno-version }}
-      - name: Build
-        run: make -f deno.mk
+          path: docs/@muspellheim/shared/${{ steps.version.outputs.current-version}}/
 
   deploy-docs:
     runs-on: ubuntu-latest
@@ -81,11 +63,11 @@ jobs:
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v5
+      - name: Set up Node.js LTS
+        uses: actions/setup-node@v5
         with:
-          node-version: '22.x'
+          node-version: "22.x" # LTS
       - name: Publish to NPM
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

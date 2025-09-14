@@ -1,23 +1,41 @@
-import js from '@eslint/js';
-import globals from 'globals';
+// Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-/** @type { import("eslint").Linter.FlatConfig[] } */
-export default [
-  js.configs.recommended,
+import js from "@eslint/js";
+import headers from "eslint-plugin-headers";
+import globals from "globals";
+import ts from "typescript-eslint";
+
+export default ts.config(
+  { ignores: ["coverage", "dist", "docs"] },
   {
+    extends: [js.configs.recommended, ...ts.configs.recommended],
+    files: ["**/*.{cjs,mjs,js,jsx,ts,tsx}"],
     languageOptions: {
-      ecmaVersion: 2022,
-      globals: {
-        ...globals.es2021,
-        ...globals.node,
-        ...globals.browser,
-        //...globals.serviceworker,
-        //...globals['shared-node-browser'],
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
     },
-    ignores: ['coverage/**', 'docs/**'],
+    plugins: {
+      headers,
+    },
     rules: {
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      "headers/header-format": [
+        "error",
+        {
+          source: "string",
+          style: "line",
+          trailingNewlines: 2,
+          content: `Copyright (c) ${new Date().getUTCFullYear()} Falko Schumann. All rights reserved. MIT license.`,
+        },
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
     },
   },
-];
+);

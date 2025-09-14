@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description:
-          'Step (e.g. major, minor, patch) or new version (1.2.3) to release.'
-        default: 'minor'
+        description: "Step (e.g. major, minor, patch) or new version (1.2.3) to release."
+        default: "minor"
 
 jobs:
   release:
@@ -15,11 +14,11 @@ jobs:
       contents: write
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v5
+      - name: Set up Node.js LTS
+        uses: actions/setup-node@v5
         with:
-          node-version: 'lts/*'
+          node-version: "22.x" # LTS
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"

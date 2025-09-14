@@ -25,7 +25,7 @@ max_line_length = 80
 [*.{md,py}]
 indent_size = 4
 
-[*.{cs,java,yaml}]
+[*.{cs,java,kt,kts,yaml,yml}]
 max_line_length = 100
 
 [*.{bat,cmd}]
@@ -36,7 +36,7 @@ charset = latin1
 end_of_line = crlf
 
 [*.{html,xml,jsx,tsx}]
-max_line_length = 250
+max_line_length = 120
 
 [{Makefile,*.mk,*.go}]
 indent_style = tab

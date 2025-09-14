@@ -1,4 +1,5 @@
-// Copyright (c) 2023-2024 Falko Schumann. All rights reserved. MIT license.
+// Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
+// Copyright 2020-2022 Titanium I.T. LLC. MIT License.
 
 /**
  * Tracks output events.
@@ -11,11 +12,11 @@
  * ```javascript
  * async record(event) {
  *   // ...
- *   this.dispatchEvent(new CustomEvent(EVENT_RECORDED_EVENT, { detail: event }));
+ *   this.dispatchEvent(new CustomEvent("eventRecorded", { detail: event }));
  * }
  *
  * trackEventsRecorded() {
- *   return new OutputTracker(this, EVENT_RECORDED_EVENT);
+ *   return new OutputTracker(this, "eventRecorded");
  * }
  * ```
  *
@@ -27,35 +28,34 @@
  * const data = eventsRecorded.data(); // [event1, event2, ...]
  * ```
  */
-export class OutputTracker {
+export class OutputTracker<T> {
   /**
    * Creates a tracker for a specific event of an event target.
    *
-   * @param {EventTarget} eventTarget The event target to track.
-   * @param {string} event The event name to track.
+   * @param eventTarget The target to track.
+   * @param event The event name to track.
    */
-  static create(eventTarget, event) {
-    return new OutputTracker(eventTarget, event);
+  static create<T>(eventTarget: EventTarget, event: string) {
+    return new OutputTracker<T>(eventTarget, event);
   }
 
-  #eventTarget;
-  #event;
-  #tracker;
-  #data = [];
+  readonly #eventTarget;
+  readonly #event;
+  readonly #data: T[];
+  readonly #tracker;
 
   /**
    * Creates a tracker for a specific event of an event target.
    *
-   * @param {EventTarget} eventTarget The event target to track.
-   * @param {string} event The event name to track.
+   * @param eventTarget The target to track.
+   * @param event The event name to track.
    */
-  constructor(
-    /** @type {EventTarget} */ eventTarget,
-    /** @type {string} */ event,
-  ) {
+  constructor(eventTarget: EventTarget, event: string) {
     this.#eventTarget = eventTarget;
     this.#event = event;
-    this.#tracker = (event) => this.#data.push(event.detail);
+    this.#data = [];
+    this.#tracker = (event: Event) =>
+      this.#data.push((event as CustomEvent<T>).detail);
 
     this.#eventTarget.addEventListener(this.#event, this.#tracker);
   }
@@ -63,18 +63,18 @@ export class OutputTracker {
   /**
    * Returns the tracked data.
    *
-   * @return {Array} The tracked data.
+   * @return The tracked data.
    */
-  get data() {
+  get data(): T[] {
     return this.#data;
   }
 
   /**
    * Clears the tracked data and returns the cleared data.
    *
-   * @return {Array} The cleared data.
+   * @return The cleared data.
    */
-  clear() {
+  clear(): T[] {
     const result = [...this.#data];
     this.#data.length = 0;
     return result;
