@@ -22,7 +22,7 @@
  * }
  * ```
  */
-export class ConfigurableResponses<T> {
+export class ConfigurableResponses<T = unknown> {
   /**
    * Create a list of responses (by providing an array), or a single repeating
    * response (by providing any other type). 'Name' is optional and used in

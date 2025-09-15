@@ -28,7 +28,7 @@
  * const data = eventsRecorded.data(); // [event1, event2, ...]
  * ```
  */
-export class OutputTracker<T> {
+export class OutputTracker<T = unknown> {
   /**
    * Create a tracker for a specific event of an event target.
    *
