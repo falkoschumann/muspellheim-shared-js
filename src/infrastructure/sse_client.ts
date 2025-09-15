@@ -7,7 +7,7 @@ import type { MessageClient } from "./message_client";
  */
 export class SseClient extends EventTarget implements MessageClient {
   /**
-   * Creates an SSE client.
+   * Create an SSE client.
    *
    * @return A new SSE client.
    */
@@ -16,7 +16,7 @@ export class SseClient extends EventTarget implements MessageClient {
   }
 
   /**
-   * Creates a nulled SSE client.
+   * Create a nulled SSE client.
    *
    * @return A new SSE client.
    */
@@ -87,7 +87,7 @@ export class SseClient extends EventTarget implements MessageClient {
   }
 
   /**
-   * Simulates a message event from the server.
+   * Simulate a message event from the server.
    *
    * @param message The message to receive.
    * @param eventName The optional event type.
@@ -104,7 +104,7 @@ export class SseClient extends EventTarget implements MessageClient {
   }
 
   /**
-   * Simulates an error event.
+   * Simulate an error event.
    */
   simulateError() {
     this.#handleError(new Event("error"));

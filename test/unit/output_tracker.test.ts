@@ -9,8 +9,7 @@ describe("Output tracker", () => {
     const eventTarget = new EventTarget();
     const outputTracker = OutputTracker.create<string>(eventTarget, "foo");
 
-    const event = new CustomEvent("foo", { detail: "bar" });
-    eventTarget.dispatchEvent(event);
+    eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
 
     expect(outputTracker.data).toEqual(["bar"]);
   });
@@ -18,8 +17,8 @@ describe("Output tracker", () => {
   it("should clear stored output", () => {
     const eventTarget = new EventTarget();
     const outputTracker = OutputTracker.create<string>(eventTarget, "foo");
-    const event = new CustomEvent("foo", { detail: "bar" });
-    eventTarget.dispatchEvent(event);
+
+    eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
 
     const result = outputTracker.clear();
 
@@ -30,11 +29,10 @@ describe("Output tracker", () => {
   it("should stop tracking", () => {
     const eventTarget = new EventTarget();
     const outputTracker = OutputTracker.create<string>(eventTarget, "foo");
-    const event = new CustomEvent("foo", { detail: "bar" });
-    eventTarget.dispatchEvent(event);
+    eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
 
     outputTracker.stop();
-    eventTarget.dispatchEvent(event);
+    eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
 
     expect(outputTracker.data).toEqual(["bar"]);
   });

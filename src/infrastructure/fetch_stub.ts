@@ -17,7 +17,7 @@ export interface ResponseData {
 }
 
 /**
- * Creates a fetch stub.
+ * Create a fetch stub.
  *
  * The stub returns a response from the provided response data or throws an provided error.
  *

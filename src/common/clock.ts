@@ -5,7 +5,7 @@
  */
 export class Clock {
   /**
-   * Creates a clock using system the clock.
+   * Create a clock using system the clock.
    *
    * @return A clock that uses the system clock.
    */
@@ -14,34 +14,34 @@ export class Clock {
   }
 
   /**
-   * Creates a clock using a fixed date.
+   * Create a clock using a fixed date.
    *
    * @param date The fixed date of the clock.
    * @return A clock that always returns a fixed date.
    */
   static fixed(date: Date | string | number): Clock {
-    return new Clock(date);
+    return new Clock(new Date(date));
   }
 
   /**
-   * Creates a clock that returns a fixed offset from the given clock.
+   * Create a clock that returns a fixed offset from the given clock.
    *
    * @param clock The clock to offset from.
    * @param offsetMillis The offset in milliseconds.
    * @return A clock that returns a fixed offset from the given clock.
    */
   static offset(clock: Clock, offsetMillis: number): Clock {
-    return new Clock(clock.millis() + offsetMillis);
+    return new Clock(new Date(clock.millis() + offsetMillis));
   }
 
   readonly #date?: Date;
 
-  private constructor(date?: Date | string | number) {
-    this.#date = date ? new Date(date) : undefined;
+  private constructor(date?: Date) {
+    this.#date = date;
   }
 
   /**
-   * Returns the current timestamp of the clock.
+   * Return the current timestamp of the clock.
    *
    * @return The current timestamp.
    */
@@ -50,7 +50,7 @@ export class Clock {
   }
 
   /**
-   * Returns the current timestamp of the clock in milliseconds.
+   * Return the current timestamp of the clock in milliseconds.
    *
    * @return The current timestamp in milliseconds.
    */

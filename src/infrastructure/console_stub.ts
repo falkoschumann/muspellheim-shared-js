@@ -59,7 +59,7 @@ export class ConsoleStub extends EventTarget {
   }
 
   /**
-   * Tracks console messages.
+   * Track the console messages.
    */
   trackMessages() {
     return new OutputTracker(this, MESSAGE_EVENT);

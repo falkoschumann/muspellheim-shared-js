@@ -2,7 +2,7 @@
 // Copyright 2020-2022 Titanium I.T. LLC. MIT License.
 
 /**
- * Tracks output events.
+ * Track output events.
  *
  * This is one of the nullability patterns from James Shore's article on
  * [testing without mocks](https://www.jamesshore.com/v2/projects/nullables/testing-without-mocks#output-tracking).
@@ -30,7 +30,7 @@
  */
 export class OutputTracker<T> {
   /**
-   * Creates a tracker for a specific event of an event target.
+   * Create a tracker for a specific event of an event target.
    *
    * @param eventTarget The target to track.
    * @param event The event name to track.
@@ -45,7 +45,7 @@ export class OutputTracker<T> {
   readonly #tracker;
 
   /**
-   * Creates a tracker for a specific event of an event target.
+   * Create a tracker for a specific event of an event target.
    *
    * @param eventTarget The target to track.
    * @param event The event name to track.
@@ -61,7 +61,7 @@ export class OutputTracker<T> {
   }
 
   /**
-   * Returns the tracked data.
+   * Return the tracked data.
    *
    * @return The tracked data.
    */
@@ -70,7 +70,7 @@ export class OutputTracker<T> {
   }
 
   /**
-   * Clears the tracked data and returns the cleared data.
+   * Clear the tracked data and return the cleared data.
    *
    * @return The cleared data.
    */
@@ -81,7 +81,7 @@ export class OutputTracker<T> {
   }
 
   /**
-   * Stops tracking.
+   * Stop tracking.
    */
   stop() {
     this.#eventTarget.removeEventListener(this.#event, this.#tracker);

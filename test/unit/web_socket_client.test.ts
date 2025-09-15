@@ -9,116 +9,118 @@ import { describe, expect, it } from "vitest";
 import { WebSocketClient } from "../../src/infrastructure/web_socket_client";
 
 describe("Web socket client", () => {
-  it("Creates a client without connection", () => {
-    const client = WebSocketClient.createNull();
+  describe("with nulled", () => {
+    it("should be not connect when created", () => {
+      const client = WebSocketClient.createNull();
 
-    expect(client.isConnected).toBe(false);
-  });
+      expect(client.isConnected).toBe(false);
+    });
 
-  it("Connects to the server", async () => {
-    const client = WebSocketClient.createNull();
+    it("should connect to a server", async () => {
+      const client = WebSocketClient.createNull();
 
-    await client.connect("ws://example.com");
+      await client.connect("ws://example.com");
 
-    expect(client.isConnected).toBe(true);
-    expect(client.url).toBe("ws://example.com");
-  });
+      expect(client.isConnected).toBe(true);
+      expect(client.url).toBe("ws://example.com");
+    });
 
-  it("Emits event when connected", async () => {
-    const client = WebSocketClient.createNull();
-    const events: Event[] = [];
-    client.addEventListener("open", (event) => events.push(event));
+    it("should emit open event when connected", async () => {
+      const client = WebSocketClient.createNull();
+      const events: Event[] = [];
+      client.addEventListener("open", (event) => events.push(event));
 
-    await client.connect("ws://example.com");
+      await client.connect("ws://example.com");
 
-    expect(events).toEqual([expect.objectContaining({ type: "open" })]);
-  });
+      expect(events).toEqual([expect.objectContaining({ type: "open" })]);
+    });
 
-  it("Rejects multiple connections", async () => {
-    const client = WebSocketClient.createNull();
-    await client.connect("ws://example.com");
+    it("should reject multiple connections", async () => {
+      const client = WebSocketClient.createNull();
+      await client.connect("ws://example.com");
 
-    await expect(() => client.connect("ws://example.com")).rejects.toThrow(
-      "Already connected.",
-    );
-  });
+      await expect(() => client.connect("ws://example.com")).rejects.toThrow(
+        "Already connected.",
+      );
+    });
 
-  it("Closes the connection", async () => {
-    const client = WebSocketClient.createNull();
-    await client.connect("ws://example.com");
+    it("should close the connection", async () => {
+      const client = WebSocketClient.createNull();
+      await client.connect("ws://example.com");
 
-    await client.close();
+      await client.close();
 
-    expect(client.isConnected).toBe(false);
-  });
+      expect(client.isConnected).toBe(false);
+    });
 
-  it("Emits event when disconnected", async () => {
-    const client = WebSocketClient.createNull();
-    const events: Event[] = [];
-    client.addEventListener("close", (event) => events.push(event));
-    await client.connect("ws://example.com");
+    it("should emit a close event when disconnected", async () => {
+      const client = WebSocketClient.createNull();
+      const events: Event[] = [];
+      client.addEventListener("close", (event) => events.push(event));
+      await client.connect("ws://example.com");
 
-    await client.simulateClose(1003, "Unsupported Data");
+      client.simulateClose(1003, "Unsupported Data");
 
-    expect(events).toEqual([expect.objectContaining({ type: "close" })]);
-  });
+      expect(events).toEqual([expect.objectContaining({ type: "close" })]);
+    });
 
-  it("Does nothing when closing a disconnected client", async () => {
-    const client = WebSocketClient.createNull();
-    await client.connect("ws://example.com");
-    await client.close();
+    it("should ignore multiple closures", async () => {
+      const client = WebSocketClient.createNull();
+      await client.connect("ws://example.com");
+      await client.close();
 
-    await client.close();
+      await client.close();
 
-    expect(client.isConnected).toBe(false);
-  });
+      expect(client.isConnected).toBe(false);
+    });
 
-  it("Receives a message", async () => {
-    const client = WebSocketClient.createNull();
-    const events: Event[] = [];
-    client.addEventListener("message", (event) => events.push(event));
-    await client.connect("ws://example.com");
+    it("should emit a message event when a message is received", async () => {
+      const client = WebSocketClient.createNull();
+      const events: Event[] = [];
+      client.addEventListener("message", (event) => events.push(event));
+      await client.connect("ws://example.com");
 
-    client.simulateMessage("lorem ipsum");
+      client.simulateMessage("lorem ipsum");
 
-    expect(events).toEqual([
-      expect.objectContaining({ type: "message", data: "lorem ipsum" }),
-    ]);
-  });
+      expect(events).toEqual([
+        expect.objectContaining({ type: "message", data: "lorem ipsum" }),
+      ]);
+    });
 
-  it("Sends a message", async () => {
-    const client = WebSocketClient.createNull();
-    const messagesSent = client.trackMessageSent();
-    await client.connect("ws://example.com");
+    it("should send a message", async () => {
+      const client = WebSocketClient.createNull();
+      const messagesSent = client.trackMessageSent();
+      await client.connect("ws://example.com");
 
-    client.send("lorem ipsum");
+      client.send("lorem ipsum");
 
-    expect(messagesSent.data).toEqual(["lorem ipsum"]);
-  });
+      expect(messagesSent.data).toEqual(["lorem ipsum"]);
+    });
 
-  it("Handles an error", async () => {
-    const client = WebSocketClient.createNull();
-    const events: Event[] = [];
-    client.addEventListener("error", (event) => events.push(event));
-    await client.connect("ws://example.com");
+    it("should emit an error event when an error occurred", async () => {
+      const client = WebSocketClient.createNull();
+      const events: Event[] = [];
+      client.addEventListener("error", (event) => events.push(event));
+      await client.connect("ws://example.com");
 
-    client.simulateError();
+      client.simulateError();
 
-    expect(events).toEqual([expect.objectContaining({ type: "error" })]);
-  });
+      expect(events).toEqual([expect.objectContaining({ type: "error" })]);
+    });
 
-  it.todo("Recovers after error");
+    it("should send heartbeats while connected", async () => {
+      const client = WebSocketClient.createNull({ heartbeat: 10 });
+      const messagesSent = client.trackMessageSent();
+      await client.connect("ws://example.com");
 
-  it("Sends heartbeats while connected", async () => {
-    const client = WebSocketClient.createNull({ heartbeat: 10 });
-    const messagesSent = client.trackMessageSent();
-    await client.connect("ws://example.com");
+      client.simulateHeartbeat();
+      client.simulateHeartbeat();
+      await client.close();
+      client.simulateHeartbeat();
 
-    client.simulateHeartbeat();
-    client.simulateHeartbeat();
-    await client.close();
-    client.simulateHeartbeat();
+      expect(messagesSent.data).toEqual(["heartbeat", "heartbeat"]);
+    });
 
-    expect(messagesSent.data).toEqual(["heartbeat", "heartbeat"]);
+    it.todo("should recover after error");
   });
 });

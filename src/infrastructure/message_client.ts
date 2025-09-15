@@ -17,24 +17,24 @@
  */
 export interface MessageClient extends EventTarget {
   /**
-   * Returns whether the client is connected.
+   * Return whether the client is connected.
    */
   get isConnected(): boolean;
 
   /**
-   * Returns the server URL.
+   * Return the server URL.
    */
   get url(): string | undefined;
 
   /**
-   * Connects to the server.
+   * Connect to the server.
    *
    * @param url The server URL to connect to.
    */
   connect(url: string | URL): Promise<void>;
 
   /**
-   * Sends a message to the server.
+   * Send a message to the server.
    *
    * This is an optional method for streams with bidirectional communication.
    *
@@ -44,7 +44,7 @@ export interface MessageClient extends EventTarget {
   send(message: string, type?: string): Promise<void>;
 
   /**
-   * Closes the connection.
+   * Close the connection.
    */
   close(): Promise<void>;
 }

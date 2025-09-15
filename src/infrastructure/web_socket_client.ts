@@ -25,7 +25,7 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   // TODO Recover connection with timeout after an error event.
 
   /**
-   * Creates a WebSocket client.
+   * Create a WebSocket client.
    *
    * @param options The options for the WebSocket client.
    * @return A new WebSocket client.
@@ -35,7 +35,7 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   }
 
   /**
-   * Creates a nulled WebSocket client.
+   * Create a nulled WebSocket client.
    *
    * @param options The options for the WebSocket client.
    * @return A new nulled WebSocket client.
@@ -107,7 +107,7 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   }
 
   /**
-   * Returns a tracker for messages sent.
+   * Return a tracker for messages sent.
    *
    * @return A new output tracker.
    */
@@ -116,7 +116,7 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   }
 
   /**
-   * Closes the connection.
+   * Close the connection.
    *
    * If a code is provided, also a reason should be provided.
    *
@@ -136,7 +136,7 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   }
 
   /**
-   * Simulates a message event from the server.
+   * Simulate a message event from the server.
    *
    * @param message The message to receive.
    */
@@ -145,14 +145,14 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   }
 
   /**
-   * Simulates a heartbeat.
+   * Simulate a heartbeat.
    */
   simulateHeartbeat() {
     this.#sendHeartbeat();
   }
 
   /**
-   * Simulates a close event.
+   * Simulate a close event.
    *
    * @param code An optional code.
    * @param reason An optional reason.
@@ -162,7 +162,7 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   }
 
   /**
-   * Simulates an error event.
+   * Simulate an error event.
    */
   simulateError() {
     this.#handleError(new Event("error"));
