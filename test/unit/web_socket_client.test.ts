@@ -109,7 +109,7 @@ describe("Web socket client", () => {
     });
 
     it("should send heartbeats while connected", async () => {
-      const client = WebSocketClient.createNull({ heartbeat: 10 });
+      const client = WebSocketClient.createNull({ heartbeat: 1000 });
       const messagesSent = client.trackMessageSent();
       await client.connect("ws://example.com");
 
@@ -121,6 +121,25 @@ describe("Web socket client", () => {
       expect(messagesSent.data).toEqual(["heartbeat", "heartbeat"]);
     });
 
-    it.todo("should recover after error");
+    it("should recover after error", async () => {
+      const client = WebSocketClient.createNull({ retry: 2 });
+      const events: Event[] = [];
+      client.addEventListener("open", (event) => events.push(event));
+      client.addEventListener("close", (event) => events.push(event));
+      client.addEventListener("error", (event) => events.push(event));
+      await client.connect("ws://example.com");
+
+      client.simulateError();
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      await client.close();
+
+      expect(events).toEqual([
+        expect.objectContaining({ type: "open" }),
+        expect.objectContaining({ type: "close" }),
+        expect.objectContaining({ type: "error" }),
+        expect.objectContaining({ type: "open" }),
+        expect.objectContaining({ type: "close" }),
+      ]);
+    });
   });
 });

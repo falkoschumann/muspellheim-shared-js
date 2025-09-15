@@ -16,22 +16,29 @@ export interface WebSocketOptions {
    * heartbeat.
    */
   heartbeat?: number;
+
+  /**
+   * The time in milliseconds to wait before retrying a connection after an
+   * error. A value <= 0 disables automatic retries.
+   */
+  retry?: number;
 }
 
 /**
  * A client for the WebSocket protocol.
  */
 export class WebSocketClient extends EventTarget implements MessageClient {
-  // TODO Recover connection with timeout after an error event.
-
   /**
    * Create a WebSocket client.
    *
    * @param options The options for the WebSocket client.
    * @return A new WebSocket client.
    */
-  static create({ heartbeat = 30000 }: WebSocketOptions = {}): WebSocketClient {
-    return new WebSocketClient(heartbeat, WebSocket);
+  static create({
+    heartbeat = 30000,
+    retry = 1000,
+  }: WebSocketOptions = {}): WebSocketClient {
+    return new WebSocketClient(heartbeat, retry, WebSocket);
   }
 
   /**
@@ -40,25 +47,30 @@ export class WebSocketClient extends EventTarget implements MessageClient {
    * @param options The options for the WebSocket client.
    * @return A new nulled WebSocket client.
    */
-  static createNull({ heartbeat = -1 }: WebSocketOptions = {}) {
+  static createNull({ heartbeat = 0, retry = 0 }: WebSocketOptions = {}) {
     return new WebSocketClient(
       heartbeat,
+      retry,
       WebSocketStub as unknown as typeof WebSocket,
     );
   }
 
   readonly #heartbeat: number;
+  readonly #retry: number;
   readonly #webSocketConstructor: typeof WebSocket;
 
   #webSocket?: WebSocket;
   #heartbeatId?: ReturnType<typeof setTimeout>;
+  #retryId?: ReturnType<typeof setTimeout>;
 
   private constructor(
     heartbeat: number,
+    retry: number,
     webSocketConstructor: typeof WebSocket,
   ) {
     super();
     this.#heartbeat = heartbeat;
+    this.#retry = retry;
     this.#webSocketConstructor = webSocketConstructor;
   }
 
@@ -72,6 +84,8 @@ export class WebSocketClient extends EventTarget implements MessageClient {
 
   async connect(url: string | URL): Promise<void> {
     await new Promise<void>((resolve, reject) => {
+      this.#stopRetry();
+
       if (this.isConnected) {
         reject(new Error("Already connected."));
         return;
@@ -125,6 +139,8 @@ export class WebSocketClient extends EventTarget implements MessageClient {
    */
   async close(code?: number, reason?: string): Promise<void> {
     await new Promise<void>((resolve) => {
+      this.#stopRetry();
+
       if (!this.isConnected) {
         resolve();
         return;
@@ -165,6 +181,7 @@ export class WebSocketClient extends EventTarget implements MessageClient {
    * Simulate an error event.
    */
   simulateError() {
+    this.#webSocket?.close();
     this.#handleError(new Event("error"));
   }
 
@@ -190,6 +207,22 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   #handleError(event: Event) {
     // @ts-expect-error create copy of event
     this.dispatchEvent(new event.constructor(event.type, event));
+    this.#startRetry();
+  }
+
+  #startRetry() {
+    if (this.#retry <= 0) {
+      return;
+    }
+    this.#retryId = setInterval(
+      () => this.connect(this.#webSocket!.url),
+      this.#retry,
+    );
+  }
+
+  #stopRetry() {
+    clearInterval(this.#retryId);
+    this.#retryId = undefined;
   }
 
   #startHeartbeat() {
