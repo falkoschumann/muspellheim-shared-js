@@ -41,7 +41,11 @@ export class SseClient extends EventTarget implements MessageClient {
     return this.#eventSource?.url;
   }
 
-  async connect(url: string | URL, eventName = "message"): Promise<void> {
+  async connect(
+    url: string | URL,
+    eventName = "message",
+    ...otherEvents: string[]
+  ): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       if (this.isConnected) {
         reject(new Error("Already connected."));
@@ -57,6 +61,11 @@ export class SseClient extends EventTarget implements MessageClient {
         this.#eventSource.addEventListener(eventName, (e) =>
           this.#handleMessage(e),
         );
+        for (const otherEvent of otherEvents) {
+          this.#eventSource.addEventListener(otherEvent, (e) =>
+            this.#handleMessage(e),
+          );
+        }
         this.#eventSource.addEventListener("error", (e) =>
           this.#handleError(e),
         );

@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { SseClient } from "../../src/infrastructure/sse_client";
 
 describe("SSE client", () => {
-  describe("with nulled", () => {
+  describe("with nulled event source", () => {
     it("should be not connect when created", () => {
       const client = SseClient.createNull();
 
@@ -80,7 +80,7 @@ describe("SSE client", () => {
       const client = SseClient.createNull();
       const events: Event[] = [];
       client.addEventListener("ping", (event) => events.push(event));
-      await client.connect("https://example.com");
+      await client.connect("https://example.com", "ping");
 
       client.simulateMessage("lorem ipsum", "ping");
 
@@ -88,6 +88,28 @@ describe("SSE client", () => {
         expect.objectContaining({
           type: "ping",
           data: "lorem ipsum",
+        }),
+      ]);
+    });
+
+    it("should emit multiple events when a various messages are received", async () => {
+      const client = SseClient.createNull();
+      const events: Event[] = [];
+      client.addEventListener("foo", (event) => events.push(event));
+      client.addEventListener("bar", (event) => events.push(event));
+      await client.connect("https://example.com", "foo", "bar");
+
+      client.simulateMessage("foo-message", "foo");
+      client.simulateMessage("bar-message", "bar");
+
+      expect(events).toEqual([
+        expect.objectContaining({
+          type: "foo",
+          data: "foo-message",
+        }),
+        expect.objectContaining({
+          type: "bar",
+          data: "bar-message",
         }),
       ]);
     });
