@@ -14,6 +14,7 @@ export default defineConfig({
       name: "Shared",
       fileName: "shared",
     },
+    sourcemap: true,
   },
   plugins: [dts({ rollupTypes: true, tsconfigPath: "./tsconfig.app.json" })],
   test: {
