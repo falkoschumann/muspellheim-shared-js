@@ -108,7 +108,9 @@ export class WebSocketClient extends EventTarget implements MessageClient {
     });
   }
 
-  async send(message: string) {
+  async send(
+    message: string | ArrayBuffer | Blob | ArrayBufferView,
+  ): Promise<void> {
     if (!this.isConnected) {
       throw new Error("Not connected.");
     }
@@ -186,27 +188,23 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   }
 
   #handleOpen(event: Event) {
-    // @ts-expect-error create copy of event
-    this.dispatchEvent(new event.constructor(event.type, event));
+    this.dispatchEvent(new Event(event.type, event));
     this.#startHeartbeat();
   }
 
   #handleMessage(event: MessageEvent) {
     this.dispatchEvent(
-      // @ts-expect-error create copy of event
-      new event.constructor(event.type, event as unknown as MessageEventInit),
+      new MessageEvent(event.type, event as unknown as MessageEventInit),
     );
   }
 
   #handleClose(event: CloseEvent) {
     this.#stopHeartbeat();
-    // @ts-expect-error create copy of event
-    this.dispatchEvent(new event.constructor(event.type, event));
+    this.dispatchEvent(new CloseEvent(event.type, event));
   }
 
   #handleError(event: Event) {
-    // @ts-expect-error create copy of event
-    this.dispatchEvent(new event.constructor(event.type, event));
+    this.dispatchEvent(new Event(event.type, event));
     this.#startRetry();
   }
 

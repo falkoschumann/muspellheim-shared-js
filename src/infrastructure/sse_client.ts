@@ -120,18 +120,17 @@ export class SseClient extends EventTarget implements MessageClient {
   }
 
   #handleOpen(event: Event) {
-    // @ts-expect-error create copy of event
-    this.dispatchEvent(new event.constructor(event.type, event));
+    this.dispatchEvent(new Event(event.type, event));
   }
 
   #handleMessage(event: MessageEvent) {
-    // @ts-expect-error create copy of event
-    this.dispatchEvent(new event.constructor(event.type, event));
+    this.dispatchEvent(
+      new MessageEvent(event.type, event as unknown as MessageEventInit),
+    );
   }
 
   #handleError(event: Event) {
-    // @ts-expect-error create copy of event
-    this.dispatchEvent(new event.constructor(event.type, event));
+    this.dispatchEvent(new Event(event.type, event));
   }
 }
 
