@@ -103,10 +103,13 @@ export class SseClient extends EventTarget implements MessageClient {
    * @param lastEventId The optional last event ID.
    */
   simulateMessage(
-    message: string,
+    message: string | number | boolean | object | null,
     eventName = "message",
     lastEventId?: string,
   ) {
+    if (typeof message !== "string") {
+      message = JSON.stringify(message);
+    }
     this.#handleMessage(
       new MessageEvent(eventName, { data: message, lastEventId }),
     );

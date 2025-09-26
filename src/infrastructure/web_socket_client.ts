@@ -158,7 +158,10 @@ export class WebSocketClient extends EventTarget implements MessageClient {
    *
    * @param message The message to receive.
    */
-  simulateMessage(message: string) {
+  simulateMessage(message: string | number | boolean | object | null) {
+    if (typeof message !== "string") {
+      message = JSON.stringify(message);
+    }
     this.#handleMessage(new MessageEvent("message", { data: message }));
   }
 
