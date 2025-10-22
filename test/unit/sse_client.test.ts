@@ -9,7 +9,7 @@ describe("SSE client", () => {
     it("should be not connect when created", () => {
       const client = SseClient.createNull();
 
-      expect(client.isConnected).toEqual(false);
+      expect(client.isConnected).toBe(false);
     });
 
     it("should connect to a server", async () => {
@@ -17,8 +17,8 @@ describe("SSE client", () => {
 
       await client.connect("https://example.com");
 
-      expect(client.isConnected).toEqual(true);
-      expect(client.url).toEqual("https://example.com");
+      expect(client.isConnected).toBe(true);
+      expect(client.url).toBe("https://example.com");
     });
 
     it("should emit open event when connected", async () => {
@@ -28,7 +28,9 @@ describe("SSE client", () => {
 
       await client.connect("https://example.com");
 
-      expect(events).toEqual([expect.objectContaining({ type: "open" })]);
+      expect(events).toEqual<Event[]>([
+        expect.objectContaining({ type: "open" }),
+      ]);
     });
 
     it("should reject multiple connections", async () => {
@@ -46,7 +48,7 @@ describe("SSE client", () => {
 
       await client.close();
 
-      expect(client.isConnected).toEqual(false);
+      expect(client.isConnected).toBe(false);
     });
 
     it("should ignore multiple closures", async () => {
@@ -56,7 +58,7 @@ describe("SSE client", () => {
 
       await client.close();
 
-      expect(client.isConnected).toEqual(false);
+      expect(client.isConnected).toBe(false);
     });
 
     it("should emit a message event when a message is received", async () => {
@@ -67,7 +69,7 @@ describe("SSE client", () => {
 
       client.simulateMessage("lorem ipsum", undefined, "1");
 
-      expect(events).toEqual([
+      expect(events).toEqual<MessageEvent[]>([
         expect.objectContaining({
           type: "message",
           data: "lorem ipsum",
@@ -84,7 +86,7 @@ describe("SSE client", () => {
 
       client.simulateMessage("lorem ipsum", "ping");
 
-      expect(events).toEqual([
+      expect(events).toEqual<MessageEvent[]>([
         expect.objectContaining({
           type: "ping",
           data: "lorem ipsum",
@@ -102,7 +104,7 @@ describe("SSE client", () => {
       client.simulateMessage("foo-message", "foo");
       client.simulateMessage("bar-message", "bar");
 
-      expect(events).toEqual([
+      expect(events).toEqual<MessageEvent[]>([
         expect.objectContaining({
           type: "foo",
           data: "foo-message",
@@ -122,7 +124,9 @@ describe("SSE client", () => {
 
       client.simulateError();
 
-      expect(events).toEqual([expect.objectContaining({ type: "error" })]);
+      expect(events).toEqual<Event[]>([
+        expect.objectContaining({ type: "error" }),
+      ]);
     });
   });
 });

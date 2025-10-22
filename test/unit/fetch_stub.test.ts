@@ -10,8 +10,8 @@ describe("Fetch stub", () => {
 
     const response = await fetch();
 
-    expect(response.ok).toEqual(true);
-    expect(response.statusText).toEqual("OK");
+    expect(response.ok).toBe(true);
+    expect(response.statusText).toBe("OK");
   });
 
   it("should return not ok when status not between 200 and 299", async () => {
@@ -19,7 +19,7 @@ describe("Fetch stub", () => {
 
     const response = await fetch();
 
-    expect(response.ok).toEqual(false);
+    expect(response.ok).toBe(false);
   });
 
   it("should throw an error when response is an error", async () => {
@@ -40,7 +40,7 @@ describe("Fetch stub", () => {
       const response = await fetch();
       const json = await response.blob();
 
-      expect(json).toEqual(null);
+      expect(json).toBeNull();
     });
 
     it("should return blob", async () => {
@@ -81,7 +81,7 @@ describe("Fetch stub", () => {
       const response = await fetch();
       const json = await response.json();
 
-      expect(json).toEqual({ key: "value" });
+      expect(json).toEqual<{ key: string }>({ key: "value" });
     });
 
     it("should return JSON from object", async () => {
@@ -94,7 +94,7 @@ describe("Fetch stub", () => {
       const response = await fetch();
       const json = await response.json();
 
-      expect(json).toEqual({ key: "value" });
+      expect(json).toEqual<{ key: string }>({ key: "value" });
     });
 
     it("should return null from empty body", async () => {
@@ -106,7 +106,7 @@ describe("Fetch stub", () => {
       const response = await fetch();
       const json = await response.json();
 
-      expect(json).toEqual(null);
+      expect(json).toBeNull();
     });
   });
 
@@ -121,7 +121,7 @@ describe("Fetch stub", () => {
       const response = await fetch();
       const text = await response.text();
 
-      expect(text).toEqual("some text");
+      expect(text).toBe("some text");
     });
 
     it("should return empty string from empty body", async () => {
@@ -133,7 +133,7 @@ describe("Fetch stub", () => {
       const response = await fetch();
       const text = await response.text();
 
-      expect(text).toEqual("");
+      expect(text).toBe("");
     });
   });
 });

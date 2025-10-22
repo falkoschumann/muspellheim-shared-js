@@ -32,7 +32,9 @@ describe("Web socket client", () => {
 
       await client.connect("ws://example.com");
 
-      expect(events).toEqual([expect.objectContaining({ type: "open" })]);
+      expect(events).toEqual<Event[]>([
+        expect.objectContaining({ type: "open" }),
+      ]);
     });
 
     it("should reject multiple connections", async () => {
@@ -61,7 +63,9 @@ describe("Web socket client", () => {
 
       client.simulateClose(1003, "Unsupported Data");
 
-      expect(events).toEqual([expect.objectContaining({ type: "close" })]);
+      expect(events).toEqual<CloseEvent[]>([
+        expect.objectContaining({ type: "close" }),
+      ]);
     });
 
     it("should ignore multiple closures", async () => {
@@ -82,7 +86,7 @@ describe("Web socket client", () => {
 
       client.simulateMessage("lorem ipsum");
 
-      expect(events).toEqual([
+      expect(events).toEqual<MessageEvent[]>([
         expect.objectContaining({ type: "message", data: "lorem ipsum" }),
       ]);
     });
@@ -94,7 +98,7 @@ describe("Web socket client", () => {
 
       client.send("lorem ipsum");
 
-      expect(messagesSent.data).toEqual(["lorem ipsum"]);
+      expect(messagesSent.data).toEqual<string[]>(["lorem ipsum"]);
     });
 
     it("should emit an error event when an error occurred", async () => {
@@ -105,7 +109,9 @@ describe("Web socket client", () => {
 
       client.simulateError();
 
-      expect(events).toEqual([expect.objectContaining({ type: "error" })]);
+      expect(events).toEqual<Event[]>([
+        expect.objectContaining({ type: "error" }),
+      ]);
     });
 
     it("should send heartbeats while connected", async () => {
@@ -118,7 +124,7 @@ describe("Web socket client", () => {
       await client.close();
       client.simulateHeartbeat();
 
-      expect(messagesSent.data).toEqual(["heartbeat", "heartbeat"]);
+      expect(messagesSent.data).toEqual<string[]>(["heartbeat", "heartbeat"]);
     });
 
     it("should recover after error", async () => {
@@ -133,7 +139,7 @@ describe("Web socket client", () => {
       await new Promise((resolve) => setTimeout(resolve, 200));
       await client.close();
 
-      expect(events).toEqual([
+      expect(events).toEqual<Event[]>([
         expect.objectContaining({ type: "open" }),
         expect.objectContaining({ type: "close" }),
         expect.objectContaining({ type: "error" }),

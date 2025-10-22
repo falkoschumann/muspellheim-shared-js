@@ -31,7 +31,7 @@ describe("Clock", () => {
 
       const date = clock.date();
 
-      expect(date).toEqual(new Date("2025-09-14T17:02"));
+      expect(date).toEqual<Date>(new Date("2025-09-14T17:02"));
     });
   });
 
@@ -41,7 +41,7 @@ describe("Clock", () => {
 
       clock = Clock.offset(clock, 5000);
 
-      expect(clock.date()).toEqual(new Date("2025-09-14T17:02:05"));
+      expect(clock.date()).toEqual<Date>(new Date("2025-09-14T17:02:05"));
     });
   });
 });

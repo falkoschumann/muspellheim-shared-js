@@ -11,7 +11,7 @@ describe("Output tracker", () => {
 
     eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
 
-    expect(outputTracker.data).toEqual(["bar"]);
+    expect(outputTracker.data).toEqual<string[]>(["bar"]);
   });
 
   it("should clear stored output", () => {
@@ -22,8 +22,8 @@ describe("Output tracker", () => {
 
     const result = outputTracker.clear();
 
-    expect(result).toEqual(["bar"]);
-    expect(outputTracker.data).toEqual([]);
+    expect(result).toEqual<string[]>(["bar"]);
+    expect(outputTracker.data).toEqual<string[]>([]);
   });
 
   it("should stop tracking", () => {
@@ -34,6 +34,6 @@ describe("Output tracker", () => {
     outputTracker.stop();
     eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
 
-    expect(outputTracker.data).toEqual(["bar"]);
+    expect(outputTracker.data).toEqual<string[]>(["bar"]);
   });
 });

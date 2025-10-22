@@ -2,7 +2,10 @@
 
 import { describe, expect, it } from "vitest";
 
-import { ConsoleStub } from "../../src/infrastructure/console_stub";
+import {
+  type ConsoleMessage,
+  ConsoleStub,
+} from "../../src/infrastructure/console_stub";
 
 describe("Console stub", () => {
   it("should track messages", () => {
@@ -16,7 +19,7 @@ describe("Console stub", () => {
     console.debug("test-debug");
     console.trace("test-trace");
 
-    expect(messages.data).toEqual([
+    expect(messages.data).toEqual<ConsoleMessage[]>([
       { level: "log", message: ["test-log"] },
       { level: "error", message: ["test-error"] },
       { level: "warn", message: ["test-warn"] },

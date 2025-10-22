@@ -62,7 +62,7 @@ describe("Configurable responses", () => {
 
       const responses = ConfigurableResponses.mapObject(responseObject);
 
-      expect(responses).toEqual({
+      expect(responses).toEqual<Record<string, ConfigurableResponses>>({
         a: expect.any(ConfigurableResponses),
         b: expect.any(ConfigurableResponses),
       });
