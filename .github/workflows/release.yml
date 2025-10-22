@@ -24,6 +24,7 @@ jobs:
         with:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
+          scope: "@muspellheim"
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
