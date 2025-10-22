@@ -2,5 +2,6 @@
 
 export * from "./clock";
 export * from "./configurable_responses";
+export * from "./event_tracker";
 export * from "./log";
 export * from "./output_tracker";
