@@ -4,6 +4,11 @@ import { OutputTracker } from "../common/output_tracker";
 
 const MESSAGE_EVENT = "message";
 
+export interface ConsoleMessage {
+  level: "log" | "error" | "warn" | "info" | "debug" | "trace";
+  message: unknown[];
+}
+
 /**
  * A stub for the console interface.
  *
@@ -62,6 +67,6 @@ export class ConsoleStub extends EventTarget {
    * Track the console messages.
    */
   trackMessages() {
-    return new OutputTracker(this, MESSAGE_EVENT);
+    return new OutputTracker<ConsoleMessage>(this, MESSAGE_EVENT);
   }
 }
