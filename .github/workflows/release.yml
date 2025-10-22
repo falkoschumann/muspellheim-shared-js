@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: write
-  id-token: write
 
 jobs:
   release:
@@ -22,21 +21,18 @@ jobs:
       - name: Set up Node.js LTS
         uses: actions/setup-node@v6
         with:
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
-          scope: "@muspellheim"
+          node-version: "lts/*"
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      # Ensure npm 11.5.1 or later is installed
-      - name: Update npm
-        run: npm install -g npm@latest
       - name: Create release
         env:
           VERSION: ${{ inputs.version }}
         run: make release
       - name: Publish to NPM
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: make publish
       - name: Build docs
         run: make docs
