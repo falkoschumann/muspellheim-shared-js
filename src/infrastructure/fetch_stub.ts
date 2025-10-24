@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { ConfigurableResponses } from "../common/configurable_responses";
+import { ConfigurableResponses } from './configurable_responses';
 
 /**
  * This data object configures the response of a fetch stub call.

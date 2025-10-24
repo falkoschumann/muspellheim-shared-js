@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { OutputTracker } from "../common/output_tracker";
+import { OutputTracker } from "./output_tracker";
 import type { MessageClient } from "./message_client";
 
 export const HEARTBEAT_TYPE = "heartbeat";

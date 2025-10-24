@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { OutputTracker } from "../common/output_tracker";
+import { OutputTracker } from "./output_tracker";
 
 const MESSAGE_EVENT = "message";
 

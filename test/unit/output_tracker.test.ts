@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { OutputTracker } from "../../src/common/output_tracker";
+import { OutputTracker } from "../../src/infrastructure/output_tracker";
 
 describe("Output tracker", () => {
   it("should use custom event to track output", () => {
