@@ -1,10 +1,8 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-/// <reference types="vitest/config" />
-
 import path from "node:path";
 
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
