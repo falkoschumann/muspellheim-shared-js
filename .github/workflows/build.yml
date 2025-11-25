@@ -14,9 +14,10 @@ jobs:
     strategy:
       matrix:
         node-version: [
-            "20.x", # Maintenance
-            "22.x", # LTS
-            "24.x", # Current
+            "20.x", # Maintenance LTS
+            "22.x", # Maintenance LTS
+            "24.x", # Active LTS
+            "25.x", # Current
           ]
     steps:
       - name: Checkout source code
