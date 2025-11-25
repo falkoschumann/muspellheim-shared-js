@@ -1,5 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
+// TODO monitor multiple events
+
 /**
  * Track events from an event target.
  *
@@ -12,7 +14,7 @@ export class EventTracker<T extends Event> {
    * @param eventTarget The target to track.
    * @param event The event name to track.
    */
-  static create<T extends Event>(eventTarget: EventTarget, event: string) {
+  static create<T extends Event>(eventTarget: EventTarget, ...event: string[]) {
     return new EventTracker<T>(eventTarget, event);
   }
 
@@ -27,13 +29,15 @@ export class EventTracker<T extends Event> {
    * @param eventTarget The target to track.
    * @param event The event name to track.
    */
-  constructor(eventTarget: EventTarget, event: string) {
+  constructor(eventTarget: EventTarget, event: string[]) {
     this.#eventTarget = eventTarget;
     this.#event = event;
     this.#events = [];
     this.#tracker = (event: Event) => this.#events.push(event as T);
 
-    this.#eventTarget.addEventListener(this.#event, this.#tracker);
+    this.#event.forEach((event) =>
+      this.#eventTarget.addEventListener(event, this.#tracker),
+    );
   }
 
   /**
@@ -60,7 +64,9 @@ export class EventTracker<T extends Event> {
    * Stop tracking.
    */
   stop() {
-    this.#eventTarget.removeEventListener(this.#event, this.#tracker);
+    this.#event.forEach((event) =>
+      this.#eventTarget.removeEventListener(event, this.#tracker),
+    );
   }
 
   /**
@@ -72,12 +78,16 @@ export class EventTracker<T extends Event> {
     return new Promise<T[]>((resolve) => {
       const checkEvents = () => {
         if (this.#events.length >= count) {
-          this.#eventTarget.removeEventListener(this.#event, checkEvents);
+          this.#event.forEach((event) =>
+            this.#eventTarget.removeEventListener(event, checkEvents),
+          );
           resolve(this.events);
         }
       };
 
-      this.#eventTarget.addEventListener(this.#event, checkEvents);
+      this.#event.forEach((event) =>
+        this.#eventTarget.addEventListener(event, checkEvents),
+      );
       checkEvents();
     });
   }

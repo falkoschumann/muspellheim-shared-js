@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { EventTracker } from "../../src/common/event_tracker";
 
 describe("Event tracker", () => {
-  it("should use custom event to track output", () => {
+  it("should track an event", () => {
     const eventTarget = new EventTarget();
     const eventTracker = EventTracker.create(eventTarget, "foo");
 
@@ -15,6 +15,25 @@ describe("Event tracker", () => {
       expect.objectContaining({
         type: "foo",
         detail: "bar",
+      }),
+    ]);
+  });
+
+  it("should track multiple event", () => {
+    const eventTarget = new EventTarget();
+    const eventTracker = EventTracker.create(eventTarget, "foo", "bar");
+
+    eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "1" }));
+    eventTarget.dispatchEvent(new CustomEvent("bar", { detail: "2" }));
+
+    expect(eventTracker.events).toEqual<CustomEvent[]>([
+      expect.objectContaining({
+        type: "foo",
+        detail: "1",
+      }),
+      expect.objectContaining({
+        type: "bar",
+        detail: "2",
       }),
     ]);
   });
@@ -52,7 +71,7 @@ describe("Event tracker", () => {
     ]);
   });
 
-  it("should wait for events", async () => {
+  it("should wait for same events", async () => {
     const eventTarget = new EventTarget();
     const eventTracker = EventTracker.create(eventTarget, "foo");
 
@@ -71,6 +90,29 @@ describe("Event tracker", () => {
       expect.objectContaining({
         type: "foo",
         detail: "bar2",
+      }),
+    ]);
+  });
+
+  it("should wait for different events", async () => {
+    const eventTarget = new EventTarget();
+    const eventTracker = EventTracker.create(eventTarget, "foo", "bar");
+
+    setTimeout(() => {
+      eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "1" }));
+      eventTarget.dispatchEvent(new CustomEvent("bar", { detail: "2" }));
+    }, 10);
+
+    const events = await eventTracker.waitFor(2);
+
+    expect(events).toEqual<CustomEvent[]>([
+      expect.objectContaining({
+        type: "foo",
+        detail: "1",
+      }),
+      expect.objectContaining({
+        type: "bar",
+        detail: "2",
       }),
     ]);
   });

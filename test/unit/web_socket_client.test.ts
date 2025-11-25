@@ -170,17 +170,19 @@ describe("Web socket client", () => {
 
       it("should recover after error", async () => {
         const client = WebSocketClient.createNull({ retry: 2 });
-        const events: Event[] = [];
-        client.addEventListener("open", (event) => events.push(event));
-        client.addEventListener("close", (event) => events.push(event));
-        client.addEventListener("error", (event) => events.push(event));
+        const trackEvents = EventTracker.create<Event>(
+          client,
+          "open",
+          "close",
+          "error",
+        );
         await client.connect("ws://example.com");
 
         client.simulateError();
         await new Promise((resolve) => setTimeout(resolve, 200));
         await client.close();
 
-        expect(events).toEqual<Event[]>([
+        expect(trackEvents.events).toEqual<Event[]>([
           expect.objectContaining({ type: "open" }),
           expect.objectContaining({ type: "close" }),
           expect.objectContaining({ type: "error" }),
