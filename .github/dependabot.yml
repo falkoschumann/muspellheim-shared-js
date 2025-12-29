@@ -4,6 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    merge-strategy: "rebase"
     groups:
       minor-and-patch:
         patterns:
@@ -15,6 +16,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    merge-strategy: "rebase"
     groups:
       minor-and-patch:
         patterns:
