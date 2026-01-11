@@ -31,8 +31,13 @@ export type CommandStatus = Success | Failure;
 /**
  * A successful status.
  */
-export class Success {
+export class Success<T = unknown> {
   readonly isSuccess = true;
+  readonly result?: T;
+
+  constructor(result?: T) {
+    this.result = result;
+  }
 }
 
 /**
