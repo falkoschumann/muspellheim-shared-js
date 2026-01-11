@@ -38,16 +38,16 @@ export class Success {
 /**
  * A failed status.
  */
-export class Failure {
+export class Failure<T = string> {
   readonly isSuccess = false;
-  errorMessage: string;
+  readonly errorMessage: T;
 
   /**
    * Creates a failed status.
    *
    * @param errorMessage
    */
-  constructor(errorMessage: string) {
+  constructor(errorMessage: T) {
     this.errorMessage = errorMessage;
   }
 }
