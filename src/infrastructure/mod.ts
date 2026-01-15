@@ -1,7 +1,7 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 export * from "./configurable_responses";
-export * from "./console_stub";
+export * from "./console_log";
 export * from "./fetch_stub";
 export * from "./message_client";
 export * from "./output_tracker";
