@@ -159,4 +159,26 @@ describe("Console log", () => {
       { level: "info", message: ["test-info"] },
     ]);
   });
+
+  it("should use optional prefix for messages", () => {
+    const console = ConsoleLog.createNull({ name: "[test-name]" });
+    console.level = "trace";
+    const messages = console.trackMessages();
+
+    console.log("test-log");
+    console.error("test-error");
+    console.warn("test-warn");
+    console.info("test-info");
+    console.debug("test-debug");
+    console.trace("test-trace");
+
+    expect(messages.data).toEqual<ConsoleMessage[]>([
+      { level: "log", message: ["[test-name]", "test-log"] },
+      { level: "error", message: ["[test-name]", "test-error"] },
+      { level: "warn", message: ["[test-name]", "test-warn"] },
+      { level: "info", message: ["[test-name]", "test-info"] },
+      { level: "debug", message: ["[test-name]", "test-debug"] },
+      { level: "trace", message: ["[test-name]", "test-trace"] },
+    ]);
+  });
 });

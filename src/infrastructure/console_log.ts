@@ -16,20 +16,22 @@ export interface ConsoleMessage {
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Console_API
  */
 export class ConsoleLog extends EventTarget implements Log {
-  static create() {
-    return new ConsoleLog(globalThis.console);
+  static create({ name }: { name?: string } = {}) {
+    return new ConsoleLog(globalThis.console, name);
   }
 
-  static createNull() {
-    return new ConsoleLog(new ConsoleStub());
+  static createNull({ name }: { name?: string } = {}) {
+    return new ConsoleLog(new ConsoleStub(), name);
   }
 
+  name?: string;
   level: LogLevel = "info";
 
   #console;
 
-  private constructor(console: Log) {
+  private constructor(console: Log, name?: string) {
     super();
+    this.name = name;
     this.#console = console;
   }
 
@@ -38,6 +40,7 @@ export class ConsoleLog extends EventTarget implements Log {
       return;
     }
 
+    data = this.#applyName(data);
     this.#console.log(...data);
     this.dispatchEvent(
       new CustomEvent(MESSAGE_EVENT, {
@@ -51,6 +54,7 @@ export class ConsoleLog extends EventTarget implements Log {
       return;
     }
 
+    data = this.#applyName(data);
     this.#console.error(...data);
     this.dispatchEvent(
       new CustomEvent(MESSAGE_EVENT, {
@@ -64,6 +68,7 @@ export class ConsoleLog extends EventTarget implements Log {
       return;
     }
 
+    data = this.#applyName(data);
     this.#console.warn(...data);
     this.dispatchEvent(
       new CustomEvent(MESSAGE_EVENT, {
@@ -77,6 +82,7 @@ export class ConsoleLog extends EventTarget implements Log {
       return;
     }
 
+    data = this.#applyName(data);
     this.#console.info(...data);
     this.dispatchEvent(
       new CustomEvent(MESSAGE_EVENT, {
@@ -90,6 +96,7 @@ export class ConsoleLog extends EventTarget implements Log {
       return;
     }
 
+    data = this.#applyName(data);
     this.#console.debug(...data);
     this.dispatchEvent(
       new CustomEvent(MESSAGE_EVENT, {
@@ -103,6 +110,7 @@ export class ConsoleLog extends EventTarget implements Log {
       return;
     }
 
+    data = this.#applyName(data);
     this.#console.trace(...data);
     this.dispatchEvent(
       new CustomEvent(MESSAGE_EVENT, {
@@ -131,6 +139,14 @@ export class ConsoleLog extends EventTarget implements Log {
     const currentLevelIndex = levels.indexOf(normalize(this.level));
     const messageLevelIndex = levels.indexOf(normalize(level));
     return messageLevelIndex <= currentLevelIndex;
+  }
+
+  #applyName(data: unknown[]) {
+    if (this.name == null) {
+      return data;
+    }
+
+    return [`${this.name}`, ...data];
   }
 }
 
