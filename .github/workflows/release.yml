@@ -8,6 +8,7 @@ on:
         default: "minor"
 
 permissions:
+  id-token: write
   contents: write
 
 jobs:

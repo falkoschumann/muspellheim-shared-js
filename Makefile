@@ -17,7 +17,7 @@ release: all
 	git push --tags
 
 publish: all
-	npm publish --access public
+	npm publish
 
 docs: prepare
 	npx typedoc src/mod.ts
