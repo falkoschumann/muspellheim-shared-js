@@ -2,7 +2,7 @@
 
 import path from "node:path";
 
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
@@ -15,10 +15,4 @@ export default defineConfig({
     sourcemap: true,
   },
   plugins: [dts({ rollupTypes: true, tsconfigPath: "./tsconfig.app.json" })],
-  test: {
-    coverage: {
-      provider: "v8",
-      include: ["src/**/*"],
-    },
-  },
 });

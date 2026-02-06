@@ -1,10 +1,6 @@
 # Possible values: e.g. major, minor, patch or new version like `1.2.3`
 VERSION?=minor
 
-RUNTIME?=bun
-PACKAGE_MANAGER?=bun
-RUNNER?=bunx
-
 all: dist docs check
 
 clean:
@@ -16,60 +12,58 @@ distclean: clean
 dist: build
 
 release: all
-	$(PACKAGE_MANAGER) version $(VERSION) -m "chore: create release v%s"
+	bun version $(VERSION) -m "chore: create release v%s"
 	git push
 	git push --tags
 
 publish: all
-	$(PACKAGE_MANAGER) publish
+	bun publish
 
 docs: prepare
-	$(RUNNER) typedoc src/mod.ts
+	bunx typedoc src/mod.ts
 
 check: test
-	$(RUNNER) eslint .
-	$(RUNNER) prettier --check .
-# TODO Configure sheriff
+	bunx eslint .
+	bunx prettier --check .
 
 format:
-	$(RUNNER) eslint --fix .
-	$(RUNNER) prettier --write .
+	bunx eslint --fix .
+	bunx prettier --write .
 
 dev: prepare
-	$(RUNNER) vitest
+	bun test --watch
 
 test: prepare
-	$(RUNNER) vitest run
+	bun test
 
 watch: prepare
-	$(PACKAGE_MANAGER) test
+	bun test --watch
 
 coverage: prepare
-	$(RUNNER) vitest run --coverage
+	bun test --coverage
 
 unit-tests: prepare
-	$(RUNNER) vitest run unit
+	bun test unit
 
 integration-tests: prepare
-	$(RUNNER) vitest run integration
+	bun test integration
 
 e2e-tests: prepare
-	$(RUNNER) vitest run e2e
+	bun test e2e
 
 build: prepare
-	$(PACKAGE_MANAGER) run build
+	bun run build
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \
-		echo "CI detected, run $(PACKAGE_MANAGER) ci"; \
-		$(PACKAGE_MANAGER) ci; \
+		echo "CI detected, run bun ci"; \
+		bun ci; \
 	else \
-		$(PACKAGE_MANAGER) install; \
+		bun install; \
 	fi
 
 version:
-	@echo "Use runtime $(RUNTIME) $(shell $(RUNTIME) --version)"
-	@echo "Use package manager $(PACKAGE_MANAGER) $(shell $(PACKAGE_MANAGER) --version)"
+	@echo "Use bun $(shell bun --version)"
 
 .PHONY: \
 	all clean distclean dist \

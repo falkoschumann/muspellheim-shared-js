@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 
 import { SseClient } from "../../src/infrastructure/sse_client";
 
@@ -37,9 +37,9 @@ describe("SSE client", () => {
       const client = SseClient.createNull();
       await client.connect("https://example.com");
 
-      await expect(() => client.connect("https://example.com")).rejects.toThrow(
-        "Already connected.",
-      );
+      const result = client.connect("https://example.com");
+
+      await expect(result).rejects.toThrow("Already connected.");
     });
 
     it("should close the connection", async () => {

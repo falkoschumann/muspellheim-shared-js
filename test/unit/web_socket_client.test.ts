@@ -1,10 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-/*
- * @vitest-environment jsdom
- */
-
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 
 import { EventTracker } from "../../src/common/event_tracker";
 import { WebSocketClient } from "../../src/infrastructure/web_socket_client";
@@ -42,7 +38,7 @@ describe("Web socket client", () => {
         const client = WebSocketClient.createNull();
         await client.connect("ws://example.com");
 
-        const action = () => client.connect("ws://example.com");
+        const action = client.connect("ws://example.com");
 
         await expect(action).rejects.toThrow("Already connected.");
       });

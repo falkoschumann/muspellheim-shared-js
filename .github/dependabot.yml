@@ -24,10 +24,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-      vitest:
-        patterns:
-          - "vitest"
-          - "@vitest/*"
     ignore:
       - dependency-name: "@types/node"
         update-types:

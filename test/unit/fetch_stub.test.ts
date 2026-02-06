@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 
 import { createFetchStub } from "../../src/infrastructure/fetch_stub";
 
