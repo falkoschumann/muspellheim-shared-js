@@ -4,7 +4,8 @@
   "author": "Falko Schumann",
   "license": "MIT",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.0.0",
+    "bun": ">=1.0.0"
   },
   "type": "module",
   "files": [

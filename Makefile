@@ -1,6 +1,10 @@
 # Possible values: e.g. major, minor, patch or new version like `1.2.3`
 VERSION?=minor
 
+RUNTIME?=bun
+PACKAGE_MANAGER?=bun
+RUNNER?=bunx
+
 all: dist docs check
 
 clean:
@@ -12,59 +16,60 @@ distclean: clean
 dist: build
 
 release: all
-	npm version $(VERSION) -m "chore: create release v%s"
+	$(PACKAGE_MANAGER) version $(VERSION) -m "chore: create release v%s"
 	git push
 	git push --tags
 
 publish: all
-	npm publish
+	$(PACKAGE_MANAGER) publish
 
 docs: prepare
-	npx typedoc src/mod.ts
+	$(RUNNER) typedoc src/mod.ts
 
 check: test
-	npx eslint .
-	npx prettier --check .
+	$(RUNNER) eslint .
+	$(RUNNER) prettier --check .
+# TODO Configure sheriff
 
 format:
-	npx eslint --fix .
-	npx prettier --write .
+	$(RUNNER) eslint --fix .
+	$(RUNNER) prettier --write .
 
 dev: prepare
-	npx vitest
+	$(RUNNER) vitest
 
 test: prepare
-	npx vitest run
+	$(RUNNER) vitest run
 
 watch: prepare
-	npm test
+	$(PACKAGE_MANAGER) test
 
 coverage: prepare
-	npx vitest run --coverage
+	$(RUNNER) vitest run --coverage
 
 unit-tests: prepare
-	npx vitest run unit
+	$(RUNNER) vitest run unit
 
 integration-tests: prepare
-	npx vitest run integration
+	$(RUNNER) vitest run integration
 
 e2e-tests: prepare
-	npx vitest run e2e
+	$(RUNNER) vitest run e2e
 
 build: prepare
-	npm run build
+	$(PACKAGE_MANAGER) run build
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \
-		echo "CI detected, run npm ci"; \
-		npm ci; \
+		echo "CI detected, run $(PACKAGE_MANAGER) ci"; \
+		$(PACKAGE_MANAGER) ci; \
 	else \
-		npm install; \
+		$(PACKAGE_MANAGER) install; \
 	fi
 
 version:
-	@echo "Use Node.js $(shell node --version)"
-	@echo "Use NPM $(shell npm --version)"
+	@echo "Use runtime $(RUNTIME) $(shell $(RUNTIME) --version)"
+	@echo "Use package manager $(PACKAGE_MANAGER) $(shell $(PACKAGE_MANAGER) --version)"
 
 .PHONY: \
 	all clean distclean dist \

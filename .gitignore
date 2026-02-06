@@ -1,8 +1,9 @@
 # see also https://gitignore.io
 
-/dist/
-/docs/
+# Common
+dist/
 tmp/
+*.bak
 
 # Gradle
 .gradle/
@@ -15,6 +16,7 @@ junit.xml
 
 # Python
 __pycache__/
+.venv/
 
 # Eclipse
 .settings/
@@ -26,6 +28,7 @@ bin/
 # IntelliJ IDEA
 .idea/
 out/
+*.iml
 
 # VS Code
 .vscode/
@@ -35,3 +38,6 @@ out/
 
 # Windows
 Thumbs.db
+
+# Project
+/docs/
