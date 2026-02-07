@@ -138,8 +138,6 @@ export class SseClient extends EventTarget implements MessageClient {
 }
 
 class EventSourceStub extends EventTarget {
-  // The constants have to be defined here because Node.js support is currently
-  // experimental only.
   static CONNECTING = 0;
   static OPEN = 1;
   static CLOSED = 2;

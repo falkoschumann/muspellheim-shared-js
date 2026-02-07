@@ -9,33 +9,24 @@
   },
   "type": "module",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
-  "main": "./dist/shared.umd.cjs",
-  "module": "./dist/shared.js",
-  "exports": {
-    ".": {
-      "types": "./dist/shared.d.ts",
-      "import": "./dist/shared.js",
-      "require": "./dist/shared.umd.cjs"
-    }
-  },
+  "module": "./dist/mod.js",
+  "types": "./dist/types/mod.d.ts",
   "scripts": {
-    "build": "vite build"
+    "build": "tsc --project tsconfig.build.json && bun build src/mod.ts --outdir=dist",
+    "test": "bun test"
   },
   "devDependencies": {
     "@eslint/js": "9.39.2",
+    "@softarc/sheriff-core": "0.19.6",
     "@types/bun": "1.3.8",
-    "@types/node": "20.19.30",
     "eslint": "9.39.2",
     "eslint-plugin-headers": "1.3.3",
     "globals": "17.3.0",
     "prettier": "3.8.1",
     "typedoc": "0.28.16",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.54.0",
-    "vite": "7.3.1",
-    "vite-plugin-dts": "4.5.4"
+    "typescript-eslint": "8.54.0"
   }
 }

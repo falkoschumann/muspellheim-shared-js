@@ -9,7 +9,9 @@ describe("SSE client", () => {
     it("should be not connect when created", () => {
       const client = SseClient.createNull();
 
-      expect(client.isConnected).toBe(false);
+      const isConnected = client.isConnected;
+
+      expect(isConnected).toBe(false);
     });
 
     it("should connect to a server", async () => {

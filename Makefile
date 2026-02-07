@@ -4,7 +4,7 @@ VERSION?=minor
 all: dist docs check
 
 clean:
-	rm -rf coverage docs
+	rm -rf docs
 
 distclean: clean
 	rm -rf dist node_modules
@@ -25,6 +25,7 @@ docs: prepare
 check: test
 	bunx eslint .
 	bunx prettier --check .
+	bunx sheriff verify
 
 format:
 	bunx eslint --fix .
@@ -52,6 +53,7 @@ e2e-tests: prepare
 	bun test e2e
 
 build: prepare
+	rm -rf dist
 	bun run build
 
 prepare: version

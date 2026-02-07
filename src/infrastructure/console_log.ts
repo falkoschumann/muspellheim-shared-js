@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import type { Log, LogLevel } from "../common/log";
+import type { Log, LogLevel } from "../common/mod";
 import { OutputTracker } from "./output_tracker";
 
 const MESSAGE_EVENT = "message";
