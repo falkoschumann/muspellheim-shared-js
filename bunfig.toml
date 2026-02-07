@@ -1,7 +1,2 @@
 [install]
 exact = false
-randomize = true
-
-[test]
-coverage = true
-coverageThreshold = { functions = 0.7, lines = 0.9 }

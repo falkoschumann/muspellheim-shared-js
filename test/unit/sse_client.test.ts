@@ -1,6 +1,6 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 
 import { SseClient } from "../../src/infrastructure/sse_client";
 

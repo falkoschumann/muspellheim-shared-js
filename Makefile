@@ -32,25 +32,25 @@ format:
 	bunx prettier --write .
 
 dev: prepare
-	bun test --watch
+	vitest --watch
 
 test: prepare
-	bun test
+	vitest run
 
 watch: prepare
-	bun test --watch
+	vitest watch
 
 coverage: prepare
-	bun test --coverage
+	vitest run --coverage
 
 unit-tests: prepare
-	bun test unit
+	vitest run unit
 
 integration-tests: prepare
-	bun test integration
+	vitest run integration
 
 e2e-tests: prepare
-	bun test e2e
+	vitest run e2e
 
 build: prepare
 	rm -rf dist
