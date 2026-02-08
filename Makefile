@@ -51,6 +51,7 @@ e2e-tests: prepare
 build: prepare
 	rm -rf dist
 	bun run build
+	bun run build --format cjs --entry-naming "[dir]/[name].cjs"
 
 prepare: version
 	@if [ -n "$(CI)" ] ; then \
