@@ -46,7 +46,7 @@ export class ConfigurableResponses<T = unknown> {
   static mapObject<T extends Record<string, unknown>>(
     responseObject: T,
     name?: string,
-  ) {
+  ): Record<string, ConfigurableResponses> {
     const entries = Object.entries(responseObject);
     const translatedEntries = entries.map(([key, value]) => {
       const translatedName = name === undefined ? undefined : `${name}: ${key}`;
