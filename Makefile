@@ -16,37 +16,37 @@ publish: all
 	fi
 
 docs: prepare
-	bunx typedoc src/mod.ts
+	bunx --bun typedoc src/mod.ts
 
 check: test
-	bunx eslint .
-	bunx prettier --check .
-	bunx sheriff verify
+	bunx --bun eslint .
+	bunx --bun prettier --check .
+	bunx --bun sheriff verify
 
 format:
-	bunx eslint --fix .
-	bunx prettier --write .
+	bunx --bun eslint --fix .
+	bunx --bun prettier --write .
 
 dev: prepare
-	bunx vitest --watch
+	bunx --bun vitest --watch
 
 test: prepare
-	bunx vitest run
+	bunx --bun vitest run
 
 watch: prepare
-	bunx vitest watch
+	bunx --bun vitest watch
 
 coverage: prepare
-	bunx vitest run --coverage
+	bunx --bun vitest run --coverage
 
 unit-tests: prepare
-	bunx vitest run unit
+	bunx --bun vitest run unit
 
 integration-tests: prepare
-	bunx vitest run integration
+	bunx --bun vitest run integration
 
 e2e-tests: prepare
-	bunx vitest run e2e
+	bunx --bun vitest run e2e
 
 build: prepare
 	rm -rf dist
