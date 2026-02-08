@@ -2,4 +2,4 @@
 exact = false
 
 [install.scopes]
-muspellheim = "https://registry.npmjs.org"
+muspellheim = { url = "https://registry.npmjs.org", token = "$NPM_TOKEN" }
