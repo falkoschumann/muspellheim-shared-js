@@ -20,8 +20,6 @@ jobs:
         with:
           bun-version: latest
       - name: Publish to NPM
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: make publish
       - name: Build docs
         run: make docs
