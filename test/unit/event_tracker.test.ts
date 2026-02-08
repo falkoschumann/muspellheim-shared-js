@@ -12,10 +12,7 @@ describe("Event tracker", () => {
     eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
 
     expect(eventTracker.events).toEqual<CustomEvent[]>([
-      expect.objectContaining({
-        type: "foo",
-        detail: "bar",
-      }),
+      expect.objectContaining({ type: "foo", detail: "bar" }),
     ]);
   });
 
@@ -27,14 +24,8 @@ describe("Event tracker", () => {
     eventTarget.dispatchEvent(new CustomEvent("bar", { detail: "2" }));
 
     expect(eventTracker.events).toEqual<CustomEvent[]>([
-      expect.objectContaining({
-        type: "foo",
-        detail: "1",
-      }),
-      expect.objectContaining({
-        type: "bar",
-        detail: "2",
-      }),
+      expect.objectContaining({ type: "foo", detail: "1" }),
+      expect.objectContaining({ type: "bar", detail: "2" }),
     ]);
   });
 
@@ -47,10 +38,7 @@ describe("Event tracker", () => {
     const result = eventTracker.clear();
 
     expect(result).toEqual<CustomEvent[]>([
-      expect.objectContaining({
-        type: "foo",
-        detail: "bar",
-      }),
+      expect.objectContaining({ type: "foo", detail: "bar" }),
     ]);
     expect(eventTracker.events).toEqual<CustomEvent[]>([]);
   });
@@ -64,10 +52,22 @@ describe("Event tracker", () => {
     eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
 
     expect(eventTracker.events).toEqual<CustomEvent[]>([
-      expect.objectContaining({
-        type: "foo",
-        detail: "bar",
-      }),
+      expect.objectContaining({ type: "foo", detail: "bar" }),
+    ]);
+  });
+
+  it("should wait for an events", async () => {
+    const eventTarget = new EventTarget();
+    const eventTracker = EventTracker.create(eventTarget, "foo");
+
+    setTimeout(() => {
+      eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
+    }, 10);
+
+    const events = await eventTracker.waitFor();
+
+    expect(events).toEqual<CustomEvent[]>([
+      expect.objectContaining({ type: "foo", detail: "bar" }),
     ]);
   });
 
@@ -83,14 +83,8 @@ describe("Event tracker", () => {
     const events = await eventTracker.waitFor(2);
 
     expect(events).toEqual<CustomEvent[]>([
-      expect.objectContaining({
-        type: "foo",
-        detail: "bar1",
-      }),
-      expect.objectContaining({
-        type: "foo",
-        detail: "bar2",
-      }),
+      expect.objectContaining({ type: "foo", detail: "bar1" }),
+      expect.objectContaining({ type: "foo", detail: "bar2" }),
     ]);
   });
 
@@ -106,14 +100,8 @@ describe("Event tracker", () => {
     const events = await eventTracker.waitFor(2);
 
     expect(events).toEqual<CustomEvent[]>([
-      expect.objectContaining({
-        type: "foo",
-        detail: "1",
-      }),
-      expect.objectContaining({
-        type: "bar",
-        detail: "2",
-      }),
+      expect.objectContaining({ type: "foo", detail: "1" }),
+      expect.objectContaining({ type: "bar", detail: "2" }),
     ]);
   });
 });
