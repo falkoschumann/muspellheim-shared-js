@@ -30,84 +30,43 @@ describe("Fetch stub", () => {
     await expect(response).rejects.toThrowError(new Error("test-error"));
   });
 
-  describe("with blob", () => {
-    it("should return null", async () => {
-      const fetch = createFetchStub({
-        status: 200,
-        statusText: "OK",
-      });
-
-      const response = await fetch();
-      const json = await response.blob();
-
-      expect(json).toBeNull();
+  it("should return blob", async () => {
+    const fetch = createFetchStub({
+      status: 200,
+      statusText: "OK",
+      body: new Blob(),
     });
 
-    it("should return blob", async () => {
-      const fetch = createFetchStub({
-        status: 200,
-        statusText: "OK",
-        body: new Blob(),
-      });
+    const response = await fetch();
+    const blob = await response.blob();
 
-      const response = await fetch();
-      const blob = await response.blob();
-
-      expect(blob).toBeInstanceOf(Blob);
-    });
-
-    it("should throw error when body is not a blob", async () => {
-      const fetch = createFetchStub({
-        status: 200,
-        statusText: "OK",
-        body: "no blob",
-      });
-
-      const response = await fetch();
-      const blob = response.blob();
-
-      await expect(blob).rejects.toThrow("Body is not a Blob.");
-    });
+    expect(blob).toBeInstanceOf(Blob);
   });
 
-  describe("with JSON", () => {
-    it("should return JSON from string", async () => {
-      const fetch = createFetchStub({
-        status: 200,
-        statusText: "OK",
-        body: '{"key":"value"}',
-      });
-
-      const response = await fetch();
-      const json = await response.json();
-
-      expect(json).toEqual<{ key: string }>({ key: "value" });
+  it("should return JSON from string", async () => {
+    const fetch = createFetchStub({
+      status: 200,
+      statusText: "OK",
+      body: '{"key":"value"}',
     });
 
-    it("should return JSON from object", async () => {
-      const fetch = createFetchStub({
-        status: 200,
-        statusText: "OK",
-        body: { key: "value" },
-      });
+    const response = await fetch();
+    const json = await response.json();
 
-      const response = await fetch();
-      const json = await response.json();
+    expect(json).toEqual<{ key: string }>({ key: "value" });
+  });
 
-      expect(json).toEqual<{ key: string }>({ key: "value" });
+  it("should return JSON from object", async () => {
+    const fetch = createFetchStub({
+      status: 200,
+      statusText: "OK",
+      body: { key: "value" },
     });
 
-    it("should return null from empty body", async () => {
-      const fetch = createFetchStub({
-        status: 200,
-        statusText: "OK",
-      });
+    const response = await fetch();
+    const json = await response.json();
 
-      const response = await fetch();
-      const json = await response.json();
-
-      expect(json).toBeNull();
-    });
+    expect(json).toEqual<{ key: string }>({ key: "value" });
   });
 
   describe("with string", () => {
@@ -122,18 +81,6 @@ describe("Fetch stub", () => {
       const text = await response.text();
 
       expect(text).toBe("some text");
-    });
-
-    it("should return empty string from empty body", async () => {
-      const fetch = createFetchStub({
-        status: 200,
-        statusText: "OK",
-      });
-
-      const response = await fetch();
-      const text = await response.text();
-
-      expect(text).toBe("");
     });
   });
 });

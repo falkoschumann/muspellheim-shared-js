@@ -13,7 +13,7 @@ export interface ResponseData {
   statusText: string;
 
   /** The optional response body. */
-  body?: Blob | object | string | null;
+  body?: BodyInit | object;
 }
 
 /**
@@ -34,56 +34,18 @@ export function createFetchStub(
       throw response;
     }
 
-    return new ResponseStub(response) as unknown as Response;
+    let body = response?.body;
+    if (
+      body != null &&
+      !(body instanceof Blob) &&
+      !(typeof body === "string")
+    ) {
+      // If the body is an object, we convert it to a JSON string.
+      body = JSON.stringify(body);
+    }
+    return new Response(body, {
+      status: response.status,
+      statusText: response.statusText,
+    });
   };
-}
-
-class ResponseStub {
-  #status: number;
-  #statusText: string;
-  #body?: Blob | object | string | null;
-
-  constructor({ status, statusText, body = null }: ResponseData) {
-    this.#status = status;
-    this.#statusText = statusText;
-    this.#body = body;
-  }
-
-  get ok() {
-    return this.status >= 200 && this.status < 300;
-  }
-
-  get status() {
-    return this.#status;
-  }
-
-  get statusText() {
-    return this.#statusText;
-  }
-
-  async blob() {
-    if (this.#body == null) {
-      return null;
-    }
-
-    if (this.#body instanceof Blob) {
-      return this.#body;
-    }
-
-    throw new TypeError("Body is not a Blob.");
-  }
-
-  async json() {
-    const json =
-      typeof this.#body === "string" ? this.#body : JSON.stringify(this.#body);
-    return Promise.resolve(JSON.parse(json));
-  }
-
-  async text() {
-    if (this.#body == null) {
-      return "";
-    }
-
-    return String(this.#body);
-  }
 }
