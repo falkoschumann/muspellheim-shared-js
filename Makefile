@@ -1,14 +1,13 @@
 all: dist docs check
 
 clean:
-	rm -rf docs
+	rm -rf coverage docs
 
 distclean: clean
 	rm -rf dist node_modules
 
 dist: build
 
-# TODO Update release process to use `bun publish` instead of `npm publish`
 publish: all
 	if [ -z "$(CI)" ] ; then \
 		bun pm pack; \
@@ -29,25 +28,25 @@ format:
 	bunx prettier --write .
 
 dev: prepare
-	vitest --watch
+	bunx vitest --watch
 
 test: prepare
-	vitest run
+	bunx vitest run
 
 watch: prepare
-	vitest watch
+	bunx vitest watch
 
 coverage: prepare
-	vitest run --coverage
+	bunx vitest run --coverage
 
 unit-tests: prepare
-	vitest run unit
+	bunx vitest run unit
 
 integration-tests: prepare
-	vitest run integration
+	bunx vitest run integration
 
 e2e-tests: prepare
-	vitest run e2e
+	bunx vitest run e2e
 
 build: prepare
 	rm -rf dist
