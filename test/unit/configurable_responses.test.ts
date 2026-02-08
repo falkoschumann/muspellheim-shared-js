@@ -67,5 +67,23 @@ describe("Configurable responses", () => {
         b: expect.any(ConfigurableResponses),
       });
     });
+
+    it("should convert all properties in an object into ConfigurableResponse instances and add descripton", () => {
+      const responseObject = {
+        a: [],
+        b: [2, 3],
+      };
+
+      const responses = ConfigurableResponses.mapObject(
+        responseObject,
+        "foobar",
+      );
+      // to trigger error message with description
+      const run = () => responses.a.next();
+
+      expect(run).toThrow(
+        new Error("No more responses configured in foobar: a."),
+      );
+    });
   });
 });

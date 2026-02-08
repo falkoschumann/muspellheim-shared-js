@@ -75,8 +75,8 @@ export class SseClient extends EventTarget implements MessageClient {
     });
   }
 
-  send(_message: string, _type?: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  async send(_message: string, _type?: string): Promise<void> {
+    throw new Error("unsupported method");
   }
 
   async close(): Promise<void> {
@@ -108,6 +108,7 @@ export class SseClient extends EventTarget implements MessageClient {
     lastEventId?: string,
   ) {
     if (typeof message !== "string") {
+      // If the message is not a string, we convert it to a JSON string.
       message = JSON.stringify(message);
     }
     this.#handleMessage(

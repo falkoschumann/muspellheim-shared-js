@@ -6,7 +6,7 @@ import { EventTracker } from "../../src/common/event_tracker";
 import { WebSocketClient } from "../../src/infrastructure/web_socket_client";
 
 describe("Web socket client", () => {
-  describe("Nullable", () => {
+  describe("with nulled event source", () => {
     describe("Connect", () => {
       it("should be not connect when created", () => {
         const client = WebSocketClient.createNull();
@@ -115,6 +115,22 @@ describe("Web socket client", () => {
 
         expect(trackedEvents.events).toEqual<MessageEvent[]>([
           expect.objectContaining({ type: "message", data: "lorem ipsum" }),
+        ]);
+      });
+
+      it("should convert an object to JSON string for simulated message", async () => {
+        const client = WebSocketClient.createNull();
+        const events: Event[] = [];
+        client.addEventListener("message", (event) => events.push(event));
+        await client.connect("https://example.com");
+
+        client.simulateMessage({ foo: "bar" });
+
+        expect(events).toEqual<MessageEvent[]>([
+          expect.objectContaining({
+            type: "message",
+            data: '{"foo":"bar"}',
+          }),
         ]);
       });
 

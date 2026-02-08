@@ -6,129 +6,165 @@ import { SseClient } from "../../src/infrastructure/sse_client";
 
 describe("SSE client", () => {
   describe("with nulled event source", () => {
-    it("should be not connect when created", () => {
-      const client = SseClient.createNull();
+    describe("Connect", () => {
+      it("should be not connect when created", () => {
+        const client = SseClient.createNull();
 
-      const isConnected = client.isConnected;
+        const isConnected = client.isConnected;
 
-      expect(isConnected).toBe(false);
+        expect(isConnected).toBe(false);
+      });
+
+      it("should connect to a server", async () => {
+        const client = SseClient.createNull();
+
+        await client.connect("https://example.com");
+
+        expect(client.isConnected).toBe(true);
+        expect(client.url).toBe("https://example.com");
+      });
+
+      it("should emit open event when connected", async () => {
+        const client = SseClient.createNull();
+        const events: Event[] = [];
+        client.addEventListener("open", (event) => events.push(event));
+
+        await client.connect("https://example.com");
+
+        expect(events).toEqual<Event[]>([
+          expect.objectContaining({ type: "open" }),
+        ]);
+      });
+
+      it("should reject multiple connections", async () => {
+        const client = SseClient.createNull();
+        await client.connect("https://example.com");
+
+        const result = client.connect("https://example.com");
+
+        await expect(result).rejects.toThrow("Already connected.");
+      });
     });
 
-    it("should connect to a server", async () => {
-      const client = SseClient.createNull();
+    describe("Close", () => {
+      it("should close the connection", async () => {
+        const client = SseClient.createNull();
+        await client.connect("https://example.com");
 
-      await client.connect("https://example.com");
+        await client.close();
 
-      expect(client.isConnected).toBe(true);
-      expect(client.url).toBe("https://example.com");
+        expect(client.isConnected).toBe(false);
+      });
+
+      it("should ignore multiple closures", async () => {
+        const client = SseClient.createNull();
+        await client.connect("https://example.com");
+        await client.close();
+
+        await client.close();
+
+        expect(client.isConnected).toBe(false);
+      });
     });
 
-    it("should emit open event when connected", async () => {
-      const client = SseClient.createNull();
-      const events: Event[] = [];
-      client.addEventListener("open", (event) => events.push(event));
+    describe("Send", () => {
+      it("should throw an error when call unsupported method", async () => {
+        const client = SseClient.createNull();
+        await client.connect("https://example.com");
 
-      await client.connect("https://example.com");
+        const result = client.send("message");
 
-      expect(events).toEqual<Event[]>([
-        expect.objectContaining({ type: "open" }),
-      ]);
+        await expect(result).rejects.toThrow("unsupported method");
+      });
     });
 
-    it("should reject multiple connections", async () => {
-      const client = SseClient.createNull();
-      await client.connect("https://example.com");
+    describe("Receive message", () => {
+      it("should emit a message event when a message is received", async () => {
+        const client = SseClient.createNull();
+        const events: Event[] = [];
+        client.addEventListener("message", (event) => events.push(event));
+        await client.connect("https://example.com");
 
-      const result = client.connect("https://example.com");
+        client.simulateMessage("lorem ipsum", undefined, "1");
 
-      await expect(result).rejects.toThrow("Already connected.");
+        expect(events).toEqual<MessageEvent[]>([
+          expect.objectContaining({
+            type: "message",
+            data: "lorem ipsum",
+            lastEventId: "1",
+          }),
+        ]);
+      });
+
+      it("should convert an object to JSON string for simulated message", async () => {
+        const client = SseClient.createNull();
+        const events: Event[] = [];
+        client.addEventListener("message", (event) => events.push(event));
+        await client.connect("https://example.com");
+
+        client.simulateMessage({ foo: "bar" }, undefined, "1");
+
+        expect(events).toEqual<MessageEvent[]>([
+          expect.objectContaining({
+            type: "message",
+            data: '{"foo":"bar"}',
+            lastEventId: "1",
+          }),
+        ]);
+      });
+
+      it("should emit a typed message event when a typed message is received", async () => {
+        const client = SseClient.createNull();
+        const events: Event[] = [];
+        client.addEventListener("ping", (event) => events.push(event));
+        await client.connect("https://example.com", "ping");
+
+        client.simulateMessage("lorem ipsum", "ping");
+
+        expect(events).toEqual<MessageEvent[]>([
+          expect.objectContaining({
+            type: "ping",
+            data: "lorem ipsum",
+          }),
+        ]);
+      });
+
+      it("should emit multiple events when a various messages are received", async () => {
+        const client = SseClient.createNull();
+        const events: Event[] = [];
+        client.addEventListener("foo", (event) => events.push(event));
+        client.addEventListener("bar", (event) => events.push(event));
+        await client.connect("https://example.com", "foo", "bar");
+
+        client.simulateMessage("foo-message", "foo");
+        client.simulateMessage("bar-message", "bar");
+
+        expect(events).toEqual<MessageEvent[]>([
+          expect.objectContaining({
+            type: "foo",
+            data: "foo-message",
+          }),
+          expect.objectContaining({
+            type: "bar",
+            data: "bar-message",
+          }),
+        ]);
+      });
     });
 
-    it("should close the connection", async () => {
-      const client = SseClient.createNull();
-      await client.connect("https://example.com");
+    describe("Handle error", () => {
+      it("should emit an error event when an error occurred", async () => {
+        const client = SseClient.createNull();
+        const events: Event[] = [];
+        client.addEventListener("error", (event) => events.push(event));
+        await client.connect("https://example.com");
 
-      await client.close();
+        client.simulateError();
 
-      expect(client.isConnected).toBe(false);
-    });
-
-    it("should ignore multiple closures", async () => {
-      const client = SseClient.createNull();
-      await client.connect("https://example.com");
-      await client.close();
-
-      await client.close();
-
-      expect(client.isConnected).toBe(false);
-    });
-
-    it("should emit a message event when a message is received", async () => {
-      const client = SseClient.createNull();
-      const events: Event[] = [];
-      client.addEventListener("message", (event) => events.push(event));
-      await client.connect("https://example.com");
-
-      client.simulateMessage("lorem ipsum", undefined, "1");
-
-      expect(events).toEqual<MessageEvent[]>([
-        expect.objectContaining({
-          type: "message",
-          data: "lorem ipsum",
-          lastEventId: "1",
-        }),
-      ]);
-    });
-
-    it("should emit a typed message event when a typed message is received", async () => {
-      const client = SseClient.createNull();
-      const events: Event[] = [];
-      client.addEventListener("ping", (event) => events.push(event));
-      await client.connect("https://example.com", "ping");
-
-      client.simulateMessage("lorem ipsum", "ping");
-
-      expect(events).toEqual<MessageEvent[]>([
-        expect.objectContaining({
-          type: "ping",
-          data: "lorem ipsum",
-        }),
-      ]);
-    });
-
-    it("should emit multiple events when a various messages are received", async () => {
-      const client = SseClient.createNull();
-      const events: Event[] = [];
-      client.addEventListener("foo", (event) => events.push(event));
-      client.addEventListener("bar", (event) => events.push(event));
-      await client.connect("https://example.com", "foo", "bar");
-
-      client.simulateMessage("foo-message", "foo");
-      client.simulateMessage("bar-message", "bar");
-
-      expect(events).toEqual<MessageEvent[]>([
-        expect.objectContaining({
-          type: "foo",
-          data: "foo-message",
-        }),
-        expect.objectContaining({
-          type: "bar",
-          data: "bar-message",
-        }),
-      ]);
-    });
-
-    it("should emit an error event when an error occurred", async () => {
-      const client = SseClient.createNull();
-      const events: Event[] = [];
-      client.addEventListener("error", (event) => events.push(event));
-      await client.connect("https://example.com");
-
-      client.simulateError();
-
-      expect(events).toEqual<Event[]>([
-        expect.objectContaining({ type: "error" }),
-      ]);
+        expect(events).toEqual<Event[]>([
+          expect.objectContaining({ type: "error" }),
+        ]);
+      });
     });
   });
 });

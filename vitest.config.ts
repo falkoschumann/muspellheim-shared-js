@@ -8,8 +8,8 @@ export default defineConfig({
       enabled: true,
       provider: "istanbul",
       thresholds: {
-        statements: 85,
-        branches: 85,
+        statements: 90,
+        branches: 90,
       },
     },
   },
