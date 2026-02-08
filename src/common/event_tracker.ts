@@ -1,7 +1,5 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
-// TODO monitor multiple events
-
 /**
  * Track events from an event target.
  *
