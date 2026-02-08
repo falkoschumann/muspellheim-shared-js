@@ -1,6 +1,3 @@
-# Possible values: e.g. major, minor, patch or new version like `1.2.3`
-VERSION?=minor
-
 all: dist docs check
 
 clean:
@@ -11,13 +8,13 @@ distclean: clean
 
 dist: build
 
-release: all
-	bun version $(VERSION) -m "chore: create release v%s"
-	git push
-	git push --tags
-
+# TODO Update release process to use `bun publish` instead of `npm publish`
 publish: all
-	bun publish
+	if [ -z "$(CI)" ] ; then \
+		bun pm pack; \
+	else \
+		bun publish; \
+	fi
 
 docs: prepare
 	bunx typedoc src/mod.ts

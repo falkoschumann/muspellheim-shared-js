@@ -9,10 +9,11 @@ tmp/
 .gradle/
 build/
 
-# Node
+# JavaScript
 coverage/
 node_modules/
 junit.xml
+/*.tgz
 
 # Python
 __pycache__/

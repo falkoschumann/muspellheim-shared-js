@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  build-with-bun:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -18,29 +18,5 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      - name: Build
-        run: make
-
-  build-with-node:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [
-            "20.x", # Maintenance LTS
-            "22.x", # Maintenance LTS
-            "24.x", # Active LTS
-            "25.x", # Current
-          ]
-    env:
-      RUNTIME: node
-      PACKAGE_MANAGER: npm
-      RUNNER: npx
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v6
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: ${{ matrix.node-version }}
       - name: Build
         run: make
