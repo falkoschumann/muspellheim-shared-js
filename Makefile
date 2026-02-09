@@ -58,7 +58,7 @@ build: prepare
 prepare: version
 	env
 ifdef CI
-ifeq ($(findstring $(DEPENDABOT), $(GITHUB_HEAD_REF)), $(DEPENDABOT))
+ifeq ($(findstring $(DEPENDABOT), $(GITHUB_ACTOR)), $(DEPENDABOT))
 	@echo "dependabot detected, run bun install"
 	bun install
 else
