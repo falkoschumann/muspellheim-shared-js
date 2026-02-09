@@ -1,4 +1,4 @@
-DEPENDABOT=dependabot
+DEPENDABOT=dependabot[bot]
 
 all: dist docs check
 
