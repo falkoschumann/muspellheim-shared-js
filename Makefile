@@ -1,3 +1,5 @@
+DEPENDABOT=dependabot
+
 all: dist docs check
 
 clean:
@@ -9,11 +11,11 @@ distclean: clean
 dist: build
 
 publish: all
-	if [ -z "$(CI)" ] ; then \
-		bun pm pack; \
-	else \
-		bun publish; \
-	fi
+ifdef CI
+	bun publish
+else
+	bun pm pack
+endif
 
 docs: prepare
 	bunx --bun typedoc src/mod.ts
@@ -54,12 +56,17 @@ build: prepare
 	bun run build --format cjs --entry-naming "[dir]/[name].cjs"
 
 prepare: version
-	@if [ -n "$(CI)" ] ; then \
-		echo "CI detected, run bun ci"; \
-		bun ci; \
-	else \
-		bun install; \
-	fi
+ifdef CI
+ifeq ($(findstring $(DEPENDABOT), $(GITHUB_HEAD_REF)), $(DEPENDABOT))
+	@echo "dependabot detected, run bun install"
+	bun install
+else
+	@echo "CI detected, run bun ci"
+	bun ci
+endif
+else
+	bun install
+endif
 
 version:
 	@echo "Use bun $(shell bun --version)"
