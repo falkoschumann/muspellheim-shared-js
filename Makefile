@@ -56,7 +56,6 @@ build: prepare
 	bun run build --format cjs --entry-naming "[dir]/[name].cjs"
 
 prepare: version
-	env
 ifdef CI
 ifeq ($(findstring $(DEPENDABOT), $(GITHUB_ACTOR)), $(DEPENDABOT))
 	@echo "dependabot detected, run bun install"
