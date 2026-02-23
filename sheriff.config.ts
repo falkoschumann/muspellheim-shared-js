@@ -7,7 +7,7 @@ export const config: SheriffConfig = {
   enableBarrelLess: true,
   barrelFileName: "mod.ts",
   entryPoints: {
-    src: "src/mod.ts",
+    src: "src/lib.ts",
   },
   modules: {
     src: ["layer:entry"],

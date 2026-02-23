@@ -18,7 +18,7 @@ else
 endif
 
 docs: prepare
-	bunx --bun typedoc src/mod.ts
+	bunx --bun typedoc src/lib.ts
 
 check: test
 	bunx --bun eslint .

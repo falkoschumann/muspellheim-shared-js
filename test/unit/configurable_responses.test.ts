@@ -79,7 +79,7 @@ describe("Configurable responses", () => {
         "foobar",
       );
       // to trigger error message with description
-      const run = () => responses.a.next();
+      const run = () => responses["a"]!.next();
 
       expect(run).toThrow(
         new Error("No more responses configured in foobar: a."),

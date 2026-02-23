@@ -11,11 +11,11 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/mod.cjs",
-  "module": "./dist/mod.js",
-  "types": "./dist/types/mod.d.ts",
+  "main": "./dist/lib.cjs",
+  "module": "./dist/lib.js",
+  "types": "./dist/types/lib.d.ts",
   "scripts": {
-    "build": "tsc --project tsconfig.build.json && bun build src/mod.ts --outdir=dist",
+    "build": "tsc --project tsconfig.build.json && bun build src/lib.ts --outdir=dist --packages external",
     "test": "vitest"
   },
   "devDependencies": {
