@@ -1,5 +1,5 @@
 PM_OPTIONS?=--ignore-scripts
-RUN_OPTIONS?=--bunx
+RUN_OPTIONS?=--bun
 DEPENDABOT=dependabot[bot]
 SHELL:=/bin/bash
 
