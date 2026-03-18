@@ -1,9 +1,13 @@
+PM_OPTIONS?=--ignore-scripts
+RUN_OPTIONS?=--bunx
 DEPENDABOT=dependabot[bot]
+SHELL:=/bin/bash
 
 all: dist docs check
 
 clean:
 	rm -rf coverage docs
+	rm -rf node_modules/.tmp
 
 distclean: clean
 	rm -rf dist node_modules
@@ -18,54 +22,50 @@ else
 endif
 
 docs: prepare
-	bunx --bun typedoc src/lib.ts
+	bunx $(RUN_OPTIONS) typedoc src/lib.ts
 
 check: test
-	bunx --bun eslint .
-	bunx --bun prettier --check .
-	bunx --bun sheriff verify
+	bunx $(RUN_OPTIONS) eslint .
+	bunx $(RUN_OPTIONS) prettier --check .
+	bunx $(RUN_OPTIONS) sheriff verify
 
 format:
-	bunx --bun eslint --fix .
-	bunx --bun prettier --write .
-
-dev: prepare
-	bunx --bun vitest --watch
+	bunx $(RUN_OPTIONS) eslint --fix .
+	bunx $(RUN_OPTIONS) prettier --write .
 
 test: prepare
-	bunx --bun vitest run
+	bun run $(RUN_OPTIONS) test
 
 watch: prepare
-	bunx --bun vitest watch
-
-coverage: prepare
-	bunx --bun vitest run --coverage
+	bun run $(RUN_OPTIONS) watch
 
 unit-tests: prepare
-	bunx --bun vitest run unit
+	bunx $(RUN_OPTIONS) vitest run unit
 
 integration-tests: prepare
-	bunx --bun vitest run integration
+	bunx $(RUN_OPTIONS) vitest run integration
 
 e2e-tests: prepare
-	bunx --bun vitest run e2e
+	bunx $(RUN_OPTIONS) vitest run e2e
 
 build: prepare
 	rm -rf dist
-	bun run build
-	bun run build --format cjs --entry-naming "[dir]/[name].cjs"
+	bunx $(RUN_OPTIONS) tsc --build
+	bunx $(RUN_OPTIONS) tsc --project tsconfig.build.json
+	bun build src/lib.ts --outdir=dist --packages external
+	bun build src/lib.ts --outdir=dist --packages external --format cjs --entry-naming "[dir]/[name].cjs"
 
 prepare: version
 ifdef CI
 ifeq ($(findstring $(DEPENDABOT), $(GITHUB_ACTOR)), $(DEPENDABOT))
 	@echo "dependabot detected, run bun install"
-	bun install
+	bun install $(PM_OPTIONS)
 else
 	@echo "CI detected, run bun ci"
-	bun ci
+	bun ci $(PM_OPTIONS)
 endif
 else
-	bun install
+	bun install $(PM_OPTIONS)
 endif
 
 version:
@@ -73,7 +73,7 @@ version:
 
 .PHONY: \
 	all clean distclean dist \
-	release publish docs \
-	check format
-	dev test watch coverage unit-tests integration-tests e2e-tests \
+	publish docs \
+	check format \
+	test watch coverage unit-tests integration-tests e2e-tests \
 	build prepare version

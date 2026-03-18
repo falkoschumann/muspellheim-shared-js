@@ -15,8 +15,8 @@
   "module": "./dist/lib.js",
   "types": "./dist/types/lib.d.ts",
   "scripts": {
-    "build": "tsc --project tsconfig.build.json && bun build src/lib.ts --outdir=dist --packages external",
-    "test": "vitest"
+    "test": "vitest run",
+    "watch": "vitest watch"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
