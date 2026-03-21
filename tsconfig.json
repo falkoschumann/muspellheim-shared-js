@@ -4,6 +4,7 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
+    "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
@@ -14,11 +15,14 @@
     "strictPropertyInitialization": true,
     "useUnknownInCatchVariables": true,
     // Modules
-    "module": "ESNext",
+    "allowImportingTsExtensions": true,
+    "module": "Preserve",
     "moduleResolution": "bundler",
     "noUncheckedSideEffectImports": true,
     // Emit
     "noEmit": true,
+    // JavaScript Support
+    "allowJs": true,
     // Interop Constraints
     "allowSyntheticDefaultImports": true,
     "erasableSyntaxOnly": true,
@@ -27,11 +31,10 @@
     // Language and Environment
     "jsx": "react-jsx",
     "moduleDetection": "force",
-    "target": "ES2022",
+    "target": "ES2023",
     "useDefineForClassFields": true,
     // Projects
-    "lib": ["ES2022", "DOM"],
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "lib": ["ES2023", "DOM"],
     // Completeness
     "skipLibCheck": true
   },

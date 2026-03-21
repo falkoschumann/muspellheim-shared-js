@@ -1,7 +1,10 @@
+JS?=bun
+PM?=bun
 PM_OPTIONS?=--ignore-scripts
+RUN?=bunx
 RUN_OPTIONS?=--bun
-DEPENDABOT=dependabot[bot]
 SHELL:=/bin/bash
+DEPENDENCY_UPDATER=dependabot[bot]
 
 all: dist docs check
 
@@ -16,60 +19,62 @@ dist: build
 
 publish: all
 ifdef CI
-	bun publish
+	$(PM) publish
 else
-	bun pm pack
+	$(PM) pm pack
 endif
 
 docs: prepare
-	bunx $(RUN_OPTIONS) typedoc src/lib.ts
+	$(RUN) $(RUN_OPTIONS) typedoc src/lib.ts
 
 check: test
-	bunx $(RUN_OPTIONS) eslint .
-	bunx $(RUN_OPTIONS) prettier --check .
-	bunx $(RUN_OPTIONS) sheriff verify
+	$(RUN) $(RUN_OPTIONS) eslint .
+	$(RUN) $(RUN_OPTIONS) prettier --check .
+	$(RUN) $(RUN_OPTIONS) sheriff verify
 
 format:
-	bunx $(RUN_OPTIONS) eslint --fix .
-	bunx $(RUN_OPTIONS) prettier --write .
+	$(RUN) $(RUN_OPTIONS) eslint --fix .
+	$(RUN) $(RUN_OPTIONS) prettier --write .
 
 test: prepare
-	bun run $(RUN_OPTIONS) test
+	$(PM) run $(RUN_OPTIONS) test
 
 watch: prepare
-	bun run $(RUN_OPTIONS) watch
+	$(PM) run $(RUN_OPTIONS) watch
 
 unit-tests: prepare
-	bunx $(RUN_OPTIONS) vitest run unit
+	$(RUN) $(RUN_OPTIONS) vitest run unit
 
 integration-tests: prepare
-	bunx $(RUN_OPTIONS) vitest run integration
+	$(RUN) $(RUN_OPTIONS) vitest run integration
 
 e2e-tests: prepare
-	bunx $(RUN_OPTIONS) vitest run e2e
+	$(RUN) $(RUN_OPTIONS) vitest run e2e
 
 build: prepare
 	rm -rf dist
-	bunx $(RUN_OPTIONS) tsc --build
-	bunx $(RUN_OPTIONS) tsc --project tsconfig.build.json
-	bun build src/lib.ts --outdir=dist --packages external
-	bun build src/lib.ts --outdir=dist --packages external --format cjs --entry-naming "[dir]/[name].cjs"
+	$(RUN) $(RUN_OPTIONS) tsc --build
+	$(RUN) $(RUN_OPTIONS) tsc --project tsconfig.build.json
+	$(PM) build src/lib.ts --production --outdir=dist --packages external
+	$(PM) build src/lib.ts --production --outdir=dist --packages external --format cjs --entry-naming "[dir]/[name].cjs"
 
 prepare: version
 ifdef CI
-ifeq ($(findstring $(DEPENDABOT), $(GITHUB_ACTOR)), $(DEPENDABOT))
-	@echo "dependabot detected, run bun install"
-	bun install $(PM_OPTIONS)
+ifeq ($(findstring $(DEPENDENCY_UPDATER), $(GITLAB_USER_LOGIN)), $(DEPENDENCY_UPDATER))
+	@echo "dependency updater detected, run $(PM) install"
+	$(PM) install $(PM_OPTIONS)
 else
-	@echo "CI detected, run bun ci"
-	bun ci $(PM_OPTIONS)
+	@echo "CI detected, run $(PM) ci"
+	$(PM) ci $(PM_OPTIONS)
 endif
 else
-	bun install $(PM_OPTIONS)
+	$(PM) install $(PM_OPTIONS)
 endif
 
 version:
-	@echo "Use bun $(shell bun --version)"
+	@echo "Using runtime $(JS) version $(shell $(JS) --version)"
+	@echo "Using package manager $(PM) version $(shell $(PM) --version)"
+	@echo "Using package runner $(RUN) version $(shell $(RUN) --version)"
 
 .PHONY: \
 	all clean distclean dist \

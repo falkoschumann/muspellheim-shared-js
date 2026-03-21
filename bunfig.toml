@@ -3,3 +3,6 @@ exact = false
 
 [install.scopes]
 muspellheim = { url = "https://registry.npmjs.org", token = "$NPM_TOKEN" }
+
+[serve.static]
+env = "BUN_PUBLIC_*"
