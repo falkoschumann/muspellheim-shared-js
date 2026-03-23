@@ -53,7 +53,7 @@ e2e-tests: prepare
 
 build: prepare
 	rm -rf dist
-	$(RUN) $(RUN_OPTIONS) tsc --build
+	$(RUN) $(RUN_OPTIONS) tsc
 	$(RUN) $(RUN_OPTIONS) tsc --project tsconfig.build.json
 	$(PM) build src/lib.ts --production --outdir=dist --packages external
 	$(PM) build src/lib.ts --production --outdir=dist --packages external --format cjs --entry-naming "[dir]/[name].cjs"
