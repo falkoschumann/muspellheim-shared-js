@@ -1,19 +1,29 @@
 {
   "name": "@muspellheim/shared",
-  "version": "0.18.1",
+  "version": "0.19.0",
   "author": "Falko Schumann",
   "license": "MIT",
+  "homepage": "https://github.com/falkoschumann/muspellheim-shared-js",
   "engines": {
     "node": ">=20.0.0",
     "bun": ">=1.0.0"
   },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "main": "./dist/lib.cjs",
   "module": "./dist/lib.js",
   "types": "./dist/types/lib.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/lib.d.ts",
+      "import": "./dist/lib.js",
+      "require": "./dist/lib.cjs"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "test": "vitest run",
     "watch": "vitest watch"
