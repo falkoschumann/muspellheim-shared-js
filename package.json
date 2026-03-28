@@ -1,6 +1,6 @@
 {
   "name": "@muspellheim/shared",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "author": "Falko Schumann",
   "license": "MIT",
   "homepage": "https://github.com/falkoschumann/muspellheim-shared-js",
@@ -18,9 +18,14 @@
   "types": "./dist/types/lib.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/types/lib.d.ts",
-      "import": "./dist/lib.js",
-      "require": "./dist/lib.cjs"
+      "import": {
+        "types": "./dist/types/lib.d.ts",
+        "default": "./dist/lib.js"
+      },
+      "require": {
+        "types": "./dist/types/lib.d.ts",
+        "default": "./dist/lib.cjs"
+      }
     },
     "./package.json": "./package.json"
   },
