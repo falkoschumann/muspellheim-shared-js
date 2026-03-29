@@ -26,7 +26,21 @@
 /**
  * The status returned by a command handler.
  */
-export type CommandStatus = Success | Failure;
+export type CommandStatus<S = unknown, F = string> = Success<S> | Failure<F>;
+
+/**
+ * Create a success or failure object from a object compatible with command
+ * status.
+ */
+export function createCommandStatus<S = unknown, F = string>(
+  status: CommandStatus<S, F>,
+): Success<S> | Failure<F> {
+  if (status.isSuccess) {
+    return new Success<S>(status.result);
+  } else {
+    return new Failure<F>(status.errorMessage);
+  }
+}
 
 /**
  * A successful status.
