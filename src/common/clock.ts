@@ -50,6 +50,15 @@ export class Clock {
   }
 
   /**
+   * Return the current timestamp of the clock in seconds.
+   *
+   * @return The current timestamp in seconds.
+   */
+  seconds(): number {
+    return Math.floor(this.date().getTime() / 1000);
+  }
+
+  /**
    * Return the current timestamp of the clock in milliseconds.
    *
    * @return The current timestamp in milliseconds.

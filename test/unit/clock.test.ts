@@ -15,6 +15,15 @@ describe("Clock", () => {
       expect(difference).toBeLessThan(200);
     });
 
+    it("should get current seconds", () => {
+      const clock = Clock.system();
+
+      const millis = clock.seconds();
+
+      const difference = Math.abs(millis - Date.now() / 1000);
+      expect(difference).toBeLessThan(1);
+    });
+
     it("should get current millis", () => {
       const clock = Clock.system();
 
