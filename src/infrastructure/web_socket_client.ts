@@ -108,9 +108,7 @@ export class WebSocketClient extends EventTarget implements MessageClient {
     });
   }
 
-  async send(
-    message: string | ArrayBuffer | Blob | ArrayBufferView,
-  ): Promise<void> {
+  async send(message: BufferSource | Blob | string): Promise<void> {
     if (!this.isConnected) {
       throw new Error("Not connected.");
     }

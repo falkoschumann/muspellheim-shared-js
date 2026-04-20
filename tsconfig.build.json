@@ -1,6 +1,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    // Modules
+    "rootDir": "src",
     // Emit
     "declaration": true,
     "declarationDir": "dist/types",
