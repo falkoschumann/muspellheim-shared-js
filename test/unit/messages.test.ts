@@ -6,10 +6,16 @@ import {
   createCommandStatus,
   Failure,
   Success,
-} from "../../src/domain/messages.ts";
+} from "../../src/domain/messages";
 
 describe("Command status", () => {
-  it("should create a success object", () => {
+  it("should create a success object without payload", () => {
+    const status = createCommandStatus({ isSuccess: true });
+
+    expect(status).toEqual(new Success());
+  });
+
+  it("should create a success object with payload", () => {
     const status = createCommandStatus({ isSuccess: true, result: { id: 42 } });
 
     expect(status).toEqual(new Success({ id: 42 }));
@@ -22,5 +28,16 @@ describe("Command status", () => {
     });
 
     expect(status).toEqual(new Failure("test error message"));
+  });
+
+  it("should throw exception when error has not a message", () => {
+    expect(() => createCommandStatus({ isSuccess: false })).toThrow(
+      "The status is invalid",
+    );
+  });
+
+  it("should throw exception when status is invalid", () => {
+    // @ts-expect-error invalid parameter
+    expect(() => createCommandStatus(null)).toThrow("The status is invalid");
   });
 });

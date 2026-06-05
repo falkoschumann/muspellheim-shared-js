@@ -32,25 +32,36 @@ export type CommandStatus<S = unknown, F = string> = Success<S> | Failure<F>;
  * Create a success or failure object from a object compatible with command
  * status.
  */
-export function createCommandStatus<S = unknown, F = string>(
-  status: CommandStatus<S, F>,
-): Success<S> | Failure<F> {
-  if (status.isSuccess) {
-    return new Success<S>(status.result);
-  } else {
-    return new Failure<F>(status.errorMessage);
+export function createCommandStatus<S = void, F = string>(status: {
+  isSuccess?: boolean;
+  result?: S extends void ? undefined : S;
+  errorMessage?: F;
+}): Success<S> | Failure<F> {
+  if (typeof status !== "object" || status == null) {
+    throw new TypeError("The status is invalid");
   }
+
+  if ("isSuccess" in status && status.isSuccess) {
+    const result = "result" in status ? status.result : undefined;
+    return new Success<S>(result as S extends void ? undefined : S);
+  }
+
+  if ("errorMessage" in status) {
+    return new Failure<F>(status.errorMessage as F);
+  }
+
+  throw new TypeError("The status is invalid");
 }
 
 /**
  * A successful status.
  */
-export class Success<T = unknown> {
+export class Success<T = void> {
   readonly isSuccess = true;
-  readonly result?: T;
+  readonly result: T extends void ? undefined : T;
 
-  constructor(result?: T) {
-    this.result = result;
+  constructor(result?: T extends void ? undefined : T) {
+    this.result = result as T extends void ? undefined : T;
   }
 }
 
