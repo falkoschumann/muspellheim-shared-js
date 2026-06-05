@@ -1,27 +1,21 @@
 // Copyright (c) 2025 Falko Schumann. All rights reserved. MIT license.
 
 import js from "@eslint/js";
+import { defineConfig } from "eslint/config";
 import headers from "eslint-plugin-headers";
 import globals from "globals";
 import ts from "typescript-eslint";
 
-export default ts.config(
+export default defineConfig(
   { ignores: ["coverage", "dist", "docs"] },
   {
-    extends: [js.configs.recommended, ...ts.configs.recommended],
+    extends: [js.configs.recommended, ts.configs.recommended],
     files: ["**/*.{cjs,mjs,js,jsx,ts,tsx}"],
     languageOptions: {
-      ecmaVersion: 2023,
+      ecmaVersion: 2024,
       globals: globals.browser,
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
     },
-    plugins: {
-      headers,
-    },
+    plugins: { headers },
     rules: {
       "headers/header-format": [
         "error",

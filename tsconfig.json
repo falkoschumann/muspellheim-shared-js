@@ -15,7 +15,7 @@
     "strictPropertyInitialization": true,
     "useUnknownInCatchVariables": true,
     // Modules
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "module": "Preserve",
     "moduleResolution": "bundler",
     "noUncheckedSideEffectImports": true,
@@ -31,10 +31,10 @@
     // Language and Environment
     "jsx": "react-jsx",
     "moduleDetection": "force",
-    "target": "ES2023",
+    "target": "es2024",
     "useDefineForClassFields": true,
     // Projects
-    "lib": ["ES2023", "DOM"],
+    "lib": ["ES2024", "DOM"],
     // Completeness
     "skipLibCheck": true
   },
