@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { Clock } from "../../src/common/clock";
+import { Clock } from "../../src/common";
 
 describe("Clock", () => {
   describe("with system clock", () => {

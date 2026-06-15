@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { EventTracker } from "../../src/common/event_tracker";
+import { EventTracker } from "../../src/common";
 
 describe("Event tracker", () => {
   it("should track an event", () => {

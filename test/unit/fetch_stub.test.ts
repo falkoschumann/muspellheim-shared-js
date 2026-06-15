@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { createFetchStub } from "../../src/infrastructure/fetch_stub";
+import { createFetchStub } from "../../src/infrastructure";
 
 describe("Fetch stub", () => {
   it("should return a response", async () => {

@@ -2,11 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import {
-  createCommandStatus,
-  Failure,
-  Success,
-} from "../../src/domain/messages";
+import { createCommandStatus, Failure, Success } from "../../src/domain";
 
 describe("Command status", () => {
   it("should create a success object without payload", () => {

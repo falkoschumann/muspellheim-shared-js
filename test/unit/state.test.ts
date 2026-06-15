@@ -1,7 +1,8 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
 import { describe, expect, it } from "vitest";
-import { State } from "../../src/domain/state";
+
+import { State } from "../../src/domain";
 
 describe("State", () => {
   it("should initialize a state", () => {

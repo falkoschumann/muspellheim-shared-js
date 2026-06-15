@@ -2,10 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import {
-  ConsoleLog,
-  type ConsoleMessage,
-} from "../../src/infrastructure/console_log";
+import { ConsoleLog, type ConsoleMessage } from "../../src/infrastructure";
 
 describe("Console log", () => {
   it("should log messages with level trace and above", () => {

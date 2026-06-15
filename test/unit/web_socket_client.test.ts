@@ -2,8 +2,8 @@
 
 import { describe, expect, it } from "vitest";
 
-import { EventTracker } from "../../src/common/event_tracker";
-import { WebSocketClient } from "../../src/infrastructure/web_socket_client";
+import { EventTracker } from "../../src/common";
+import { WebSocketClient } from "../../src/infrastructure";
 
 describe("Web socket client", () => {
   describe("with nulled event source", () => {

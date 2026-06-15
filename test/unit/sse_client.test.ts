@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { SseClient } from "../../src/infrastructure/sse_client";
+import { SseClient } from "../../src/infrastructure";
 
 describe("SSE client", () => {
   describe("with nulled event source", () => {

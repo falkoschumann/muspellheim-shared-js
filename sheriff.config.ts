@@ -11,15 +11,12 @@ export const config: SheriffConfig = {
   },
   modules: {
     src: ["layer:entry"],
-    "src/application": ["layer:application"],
     "src/common": ["layer:common"],
     "src/domain": ["layer:domain"],
     "src/infrastructure": ["layer:infrastructure"],
-    "src/ui": ["layer:ui"],
   },
   depRules: {
     "layer:entry": ["layer:*"],
-    "layer:application": ["layer:infrastructure"],
     "layer:*": [sameTag, "layer:common", "layer:domain"],
   },
 };
