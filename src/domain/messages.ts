@@ -24,6 +24,14 @@
  */
 
 /**
+ * A message has a type to identify and data as payload.
+ */
+export type Message<TData = unknown> = Readonly<{
+  type: string;
+  data: TData;
+}>;
+
+/**
  * The status returned by a command handler.
  */
 export type CommandStatus<S = unknown, F = string> = Success<S> | Failure<F>;
