@@ -1,16 +1,12 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
 import type { Log } from "../common";
-
-/**
- * Handle a message.
- */
-export type MessageHandler<M = unknown> = (message: M) => void;
+import type { Message, MessageHandler } from "../domain";
 
 /**
  * A simple in-memory message bus.
  */
-export class MessageBus<T = Record<string, unknown>> {
+export class MessageBus<T extends Record<string, Message>> {
   readonly #log;
 
   #handlers = new Map<keyof T, MessageHandler[]>();
@@ -46,14 +42,18 @@ export class MessageBus<T = Record<string, unknown>> {
   /**
    * Publish a message to all handlers of a type.
    */
-  publish<K extends keyof T>(type: K, message: T[K]): void {
-    const subscribers = this.#handlers.get(type);
+  publish<K extends keyof T>(message: T[K]): void {
+    const subscribers = this.#handlers.get(message.type);
     subscribers?.forEach((handler) => {
       try {
-        handler(message);
+        if (typeof handler === "function") {
+          handler(message);
+        } else {
+          handler.handle(message);
+        }
       } catch (error) {
         this.#log.error(
-          `Error in message handler for message type "${String(type)}":`,
+          `Error in message handler for message type "${String(message.type)}":`,
           error,
         );
       }

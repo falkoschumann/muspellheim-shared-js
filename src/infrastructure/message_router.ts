@@ -1,25 +1,25 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
-import type { Message } from "../domain";
+import type { Message, MessageHandler } from "../domain";
 
-export type MessageHandlerFunction<TData = unknown, TResponse = unknown> = (
-  message: Message<TData>,
-) => TResponse;
-
-export interface MessageHandlerObject<TData = unknown, TResponse = unknown> {
-  handle(message: Message<TData>): TResponse;
-}
-export type MessageHandler<TData = unknown, TResponse = unknown> =
-  | MessageHandlerFunction<TData, TResponse>
-  | MessageHandlerObject<TData, TResponse>;
-
+/**
+ * Route messages to a registered handler.
+ */
 export class MessageRouter {
   #routing = new Map<string, MessageHandler>();
 
+  /**
+   * Register a handler for a message type.
+   */
   register(type: string, handler: MessageHandler) {
     this.#routing.set(type, handler);
   }
 
+  /**
+   * Route a message to the registered handler and return the response.
+   *
+   * @throws Error if no handler is registered for the message type.
+   */
   route<TResponse = unknown>(message: Message): TResponse {
     const handler = this.#routing.get(message.type);
     if (handler == null) {

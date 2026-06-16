@@ -1,29 +1,21 @@
 // Copyright (c) 2026 Falko Schumann. All rights reserved. MIT license.
 
 import type { Log } from "../common";
-
-/**
- * An event has a type to identify and data as payload.
- */
-export type Event<TData = unknown> = Readonly<{ type: string; data: TData }>;
-
-/**
- * Handle an event.
- */
-export type EventHandler<TData = unknown> = (event: Event<TData>) => void;
+import type { Message, MessageHandler } from "../domain";
 
 /**
  * A simple in-memory event bus.
  */
-export class EventBus<TData = unknown> {
+export class EventBus {
   readonly #cacheSize;
   readonly #log;
 
-  #handlers: EventHandler<TData>[] = [];
-  #events: Event<TData>[] = [];
+  #handlers: MessageHandler<unknown, void>[] = [];
+  #events: Message[] = [];
 
   /**
    * Creates an event bus with options.
+   *
    * @param options
    * @param options.cacheSize Number of cached last events.
    * @param options.log Logger, default is the console.
@@ -41,15 +33,18 @@ export class EventBus<TData = unknown> {
    *
    * @returns Unsubscribe function.
    */
-  subscribe(handler: EventHandler<TData>) {
-    this.#handlers = [...this.#handlers, handler];
+  subscribe<TData>(handler: MessageHandler<TData, void>) {
+    this.#handlers = [
+      ...this.#handlers,
+      handler as MessageHandler<unknown, void>,
+    ];
     return () => (this.#handlers = this.#handlers.filter((h) => h !== handler));
   }
 
   /**
    * Publish an event to all handlers.
    */
-  publish(event: Event<TData>): void {
+  publish(event: Message) {
     this.#events.push(event);
     while (this.#events.length > this.#cacheSize) {
       this.#events.shift();
@@ -57,7 +52,11 @@ export class EventBus<TData = unknown> {
 
     this.#handlers.forEach((handler) => {
       try {
-        handler(event);
+        if (typeof handler === "function") {
+          handler(event);
+        } else {
+          handler.handle(event);
+        }
       } catch (error) {
         this.#log?.error("Error in event handler:", error);
       }

@@ -9,15 +9,28 @@ import {
 } from "../../src/infrastructure";
 
 describe("Message bus", () => {
-  it("should deliver published events to subscriber", () => {
+  it("should deliver published events to functional subscriber", () => {
     const bus = new MessageBus();
     const messages: unknown[] = [];
     bus.subscribe("foo", (message) => messages.push(message));
 
-    bus.publish("foo", { value: 42 });
-    bus.publish("bar", { value: "lorem ipsum" });
+    bus.publish({ type: "foo", data: 42 });
+    bus.publish({ type: "bar", data: "lorem ipsum" });
 
-    expect(messages).toEqual([{ value: 42 }]);
+    expect(messages).toEqual([{ type: "foo", data: 42 }]);
+  });
+
+  it("should deliver published events to objectional subscriber", () => {
+    const bus = new MessageBus();
+    const messages: unknown[] = [];
+    bus.subscribe("foo", {
+      handle: (message) => messages.push(message),
+    });
+
+    bus.publish({ type: "foo", data: 42 });
+    bus.publish({ type: "bar", data: "lorem ipsum" });
+
+    expect(messages).toEqual([{ type: "foo", data: 42 }]);
   });
 
   it("should ignore handler errors", () => {
@@ -27,12 +40,12 @@ describe("Message bus", () => {
     bus.subscribe("foo", () => {
       throw new Error("foobar");
     });
-    bus.subscribe("foo", (event) => messages.push(event));
+    bus.subscribe("foo", (message) => messages.push(message));
     const trackedMessages = log.trackMessages();
 
-    bus.publish("foo", { value: 42 });
+    bus.publish({ type: "foo", data: 42 });
 
-    expect(messages).toEqual([{ value: 42 }]);
+    expect(messages).toEqual([{ type: "foo", data: 42 }]);
     expect(trackedMessages.data).toEqual<ConsoleMessage[]>([
       {
         level: "error",
@@ -47,25 +60,29 @@ describe("Message bus", () => {
   it("should unsubscribe", () => {
     const bus = new MessageBus();
     const messages: unknown[] = [];
-    const unsubscribe = bus.subscribe("foo", (event) => messages.push(event));
+    const unsubscribe = bus.subscribe("foo", (message) =>
+      messages.push(message),
+    );
 
-    bus.publish("foo", { value: 42 });
+    bus.publish({ type: "foo", data: 42 });
     unsubscribe();
-    bus.publish("foo", { value: "lorem ipsum" });
+    bus.publish({ type: "foo", data: "lorem ipsum" });
 
-    expect(messages).toEqual([{ value: 42 }]);
+    expect(messages).toEqual([{ type: "foo", data: 42 }]);
   });
 
   it("should ignore multiple unsubscribe", () => {
     const bus = new MessageBus();
     const messages: unknown[] = [];
-    const unsubscribe = bus.subscribe("foo", (event) => messages.push(event));
+    const unsubscribe = bus.subscribe("foo", (message) =>
+      messages.push(message),
+    );
 
-    bus.publish("foo", { value: 42 });
+    bus.publish({ type: "foo", data: 42 });
     unsubscribe();
     unsubscribe();
-    bus.publish("foo", { value: "lorem ipsum" });
+    bus.publish({ type: "foo", data: "lorem ipsum" });
 
-    expect(messages).toEqual([{ value: 42 }]);
+    expect(messages).toEqual([{ type: "foo", data: 42 }]);
   });
 });

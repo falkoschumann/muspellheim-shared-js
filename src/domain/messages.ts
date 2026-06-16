@@ -26,10 +26,28 @@
 /**
  * A message has a type to identify and data as payload.
  */
-export type Message<TData = unknown> = Readonly<{
-  type: string;
-  data: TData;
-}>;
+export type Message<TData = unknown> = Readonly<{ type: string; data: TData }>;
+
+/**
+ * A functional message handler.
+ */
+export type MessageHandlerFunction<TData = unknown, TResponse = unknown> = (
+  message: Message<TData>,
+) => TResponse;
+
+/**
+ * A objectional message handler.
+ */
+export interface MessageHandlerObject<TData = unknown, TResponse = unknown> {
+  handle(message: Message<TData>): TResponse;
+}
+
+/**
+ * A message handler.
+ */
+export type MessageHandler<TData = unknown, TResponse = unknown> =
+  | MessageHandlerFunction<TData, TResponse>
+  | MessageHandlerObject<TData, TResponse>;
 
 /**
  * The status returned by a command handler.
