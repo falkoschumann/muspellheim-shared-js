@@ -4,7 +4,6 @@ export * from "./configurable_responses";
 export * from "./console_log";
 export * from "./event_bus";
 export * from "./fetch_stub";
-export * from "./message_bus";
 export * from "./message_client";
 export * from "./message_router";
 export * from "./output_tracker";
