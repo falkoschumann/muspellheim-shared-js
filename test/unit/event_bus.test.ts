@@ -8,36 +8,34 @@ import {
   type ConsoleMessage,
   EventBus,
 } from "../../src/infrastructure";
+import { BarMessage, FooMessage } from "./messages";
 
 describe("Event bus", () => {
   it("should deliver published events to functional subscriber", () => {
     const bus = new EventBus();
-    const events: Message<{ value: number | string }>[] = [];
-    bus.subscribe<{ value: number | string }>((event) => events.push(event));
+    const events: (FooMessage | BarMessage)[] = [];
+    const memorize = (event: FooMessage | BarMessage) => {
+      events.push(event);
+    };
+    bus.subscribe(memorize);
 
-    bus.publish({ type: "foo", data: { value: 42 } });
-    bus.publish({ type: "bar", data: { value: "lorem ipsum" } });
+    bus.publish(new FooMessage());
+    bus.publish(new BarMessage());
 
-    expect(events).toEqual([
-      { type: "foo", data: { value: 42 } },
-      { type: "bar", data: { value: "lorem ipsum" } },
-    ]);
+    expect(events).toEqual([new FooMessage(), new BarMessage()]);
   });
 
   it("should deliver published events to objectional subscriber", () => {
     const bus = new EventBus();
-    const events: Message<{ value: number | string }>[] = [];
-    bus.subscribe<{ value: number | string }>({
-      handle: (event) => events.push(event),
+    const events: (FooMessage | BarMessage)[] = [];
+    bus.subscribe({
+      handle: (event: FooMessage | BarMessage) => events.push(event),
     });
 
-    bus.publish({ type: "foo", data: { value: 42 } });
-    bus.publish({ type: "bar", data: { value: "lorem ipsum" } });
+    bus.publish(new FooMessage());
+    bus.publish(new BarMessage());
 
-    expect(events).toEqual([
-      { type: "foo", data: { value: 42 } },
-      { type: "bar", data: { value: "lorem ipsum" } },
-    ]);
+    expect(events).toEqual([new FooMessage(), new BarMessage()]);
   });
 
   it("should ignore handler errors", () => {
@@ -50,9 +48,9 @@ describe("Event bus", () => {
     bus.subscribe((event) => events.push(event));
     const trackedMessages = log.trackMessages();
 
-    bus.publish({ type: "foo", data: { value: 42 } });
+    bus.publish(new FooMessage());
 
-    expect(events).toEqual([{ type: "foo", data: { value: 42 } }]);
+    expect(events).toEqual([new FooMessage()]);
     expect(trackedMessages.data).toEqual<ConsoleMessage[]>([
       {
         level: "error",
@@ -69,31 +67,28 @@ describe("Event bus", () => {
     const events: Message[] = [];
     const unsubscribe = bus.subscribe((event) => events.push(event));
 
-    bus.publish({ type: "foo", data: { value: 42 } });
+    bus.publish(new FooMessage());
     unsubscribe();
-    bus.publish({ type: "bar", data: { value: "lorem ipsum" } });
+    bus.publish(new BarMessage());
 
-    expect(events).toEqual([{ type: "foo", data: { value: 42 } }]);
+    expect(events).toEqual([new FooMessage()]);
   });
 
   it("should cache events", () => {
     const bus = new EventBus();
 
-    bus.publish({ type: "foo", data: { value: 42 } });
-    bus.publish({ type: "bar", data: { value: "lorem ipsum" } });
+    bus.publish(new FooMessage());
+    bus.publish(new BarMessage());
 
-    expect(bus.getEvents()).toEqual([
-      { type: "foo", data: { value: 42 } },
-      { type: "bar", data: { value: "lorem ipsum" } },
-    ]);
+    expect(bus.getEvents()).toEqual([new FooMessage(), new BarMessage()]);
   });
 
   it("should discard old events when cache size is exceeded", () => {
     const bus = new EventBus({ cacheSize: 1 });
 
-    bus.publish({ type: "foo", data: null });
-    bus.publish({ type: "bar", data: null });
+    bus.publish(new FooMessage());
+    bus.publish(new BarMessage());
 
-    expect(bus.getEvents()).toEqual([{ type: "bar", data: null }]);
+    expect(bus.getEvents()).toEqual([new BarMessage()]);
   });
 });

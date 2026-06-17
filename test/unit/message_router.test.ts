@@ -2,19 +2,20 @@
 
 import { describe, expect, it } from "vitest";
 
-import { MessageRouter } from "../../src/infrastructure/message_router";
+import { MessageRouter } from "../../src/infrastructure";
+import { TestResponse } from "./messages";
 
 describe("Message router", () => {
   it("should route message to message handler function", () => {
     const router = new MessageRouter();
     router.register("my-message", (message) => message.data);
 
-    const response = router.route<TestMessage>({
+    const response = router.route<TestResponse>({
       type: "my-message",
-      data: { foo: "bar" },
+      data: new TestResponse(),
     });
 
-    expect(response).toEqual<TestMessage>({ foo: "bar" });
+    expect(response).toEqual<TestResponse>(new TestResponse());
   });
 
   it("should route message to message handler object", () => {
@@ -23,25 +24,25 @@ describe("Message router", () => {
       handle: (message) => message.data,
     });
 
-    const response = router.route<TestMessage>({
+    const response = router.route<TestResponse>({
       type: "my-message",
-      data: { foo: "bar" },
+      data: new TestResponse(),
     });
 
-    expect(response).toEqual<TestMessage>({ foo: "bar" });
+    expect(response).toEqual<TestResponse>(new TestResponse());
   });
 
   it("should route message to the right message handler", () => {
     const router = new MessageRouter();
-    router.register("message-1", () => ({ foo: "message-1" }));
-    router.register("message-2", () => ({ foo: "message-2" }));
+    router.register("message-1", () => ({ value: "message-1" }));
+    router.register("message-2", () => ({ value: "message-2" }));
 
-    const response = router.route<TestMessage>({
+    const response = router.route<TestResponse>({
       type: "message-2",
       data: null,
     });
 
-    expect(response).toEqual<TestMessage>({ foo: "message-2" });
+    expect(response).toEqual<TestResponse>({ value: "message-2" });
   });
 
   it("should throw exception when message handler is not registered", () => {
@@ -49,9 +50,9 @@ describe("Message router", () => {
     router.register("my-message", (message) => message.data);
 
     const factory = () =>
-      router.route<TestMessage>({
+      router.route<TestResponse>({
         type: "other-message",
-        data: { foo: "bar" },
+        data: new TestResponse(),
       });
 
     expect(factory).toThrow(
@@ -59,5 +60,3 @@ describe("Message router", () => {
     );
   });
 });
-
-type TestMessage = Readonly<{ foo: string }>;

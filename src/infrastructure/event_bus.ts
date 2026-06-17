@@ -10,7 +10,7 @@ export class EventBus {
   readonly #cacheSize;
   readonly #log;
 
-  #handlers: MessageHandler<unknown, void>[] = [];
+  #handlers: MessageHandler<Message, void>[] = [];
   #events: Message[] = [];
 
   /**
@@ -33,10 +33,10 @@ export class EventBus {
    *
    * @returns Unsubscribe function.
    */
-  subscribe<TData>(handler: MessageHandler<TData, void>) {
+  subscribe<TMessage extends Message>(handler: MessageHandler<TMessage, void>) {
     this.#handlers = [
       ...this.#handlers,
-      handler as MessageHandler<unknown, void>,
+      handler as MessageHandler<Message, void>,
     ];
     return () => (this.#handlers = this.#handlers.filter((h) => h !== handler));
   }
