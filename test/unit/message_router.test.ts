@@ -6,11 +6,11 @@ import { MessageRouter } from "../../src/infrastructure";
 import { TestResponse } from "./messages";
 
 describe("Message router", () => {
-  it("should route message to message handler function", () => {
+  it("should route message to message handler function", async () => {
     const router = new MessageRouter();
     router.register("my-message", (message) => message.data);
 
-    const response = router.route<TestResponse>({
+    const response = await router.route<TestResponse>({
       type: "my-message",
       data: new TestResponse(),
     });
@@ -18,13 +18,13 @@ describe("Message router", () => {
     expect(response).toEqual<TestResponse>(new TestResponse());
   });
 
-  it("should route message to message handler object", () => {
+  it("should route message to message handler object", async () => {
     const router = new MessageRouter();
     router.register("my-message", {
       handle: (message) => message.data,
     });
 
-    const response = router.route<TestResponse>({
+    const response = await router.route<TestResponse>({
       type: "my-message",
       data: new TestResponse(),
     });
@@ -32,12 +32,12 @@ describe("Message router", () => {
     expect(response).toEqual<TestResponse>(new TestResponse());
   });
 
-  it("should route message to the right message handler", () => {
+  it("should route message to the right message handler", async () => {
     const router = new MessageRouter();
     router.register("message-1", () => ({ value: "message-1" }));
     router.register("message-2", () => ({ value: "message-2" }));
 
-    const response = router.route<TestResponse>({
+    const response = await router.route<TestResponse>({
       type: "message-2",
       data: null,
     });
@@ -45,7 +45,7 @@ describe("Message router", () => {
     expect(response).toEqual<TestResponse>({ value: "message-2" });
   });
 
-  it("should throw exception when message handler is not registered", () => {
+  it("should throw exception when message handler is not registered", async () => {
     const router = new MessageRouter();
     router.register("my-message", (message) => message.data);
 
@@ -55,7 +55,7 @@ describe("Message router", () => {
         data: new TestResponse(),
       });
 
-    expect(factory).toThrow(
+    await expect(factory).rejects.toThrow(
       "No handler registered for message type: other-message",
     );
   });

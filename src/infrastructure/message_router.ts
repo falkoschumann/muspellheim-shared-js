@@ -20,7 +20,7 @@ export class MessageRouter {
    *
    * @throws Error if no handler is registered for the message type.
    */
-  route<TResponse = unknown>(message: Message): TResponse {
+  async route<TResponse = unknown>(message: Message): Promise<TResponse> {
     const handler = this.#routing.get(message.type);
     if (handler == null) {
       throw new Error(
@@ -29,9 +29,9 @@ export class MessageRouter {
     }
 
     if (typeof handler === "function") {
-      return handler(message) as TResponse;
+      return (await handler(message)) as TResponse;
     } else {
-      return handler.handle(message) as TResponse;
+      return (await handler.handle(message)) as TResponse;
     }
   }
 }
