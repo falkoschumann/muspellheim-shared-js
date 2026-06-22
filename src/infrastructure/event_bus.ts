@@ -11,7 +11,7 @@ export class EventBus {
   readonly #log;
 
   #handlers: MessageHandler<Message, void>[] = [];
-  #events: Message[] = [];
+  readonly #events: Message[] = [];
 
   /**
    * Creates an event bus with options.
