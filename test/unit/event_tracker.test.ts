@@ -34,7 +34,6 @@ describe("Event tracker", () => {
     const eventTracker = EventTracker.create(eventTarget, "foo");
 
     eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
-
     const result = eventTracker.clear();
 
     expect(result).toEqual<CustomEvent[]>([
@@ -63,7 +62,6 @@ describe("Event tracker", () => {
     setTimeout(() => {
       eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar" }));
     }, 10);
-
     const events = await eventTracker.waitFor();
 
     expect(events).toEqual<CustomEvent[]>([
@@ -79,7 +77,6 @@ describe("Event tracker", () => {
       eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar1" }));
       eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "bar2" }));
     }, 10);
-
     const events = await eventTracker.waitFor(2);
 
     expect(events).toEqual<CustomEvent[]>([
@@ -96,7 +93,6 @@ describe("Event tracker", () => {
       eventTarget.dispatchEvent(new CustomEvent("foo", { detail: "1" }));
       eventTarget.dispatchEvent(new CustomEvent("bar", { detail: "2" }));
     }, 10);
-
     const events = await eventTracker.waitFor(2);
 
     expect(events).toEqual<CustomEvent[]>([
