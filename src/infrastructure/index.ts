@@ -6,6 +6,7 @@ export * from "./event_bus";
 export * from "./fetch_stub";
 export * from "./message_client";
 export * from "./message_router";
+export * from "./message_tracker";
 export * from "./output_tracker";
 export * from "./sse_client";
 export * from "./web_socket_client";
