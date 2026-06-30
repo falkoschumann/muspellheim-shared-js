@@ -2,13 +2,7 @@
 
 /** Defines level for setting a log level in a `Log` implementation. */
 export type LogLevel =
-  | "log"
-  | "error"
-  | "warn"
-  | "info"
-  | "debug"
-  | "trace"
-  | "off";
+  "log" | "error" | "warn" | "info" | "debug" | "trace" | "off";
 
 /**
  * A simple logging facade.
