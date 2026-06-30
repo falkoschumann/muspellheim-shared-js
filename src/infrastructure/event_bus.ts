@@ -38,7 +38,9 @@ export class EventBus {
       ...this.#handlers,
       handler as MessageHandler<Message, void>,
     ];
-    return () => (this.#handlers = this.#handlers.filter((h) => h !== handler));
+    return () => {
+      this.#handlers = this.#handlers.filter((h) => h !== handler);
+    };
   }
 
   /**
