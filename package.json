@@ -5,8 +5,8 @@
   "license": "MIT",
   "homepage": "https://github.com/falkoschumann/muspellheim-shared-js",
   "engines": {
-    "node": ">=20.0.0",
-    "bun": ">=1.0.0"
+    "node": ">=22.0.0",
+    "bun": ">=1.2.0"
   },
   "type": "module",
   "files": [
