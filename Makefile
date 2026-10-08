@@ -32,7 +32,7 @@ check: test
 	$(RUN) $(RUN_OPTIONS) prettier --check .
 	$(RUN) $(RUN_OPTIONS) sheriff verify
 
-format:
+fix:
 	$(RUN) $(RUN_OPTIONS) eslint --fix .
 	$(RUN) $(RUN_OPTIONS) prettier --write .
 
@@ -79,6 +79,6 @@ version:
 .PHONY: \
 	all clean distclean dist \
 	publish docs \
-	check format \
+	check fix \
 	test watch coverage unit-tests integration-tests e2e-tests \
 	build prepare version

@@ -24,7 +24,7 @@ See more at https://falkoschumann.github.io/muspellheim-shared-js/
 The `Makefile` runs the build as the default task. Other tasks are
 
 - `test`: run all tests,
-- `format`: format source code
+- `fix`: format source code
 
 ## Credits
 
