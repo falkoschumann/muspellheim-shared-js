@@ -4,6 +4,10 @@
   "author": "Falko Schumann",
   "license": "MIT",
   "homepage": "https://github.com/falkoschumann/muspellheim-shared-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/falkoschumann/muspellheim-shared-js.git"
+  },
   "engines": {
     "node": ">=22.0.0",
     "bun": ">=1.2.0"

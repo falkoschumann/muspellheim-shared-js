@@ -1,8 +1,6 @@
 JS?=bun
 PM?=bun
-PM_OPTIONS?=--ignore-scripts
 RUN?=bunx
-RUN_OPTIONS?=--bun
 SHELL:=/bin/bash
 DEPENDENCY_UPDATER=dependabot[bot]
 
@@ -19,42 +17,42 @@ dist: build
 
 publish: all
 ifdef CI
-	$(PM) publish
+	npm publish --access public
 else
 	$(PM) pm pack
 endif
 
 docs: prepare
-	$(RUN) $(RUN_OPTIONS) typedoc src/lib.ts
+	$(RUN) typedoc src/lib.ts
 
 check: test
-	$(RUN) $(RUN_OPTIONS) eslint .
-	$(RUN) $(RUN_OPTIONS) prettier --check .
-	$(RUN) $(RUN_OPTIONS) sheriff verify
+	$(RUN) eslint .
+	$(RUN) prettier --check .
+	$(RUN) sheriff verify
 
 fix:
-	$(RUN) $(RUN_OPTIONS) eslint --fix .
-	$(RUN) $(RUN_OPTIONS) prettier --write .
+	$(RUN) eslint --fix .
+	$(RUN) prettier --write .
 
 test: prepare
-	$(PM) run $(RUN_OPTIONS) test
+	$(PM) run test
 
 watch: prepare
-	$(PM) run $(RUN_OPTIONS) watch
+	$(PM) run watch
 
 unit-tests: prepare
-	$(RUN) $(RUN_OPTIONS) vitest run unit
+	$(RUN) vitest run unit
 
 integration-tests: prepare
-	$(RUN) $(RUN_OPTIONS) vitest run integration
+	$(RUN) vitest run integration
 
 e2e-tests: prepare
-	$(RUN) $(RUN_OPTIONS) vitest run e2e
+	$(RUN) vitest run e2e
 
 build: prepare
 	rm -rf dist
-	$(RUN) $(RUN_OPTIONS) tsc
-	$(RUN) $(RUN_OPTIONS) tsc --project tsconfig.build.json
+	$(RUN) tsc
+	$(RUN) tsc --project tsconfig.build.json
 	$(PM) build src/lib.ts --production --outdir=dist --sourcemap=linked --packages=external
 	$(PM) build src/lib.ts --production --outdir=dist --sourcemap=linked --packages=external --format=cjs --entry-naming="[dir]/[name].cjs"
 
@@ -62,13 +60,13 @@ prepare: version
 ifdef CI
 ifeq ($(findstring $(DEPENDENCY_UPDATER), $(GITHUB_ACTOR)), $(DEPENDENCY_UPDATER))
 	@echo "dependency updater detected, run $(PM) install"
-	$(PM) install $(PM_OPTIONS)
+	$(PM) install
 else
 	@echo "CI detected, run $(PM) ci"
-	$(PM) ci $(PM_OPTIONS)
+	$(PM) ci
 endif
 else
-	$(PM) install $(PM_OPTIONS)
+	$(PM) install
 endif
 
 version:

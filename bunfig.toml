@@ -1,8 +1,6 @@
 [install]
 exact = true
-
-[install.scopes]
-muspellheim = { url = "https://registry.npmjs.org", token = "$NPM_TOKEN" }
+ignoreScripts = false
 
 [serve.static]
 env = "BUN_PUBLIC_*"
