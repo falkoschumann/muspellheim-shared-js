@@ -19,7 +19,7 @@ dist: build
 
 publish: all
 ifdef CI
-	$(PM) stage publish
+	$(PM) publish
 else
 	$(PM) pm pack
 endif
