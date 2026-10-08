@@ -60,6 +60,10 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   readonly #webSocketConstructor: typeof WebSocket;
 
   #webSocket?: WebSocket;
+  #pendingConnect?: {
+    resolve: () => void;
+    reject: (error: Error) => void;
+  };
   #heartbeatId?: ReturnType<typeof setTimeout>;
   #retryId?: ReturnType<typeof setTimeout>;
 
@@ -92,17 +96,16 @@ export class WebSocketClient extends EventTarget implements MessageClient {
       }
 
       try {
+        this.#pendingConnect = { resolve, reject };
         this.#webSocket = new this.#webSocketConstructor(url);
-        this.#webSocket.addEventListener("open", (e) => {
-          this.#handleOpen(e);
-          resolve();
-        });
+        this.#webSocket.addEventListener("open", (e) => this.#handleOpen(e));
         this.#webSocket.addEventListener("message", (e) =>
           this.#handleMessage(e),
         );
         this.#webSocket.addEventListener("close", (e) => this.#handleClose(e));
         this.#webSocket.addEventListener("error", (e) => this.#handleError(e));
       } catch (error) {
+        this.#pendingConnect = undefined;
         reject(error);
       }
     });
@@ -197,6 +200,8 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   #handleOpen(event: Event) {
     this.dispatchEvent(new Event(event.type, event));
     this.#startHeartbeat();
+    this.#pendingConnect?.resolve();
+    this.#pendingConnect = undefined;
   }
 
   #handleMessage(event: MessageEvent) {
@@ -208,6 +213,11 @@ export class WebSocketClient extends EventTarget implements MessageClient {
   #handleClose(event: CloseEvent) {
     this.#stopHeartbeat();
     this.dispatchEvent(new CloseEvent(event.type, event));
+    // A connection that fails is closed without being opened.
+    this.#pendingConnect?.reject(
+      new Error(`Connection closed before it was opened (code ${event.code}).`),
+    );
+    this.#pendingConnect = undefined;
   }
 
   #handleError(event: Event) {
@@ -219,8 +229,9 @@ export class WebSocketClient extends EventTarget implements MessageClient {
     if (this.#retry <= 0) {
       return;
     }
+    // The close event already reports a failed retry.
     this.#retryId = setInterval(
-      () => this.connect(this.#webSocket!.url),
+      () => this.connect(this.#webSocket!.url).catch(() => {}),
       this.#retry,
     );
   }

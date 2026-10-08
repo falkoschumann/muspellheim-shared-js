@@ -5,7 +5,7 @@ import { ConfigurableResponses } from "./configurable_responses";
 /**
  * This data object configures the response of a fetch stub call.
  */
-export interface ResponseData {
+export type ResponseData = {
   /** The HTTP status code. */
   status: number;
 
@@ -14,7 +14,7 @@ export interface ResponseData {
 
   /** The optional response body. */
   body?: BodyInit | object;
-}
+};
 
 /**
  * Create a fetch stub.
@@ -34,18 +34,28 @@ export function createFetchStub(
       throw response;
     }
 
+    const headers = new Headers();
     let body = response?.body;
-    if (
+    if (body instanceof Blob) {
+      // A Blob of another realm, like the one of jsdom, is not recognized by
+      // Response, so we pass its bytes and keep its media type.
+      if (body.type !== "") {
+        headers.set("Content-Type", body.type);
+      }
+      body = await body.arrayBuffer();
+    } else if (
       body != null &&
-      !(body instanceof Blob) &&
-      !(typeof body === "string")
+      !(typeof body === "string") &&
+      !(body instanceof ArrayBuffer) &&
+      !ArrayBuffer.isView(body)
     ) {
       // If the body is an object, we convert it to a JSON string.
       body = JSON.stringify(body);
     }
-    return new Response(body, {
+    return new Response(body as BodyInit | null | undefined, {
       status: response.status,
       statusText: response.statusText,
+      headers,
     });
   };
 }
