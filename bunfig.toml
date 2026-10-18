@@ -1,6 +1,6 @@
 [install]
 exact = true
-ignoreScripts = false
+ignoreScripts = true
 
 [serve.static]
 env = "BUN_PUBLIC_*"
