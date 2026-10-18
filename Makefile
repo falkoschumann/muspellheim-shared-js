@@ -78,5 +78,5 @@ version:
 	all clean distclean dist \
 	publish docs \
 	check fix \
-	test watch coverage unit-tests integration-tests e2e-tests \
+	test coverage watch \
 	build prepare version
