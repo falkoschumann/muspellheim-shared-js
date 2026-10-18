@@ -8,11 +8,21 @@
     "type": "git",
     "url": "git+https://github.com/falkoschumann/muspellheim-shared-js.git"
   },
-  "engines": {
-    "node": ">=22.0.0",
-    "bun": ">=1.2.0"
-  },
   "type": "module",
+  "engines": {
+    "bun": ">=1.4",
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "check-types": "tsc",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write ."
+  },
   "files": [
     "dist",
     "src"
@@ -32,10 +42,6 @@
       }
     },
     "./package.json": "./package.json"
-  },
-  "scripts": {
-    "test": "vitest run",
-    "watch": "vitest watch"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

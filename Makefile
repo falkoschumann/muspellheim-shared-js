@@ -1,17 +1,23 @@
-JS?=bun
-PM?=bun
-RUN?=bunx
-SHELL:=/bin/bash
+# JavaScript configuration
+JS := bun
+PM := bun
+RUN := bunx
+
+# Make configuration
+SHELL := /bin/bash
+
+# Update configuration
 DEPENDENCY_UPDATER=dependabot[bot]
 
 all: dist docs check
 
 clean:
-	rm -rf coverage docs
-	rm -rf node_modules/.tmp
+	rm -rf coverage
+	rm -rf node_modules/.cache
 
 distclean: clean
-	rm -rf dist node_modules
+	rm -rf dist docs
+	rm -rf node_modules
 
 dist: build
 
@@ -25,29 +31,23 @@ endif
 docs: prepare
 	$(RUN) typedoc src/lib.ts
 
-check: test
-	$(RUN) eslint .
-	$(RUN) prettier --check .
-	$(RUN) sheriff verify
+check: coverage
+	$(PM) run lint
+	$(PM) run check-types
+	$(PM) run format
 
 fix:
-	$(RUN) eslint --fix .
-	$(RUN) prettier --write .
+	$(PM) run lint:fix
+	$(PM) run format:fix
 
 test: prepare
 	$(PM) run test
 
+coverage: prepare
+	$(PM) run test:coverage
+
 watch: prepare
-	$(PM) run watch
-
-unit-tests: prepare
-	$(RUN) vitest run unit
-
-integration-tests: prepare
-	$(RUN) vitest run integration
-
-e2e-tests: prepare
-	$(RUN) vitest run e2e
+	$(PM) run test:watch
 
 build: prepare
 	rm -rf dist
@@ -70,9 +70,9 @@ else
 endif
 
 version:
-	@echo "Using runtime $(JS) version $(shell $(JS) --version)"
-	@echo "Using package manager $(PM) version $(shell $(PM) --version)"
-	@echo "Using package runner $(RUN) version $(shell $(RUN) --version)"
+	@echo "Use runtime $(JS) version $(shell $(JS) --version)"
+	@echo "Use package manager $(PM) version $(shell $(PM) --version)"
+	@echo "Use package runner $(RUN) version $(shell $(RUN) --version)"
 
 .PHONY: \
 	all clean distclean dist \
