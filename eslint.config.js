@@ -2,6 +2,7 @@
 
 import js from "@eslint/js";
 import { defineConfig } from "eslint/config";
+// @ts-expect-error ESLint headers plugin does not have TypeScript types
 import headers from "eslint-plugin-headers";
 import globals from "globals";
 import ts from "typescript-eslint";

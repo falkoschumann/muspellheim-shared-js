@@ -15,16 +15,17 @@
     "strictPropertyInitialization": true,
     "useUnknownInCatchVariables": true,
     // Modules
-    "allowImportingTsExtensions": false,
-    "module": "Preserve",
+    "allowImportingTsExtensions": true,
+    "module": "preserve",
     "moduleResolution": "bundler",
     "noUncheckedSideEffectImports": true,
+    "resolveJsonModule": true,
     // Emit
     "noEmit": true,
     // JavaScript Support
     "allowJs": true,
+    "checkJs": true,
     // Interop Constraints
-    "allowSyntheticDefaultImports": true,
     "erasableSyntaxOnly": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
@@ -38,5 +39,5 @@
     // Completeness
     "skipLibCheck": true
   },
-  "exclude": ["dist", "node_modules"]
+  "include": ["src", "test", "*.js", "*.ts"]
 }
