@@ -1,6 +1,6 @@
 # Shared
 
-[![Build](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/build.yml/badge.svg)](https://github.com/falkoschumann/muspellheim-utils-javascript/actions/workflows/build.yml)
+[![Build](https://github.com/falkoschumann/muspellheim-shared-js/actions/workflows/build.yml/badge.svg)](https://github.com/falkoschumann/muspellheim-shared-js/actions/workflows/build.yml)
 [![NPM Version](https://img.shields.io/npm/v/%40muspellheim%2Fshared)](https://www.npmjs.com/package/@muspellheim/shared)
 
 Some shared modules from my projects.
@@ -17,7 +17,8 @@ npm install @muspellheim/shared
 import { ConfigurableResponses, OutputTracker } from "@muspellheim/shared";
 ```
 
-See more at https://falkoschumann.github.io/muspellheim-shared-js/
+See more at the
+[online documentation](https://falkoschumann.github.io/muspellheim-shared-js/)
 
 ## Contributing
 
