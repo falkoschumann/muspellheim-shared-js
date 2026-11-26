@@ -5,10 +5,18 @@ import { defineConfig } from "eslint/config";
 // @ts-expect-error ESLint headers plugin does not have TypeScript types
 import headers from "eslint-plugin-headers";
 import globals from "globals";
+import sheriffPlugin from "@sheriff-arch/eslint-plugin-sheriff";
 import ts from "typescript-eslint";
 
-export default defineConfig(
+export default defineConfig([
   { ignores: ["coverage", "dist", "docs"] },
+  {
+    .../** @type {import("eslint").Linter.Config} */ (
+      sheriffPlugin.configs.all
+    ),
+    files: ["**/*.{js,jsx,ts,tsx}"],
+    ignores: ["test/**", "**/*.test.*"],
+  },
   {
     extends: [js.configs.recommended, ts.configs.recommended],
     files: ["**/*.{cjs,mjs,js,jsx,ts,tsx}"],
@@ -39,4 +47,4 @@ export default defineConfig(
       ],
     },
   },
-);
+]);

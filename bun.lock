@@ -6,7 +6,8 @@
       "name": "@muspellheim/shared",
       "devDependencies": {
         "@eslint/js": "10.0.1",
-        "@softarc/sheriff-core": "0.20.0",
+        "@sheriff-arch/eslint-plugin-sheriff": "0.21.1",
+        "@sheriff-arch/sheriff-core": "0.21.1",
         "@vitest/coverage-istanbul": "5.1.1",
         "eslint": "10.15.0",
         "eslint-plugin-headers": "1.3.5",
@@ -224,6 +225,10 @@
 
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.57.1", "", { "os": "win32", "cpu": "x64" }, "sha512-mxRFDdHIWRxg3UfIIAwCm6NzvxG0jDX/wBN6KsQFTvKFqqg9vTrWUE68qEjHt19A5wwx5X5aUi2zuZT7YR0jrA=="],
 
+    "@sheriff-arch/eslint-plugin-sheriff": ["@sheriff-arch/eslint-plugin-sheriff@0.21.1", "", { "peerDependencies": { "@sheriff-arch/sheriff-core": "0.21.1", "@typescript-eslint/utils": "^5.48.2 || ^6.0.0 || ^7.0.0 || ^8.0.0-alpha.20", "eslint": "^8.0.0 || ^9.0.0 || ^10.0.0" } }, "sha512-s5ToJ7bf5oJLy74ojtGS63jJMU9nWFiw7KCTAO1e5Afjj32ZX3p69INBs0VD9kOqcd014h5rzbfkp6WcuTfOaA=="],
+
+    "@sheriff-arch/sheriff-core": ["@sheriff-arch/sheriff-core@0.21.1", "", { "peerDependencies": { "typescript": ">=4.8 <7" }, "bin": { "sheriff": "src/bin/main.js" } }, "sha512-Ok9FN1OomQouYnP0u+/XgbxBWktAmLkn7kGUVSahZnxQ1paiS3/F/yY48AMmURoNVoFt29sdlfW8ezpzoKOmtA=="],
+
     "@shikijs/engine-oniguruma": ["@shikijs/engine-oniguruma@3.23.0", "", { "dependencies": { "@shikijs/types": "3.23.0", "@shikijs/vscode-textmate": "^10.0.2" } }, "sha512-1nWINwKXxKKLqPibT5f4pAFLej9oZzQTsby8942OTlsJzOBZ0MWKiwzMsd+jhzu8YPCHAswGnnN1YtQfirL35g=="],
 
     "@shikijs/langs": ["@shikijs/langs@3.23.0", "", { "dependencies": { "@shikijs/types": "3.23.0" } }, "sha512-2Ep4W3Re5aB1/62RSYQInK9mM3HsLeB91cHqznAJMuylqjzNVAVCMnNWRHFtcNHXsoNRayP9z1qj4Sq3nMqYXg=="],
@@ -233,8 +238,6 @@
     "@shikijs/types": ["@shikijs/types@3.23.0", "", { "dependencies": { "@shikijs/vscode-textmate": "^10.0.2", "@types/hast": "^3.0.4" } }, "sha512-3JZ5HXOZfYjsYSk0yPwBrkupyYSLpAE26Qc0HLghhZNGTZg/SKxXIIgoxOpmmeQP0RRSDJTk1/vPfw9tbw+jSQ=="],
 
     "@shikijs/vscode-textmate": ["@shikijs/vscode-textmate@10.0.2", "", {}, "sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg=="],
-
-    "@softarc/sheriff-core": ["@softarc/sheriff-core@0.20.0", "", { "peerDependencies": { "typescript": ">=4.8" }, "bin": { "sheriff": "src/bin/main.js" } }, "sha512-dTm5dOUMOGTV3ql7ZIuI8rE+gZawIcJLEluqRYX3KDVJ215vfUzpC9LlSL4pTW0lAAeNLelmPZBzY57jLvOPpg=="],
 
     "@tybys/wasm-util": ["@tybys/wasm-util@0.10.4", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A=="],
 
